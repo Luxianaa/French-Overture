@@ -1,0 +1,8 @@
+---
+// Backwards-compatible re-export: Layout.astro now delegates to BaseLayout.
+import BaseLayout from './BaseLayout.astro';
+const { title, description } = Astro.props;
+---
+<BaseLayout title={title} description={description}>
+  <slot />
+</BaseLayout>

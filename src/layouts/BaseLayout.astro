@@ -1,0 +1,597 @@
+---
+import { movements } from '../data/movements.js';
+import '../styles/global.css';
+
+const { title = 'French Overture', description = 'A Laboratory of Doubt Against Automatic Bach' } = Astro.props;
+
+// Highlight active nav link
+const currentPath = new URL(Astro.request.url).pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Google Fonts: Cormorant Garamond (serif) + Inter (sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- ══════════════════ NAVBAR ══════════════════ -->
+    <header id="site-header" class="site-header" role="banner">
+      <nav class="nav container" aria-label="Main navigation">
+
+        <!-- Logo / Site name -->
+        <a href="/" class="nav__logo" aria-label="French Overture — Home">
+          French Overture
+        </a>
+
+        <!-- Hamburger button (mobile) -->
+        <button
+          id="hamburger"
+          class="nav__hamburger"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__hamburger-bar"></span>
+          <span class="nav__hamburger-bar"></span>
+          <span class="nav__hamburger-bar"></span>
+        </button>
+
+        <!-- Menu -->
+        <ul id="nav-menu" class="nav__menu" role="list">
+          <li class="nav__item">
+            <a
+              href="/"
+              class={`nav__link ${currentPath === '/' ? 'nav__link--active' : ''}`}
+            >Home</a>
+          </li>
+
+          <!-- Laboratory — dropdown -->
+          <li
+            class="nav__item nav__item--dropdown"
+            id="lab-item"
+          >
+            <button
+              class={`nav__link nav__link--btn ${currentPath.startsWith('/ouverture') || currentPath.startsWith('/courante') || currentPath.startsWith('/gavotte') || currentPath.startsWith('/passepied') || currentPath.startsWith('/sarabande') || currentPath.startsWith('/bourree') || currentPath.startsWith('/gigue') || currentPath.startsWith('/echo') ? 'nav__link--active' : ''}`}
+              aria-haspopup="true"
+              aria-expanded="false"
+              id="lab-btn"
+            >
+              Laboratory
+              <svg class="nav__chevron" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
+                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <!-- Bridge element: fills the gap between button and dropdown -->
+            <span class="nav__dropdown-bridge" aria-hidden="true"></span>
+
+            <ul
+              class="nav__dropdown"
+              id="lab-dropdown"
+              role="list"
+              aria-label="Laboratory movements"
+            >
+              {movements.map((m) => (
+                <li>
+                  <a
+                    href={m.slug}
+                    class={`nav__dropdown-link ${currentPath === m.slug ? 'nav__dropdown-link--active' : ''}`}
+                  >
+                    <span class="nav__dropdown-num">{m.number}</span>
+                    {m.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+
+          <li class="nav__item">
+            <a
+              href="/my-versions"
+              class={`nav__link ${currentPath === '/my-versions' ? 'nav__link--active' : ''}`}
+            >My versions</a>
+          </li>
+
+          <li class="nav__item">
+            <a
+              href="/library"
+              class={`nav__link ${currentPath === '/library' ? 'nav__link--active' : ''}`}
+            >Library</a>
+          </li>
+
+          <li class="nav__item">
+            <a
+              href="/about"
+              class={`nav__link ${currentPath === '/about' ? 'nav__link--active' : ''}`}
+            >About me</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- ══════════════════ PAGE CONTENT ══════════════════ -->
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <!-- ══════════════════ FOOTER ══════════════════ -->
+    <footer class="site-footer" role="contentinfo">
+      <div class="container site-footer__inner">
+        <p class="site-footer__copy">
+          &copy; {new Date().getFullYear()} French Overture. All rights reserved.
+        </p>
+        <p class="site-footer__sub">
+          A Laboratory of Doubt Against Automatic Bach
+        </p>
+      </div>
+    </footer>
+
+  </body>
+</html>
+
+<!-- ══════════════════ SCRIPTS ══════════════════ -->
+<script>
+  // ── Scroll: transparent → solid navbar ──────────────────────
+  const header = document.getElementById('site-header');
+
+  function updateNavOnScroll() {
+    if (window.scrollY > 20) {
+      header.classList.add('is-solid');
+    } else {
+      header.classList.remove('is-solid');
+    }
+  }
+
+  window.addEventListener('scroll', updateNavOnScroll, { passive: true });
+  updateNavOnScroll(); // run once on load
+
+  // ── Laboratory dropdown ──────────────────────────────────────
+  const labItem    = document.getElementById('lab-item');
+  const labBtn     = document.getElementById('lab-btn');
+  const labDropdown = document.getElementById('lab-dropdown');
+
+  let closeTimer = null;
+
+  function openDropdown() {
+    clearTimeout(closeTimer);
+    labBtn.setAttribute('aria-expanded', 'true');
+    labDropdown.classList.add('is-open');
+  }
+
+  function closeDropdown() {
+    labBtn.setAttribute('aria-expanded', 'false');
+    labDropdown.classList.remove('is-open');
+  }
+
+  function scheduleClose() {
+    closeTimer = setTimeout(closeDropdown, 80);
+  }
+
+  // Hover (desktop)
+  labItem.addEventListener('mouseenter', openDropdown);
+  labItem.addEventListener('mouseleave', scheduleClose);
+  labDropdown.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+  labDropdown.addEventListener('mouseleave', scheduleClose);
+
+  // Click / touch (mobile + keyboard)
+  labBtn.addEventListener('click', () => {
+    const isOpen = labBtn.getAttribute('aria-expanded') === 'true';
+    isOpen ? closeDropdown() : openDropdown();
+  });
+
+  // Keyboard: Escape closes
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && labBtn.getAttribute('aria-expanded') === 'true') {
+      closeDropdown();
+      labBtn.focus();
+    }
+  });
+
+  // Close when focus leaves the dropdown entirely
+  labItem.addEventListener('focusout', (e) => {
+    if (!labItem.contains(e.relatedTarget)) {
+      closeDropdown();
+    }
+  });
+
+  // ── Hamburger (mobile) ───────────────────────────────────────
+  const hamburger = document.getElementById('hamburger');
+  const navMenu   = document.getElementById('nav-menu');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = navMenu.classList.toggle('is-open');
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+    hamburger.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+    hamburger.classList.toggle('is-active', isOpen);
+  });
+
+  // Close mobile menu when a link is clicked
+  navMenu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('is-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.classList.remove('is-active');
+    });
+  });
+</script>
+
+<style>
+  /* ════════════════════════════════════════════════════════════
+     SITE HEADER & NAVBAR
+     ════════════════════════════════════════════════════════════ */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: var(--nav-height);
+    background: var(--nav-bg-transparent);
+    transition: background var(--transition-slow), backdrop-filter var(--transition-slow), box-shadow var(--transition-slow);
+  }
+
+  .site-header.is-solid {
+    background: var(--nav-bg-solid);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 0 rgba(26, 23, 20, 0.08);
+  }
+
+  /* Nav row */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    gap: var(--space-lg);
+  }
+
+  /* Logo */
+  .nav__logo {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--color-white);
+    transition: color var(--transition-base);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .site-header.is-solid .nav__logo {
+    color: var(--color-ink);
+  }
+
+  /* Menu list */
+  .nav__menu {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+  }
+
+  /* Nav item */
+  .nav__item {
+    position: relative;
+  }
+
+  .nav__item--dropdown {
+    /* Extend hit area downward to cover the bridge gap */
+    padding-bottom: 0;
+  }
+
+  /* Nav links */
+  .nav__link {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color var(--transition-base);
+    position: relative;
+    padding-block: var(--space-sm);
+  }
+
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width var(--transition-base);
+  }
+
+  .nav__link:hover::after,
+  .nav__link--active::after {
+    width: 100%;
+  }
+
+  .nav__link--active {
+    color: var(--color-white);
+  }
+
+  .site-header.is-solid .nav__link {
+    color: var(--color-ink-soft);
+  }
+
+  .site-header.is-solid .nav__link--active {
+    color: var(--color-ink);
+  }
+
+  .site-header.is-solid .nav__link:hover {
+    color: var(--color-ink);
+  }
+
+  /* Button-style nav link (Laboratory) */
+  .nav__link--btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color var(--transition-base);
+    position: relative;
+    padding-block: var(--space-sm);
+  }
+
+  .nav__link--btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width var(--transition-base);
+  }
+
+  .nav__link--btn:hover::after,
+  .nav__link--btn.nav__link--active::after {
+    width: 100%;
+  }
+
+  .site-header.is-solid .nav__link--btn {
+    color: var(--color-ink-soft);
+  }
+
+  .site-header.is-solid .nav__link--btn:hover,
+  .site-header.is-solid .nav__link--btn.nav__link--active {
+    color: var(--color-ink);
+  }
+
+  .nav__link--btn[aria-expanded="true"] .nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  .nav__chevron {
+    transition: transform var(--transition-base);
+    flex-shrink: 0;
+  }
+
+  /* Bridge: invisible element that fills the gap so the mouse
+     doesn't accidentally leave the hover zone */
+  .nav__dropdown-bridge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 10px; /* covers the gap between button bottom & dropdown top */
+    display: block;
+  }
+
+  /* Dropdown panel */
+  .nav__dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 200px;
+    background: var(--color-cream);
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(26, 23, 20, 0.12);
+    padding-block: var(--space-sm);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-6px);
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+
+  .nav__dropdown.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .nav__dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.5rem 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+    letter-spacing: 0.03em;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+
+  .nav__dropdown-link:hover,
+  .nav__dropdown-link--active {
+    background: var(--color-cream-dark);
+    color: var(--color-ink);
+  }
+
+  .nav__dropdown-num {
+    font-family: var(--font-serif);
+    font-size: 0.9rem;
+    color: var(--color-ink-muted);
+    min-width: 1.8ch;
+  }
+
+  /* Hamburger button */
+  .nav__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .nav__hamburger-bar {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: var(--color-white);
+    border-radius: 2px;
+    transition: transform var(--transition-base), opacity var(--transition-base), background var(--transition-base);
+    transform-origin: center;
+  }
+
+  .site-header.is-solid .nav__hamburger-bar {
+    background: var(--color-ink);
+  }
+
+  .nav__hamburger.is-active .nav__hamburger-bar:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+  .nav__hamburger.is-active .nav__hamburger-bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav__hamburger.is-active .nav__hamburger-bar:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: var(--color-ink);
+    color: var(--color-cream);
+    padding-block: var(--space-xl);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .site-footer__copy {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: rgba(245, 240, 232, 0.6);
+    max-width: none;
+  }
+
+  .site-footer__sub {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-style: italic;
+    color: rgba(245, 240, 232, 0.4);
+    max-width: none;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     RESPONSIVE — MOBILE NAV
+     ══════════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+    .nav__hamburger {
+      display: flex;
+    }
+
+    .nav__menu {
+      /* Off-canvas slide */
+      position: fixed;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      background: var(--color-cream);
+      padding: var(--space-lg);
+      overflow-y: auto;
+      /* Hidden by default */
+      transform: translateX(100%);
+      transition: transform var(--transition-slow);
+    }
+
+    .nav__menu.is-open {
+      transform: translateX(0);
+    }
+
+    .nav__link,
+    .nav__link--btn {
+      color: var(--color-ink-soft);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      padding-block: var(--space-md);
+      width: 100%;
+    }
+
+    .nav__link--active {
+      color: var(--color-ink);
+    }
+
+    /* Dropdown in mobile: expand inline */
+    .nav__dropdown {
+      position: static;
+      opacity: 1;
+      pointer-events: auto;
+      transform: none;
+      box-shadow: none;
+      border: none;
+      background: var(--color-cream-dark);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-sm);
+      max-height: 0;
+      overflow: hidden;
+      padding: 0;
+      transition: max-height var(--transition-slow);
+    }
+
+    .nav__dropdown.is-open {
+      max-height: 600px;
+      padding-block: var(--space-sm);
+    }
+
+    .nav__dropdown-bridge {
+      display: none;
+    }
+
+    .nav__item--dropdown {
+      width: 100%;
+    }
+  }
+</style>

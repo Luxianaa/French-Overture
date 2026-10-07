@@ -1,0 +1,40 @@
+﻿---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import heroImg from '../assets/hero-home.jpg';
+---
+
+<BaseLayout title="Library — French Overture" description="A curated selection of recordings, scores and essays related to Bach's French Overture BWV 831.">
+  <Hero
+    image={heroImg.src}
+    title="Library"
+    subtitle="French Overture — A Laboratory of Doubt Against Automatic Bach"
+  />
+
+  <section class="section container stub-content">
+    <h2 class="stub-heading">Library</h2>
+    <p class="stub-body">
+      This page is a placeholder. Content will be added in a future version of this site.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .stub-content {
+    padding-block: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .stub-heading {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    color: var(--color-ink);
+  }
+  .stub-body {
+    max-width: 55ch;
+    color: var(--color-ink-soft);
+    font-size: 1.0625rem;
+  }
+</style>
