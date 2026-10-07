@@ -18,6 +18,12 @@
   --color-white:        #ffffff;
   --color-overlay:      rgba(15, 12, 8, 0.52);
 
+  /* Experiment type accents (subtle museum tones) */
+  --type-structural:    #4a6880;
+  --type-rhetorical:    #8b6f47;
+  --type-extreme:       #994e43;
+  --type-harpsichord:   #4e7058;
+
   /* Navbar */
   --nav-height:         4rem;
   --nav-bg-solid:       rgba(245, 240, 232, 0.97);

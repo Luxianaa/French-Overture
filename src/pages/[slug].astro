@@ -110,6 +110,85 @@ const pageDescription = movementContent?.introduction
                 <h2 class="panel-title">{sub.title}</h2>
                 <p class="panel-question">{sub.question}</p>
               </header>
+
+              {/* 4 experimentos apilados uno bajo otro */}
+              <div class="experiments-stack">
+                {sub.experiments?.map((exp, expIdx) => {
+                  const numStr = String(expIdx + 1).padStart(2, '0');
+                  const typeLabel = exp.type
+                    ? exp.type.charAt(0).toUpperCase() + exp.type.slice(1)
+                    : '';
+
+                  return (
+                    <article class="experiment-card" aria-labelledby={`exp-title-${sub.id}-${expIdx}`}>
+                      <header class="experiment-header">
+                        <div class="experiment-badge">
+                          <span class={`type-dot type-dot--${exp.type}`} aria-hidden="true"></span>
+                          <span class="type-label">{numStr} — {typeLabel}</span>
+                        </div>
+                        <h3 id={`exp-title-${sub.id}-${expIdx}`} class="experiment-title">
+                          {exp.title}
+                        </h3>
+                      </header>
+
+                      {/* Fila de 2 columnas: VÍDEO a la izquierda y carrusel a la derecha */}
+                      <div class="experiment-row">
+                        {/* Columna izquierda: Vídeo con carga diferida */}
+                        <div class="lazy-video" data-youtube-id={exp.youtubeId}>
+                          <button
+                            type="button"
+                            class="video-play-btn"
+                            aria-label={`Play video: ${exp.title}`}
+                            data-title={exp.title}
+                          >
+                            <img
+                              src={`https://img.youtube.com/vi/${exp.youtubeId}/hqdefault.jpg`}
+                              alt={`Thumbnail for ${exp.title}`}
+                              loading="lazy"
+                              class="video-thumbnail"
+                            />
+                            <div class="video-play-overlay">
+                              <span class="play-icon-circle">
+                                <svg
+                                  class="play-svg"
+                                  viewBox="0 0 24 24"
+                                  width="20"
+                                  height="20"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                >
+                                  <polygon points="6 4 20 12 6 20 6 4" />
+                                </svg>
+                              </span>
+                            </div>
+                          </button>
+                        </div>
+
+                        {/* Columna derecha: Espacio reservado para el carrusel */}
+                        <div
+                          class="carousel-placeholder"
+                          aria-label="Carousel reserved slot"
+                        >
+                          <div class="carousel-placeholder__inner">
+                            <span class="carousel-placeholder__tag">Visual Documentation</span>
+                            <span class="carousel-placeholder__title">Comparative Analysis</span>
+                            <p class="carousel-placeholder__caption">
+                              {exp.images?.length > 0
+                                ? `${exp.images.length} archival images ready`
+                                : 'Archival images and scores'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Si hay description, va debajo de la fila */}
+                      {exp.description && (
+                        <p class="experiment-description">{exp.description}</p>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </div>
@@ -147,11 +226,27 @@ const pageDescription = movementContent?.introduction
       return tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
     }
 
+    // Stop and remove all active video iframes, restoring thumbnails
+    function resetVideos() {
+      const activeIframes = tabsRoot.querySelectorAll('.lazy-video iframe');
+      activeIframes.forEach((iframe) => {
+        const container = iframe.closest('.lazy-video');
+        iframe.remove();
+        if (container) {
+          const btn = container.querySelector('.video-play-btn');
+          if (btn) btn.style.display = '';
+        }
+      });
+    }
+
     function activateTab(subId, setFocus = false) {
       let targetIndex = tabs.findIndex((tab) => tab.getAttribute('data-target') === subId);
       if (targetIndex === -1) targetIndex = 0;
 
       const activeSubId = getSubIdByIndex(targetIndex);
+
+      // Reset any active video when switching tabs so audio stops immediately
+      resetVideos();
 
       tabs.forEach((tab, idx) => {
         const isSelected = idx === targetIndex;
@@ -174,6 +269,36 @@ const pageDescription = movementContent?.introduction
         tabs[targetIndex]?.focus();
       }
     }
+
+    // Initialize lazy video click handlers
+    const videoContainers = tabsRoot.querySelectorAll('.lazy-video');
+    videoContainers.forEach((container) => {
+      const playBtn = container.querySelector('.video-play-btn');
+      if (!playBtn) return;
+
+      playBtn.addEventListener('click', () => {
+        const youtubeId = container.getAttribute('data-youtube-id');
+        if (!youtubeId) return;
+
+        // Create iframe ONLY when clicked
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute(
+          'src',
+          `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`
+        );
+        iframe.setAttribute('title', playBtn.getAttribute('data-title') || 'YouTube video player');
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute(
+          'allow',
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+        );
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.className = 'video-iframe';
+
+        playBtn.style.display = 'none';
+        container.appendChild(iframe);
+      });
+    });
 
     // Click handler for tab buttons
     tabs.forEach((tab) => {
@@ -382,6 +507,7 @@ const pageDescription = movementContent?.introduction
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
   }
 
   .panel-eyebrow {
@@ -407,6 +533,223 @@ const pageDescription = movementContent?.introduction
     color: var(--color-ink-soft);
     max-width: var(--measure);
     margin-top: var(--space-xs);
+  }
+
+  /* ── 5. Experiments Stack ───────────────────────────────── */
+  .experiments-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .experiment-card {
+    background: var(--color-cream);
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    box-shadow: 0 2px 12px rgba(26, 23, 20, 0.03);
+    transition: box-shadow var(--transition-base);
+  }
+
+  .experiment-card:hover {
+    box-shadow: 0 4px 20px rgba(26, 23, 20, 0.06);
+  }
+
+  .experiment-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+  }
+
+  .experiment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .type-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .type-dot--structural {
+    background-color: var(--type-structural);
+  }
+
+  .type-dot--rhetorical {
+    background-color: var(--type-rhetorical);
+  }
+
+  .type-dot--extreme {
+    background-color: var(--type-extreme);
+  }
+
+  .type-dot--harpsichord {
+    background-color: var(--type-harpsichord);
+  }
+
+  .type-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .experiment-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    font-weight: 400;
+    color: var(--color-ink);
+    line-height: 1.25;
+  }
+
+  /* ── Two-column row: Video | Carousel placeholder ───────── */
+  .experiment-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: stretch;
+  }
+
+  /* ── Lazy Video ─────────────────────────────────────────── */
+  .lazy-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.1);
+  }
+
+  .video-play-btn {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: block;
+  }
+
+  .video-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-base), filter var(--transition-base);
+  }
+
+  .video-play-btn:hover .video-thumbnail {
+    transform: scale(1.02);
+    filter: brightness(0.92);
+  }
+
+  .video-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 12, 8, 0.25);
+    transition: background var(--transition-fast);
+  }
+
+  .video-play-btn:hover .video-play-overlay {
+    background: rgba(15, 12, 8, 0.15);
+  }
+
+  .play-icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(245, 240, 232, 0.95);
+    color: var(--color-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  }
+
+  .play-svg {
+    margin-left: 2px; /* optical center */
+  }
+
+  .video-play-btn:hover .play-icon-circle {
+    transform: scale(1.1);
+    background: var(--color-white);
+  }
+
+  :global(.video-iframe) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* ── Carousel Placeholder (Step 2 reserved slot) ────────── */
+  .carousel-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--color-cream-dark);
+    border: 1px dashed rgba(26, 23, 20, 0.18);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+  }
+
+  .carousel-placeholder__inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .carousel-placeholder__tag {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .carousel-placeholder__title {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    color: var(--color-ink);
+  }
+
+  .carousel-placeholder__caption {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+    margin: 0;
+  }
+
+  /* ── Description below row ──────────────────────────────── */
+  .experiment-description {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+    max-width: var(--measure-wide);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(26, 23, 20, 0.06);
   }
 
   /* ── Fallback: Coming soon ──────────────────────────────── */
@@ -475,6 +818,14 @@ const pageDescription = movementContent?.introduction
     }
 
     .panel-header {
+      padding: var(--space-lg);
+    }
+
+    .experiment-row {
+      grid-template-columns: 1fr;
+    }
+
+    .experiment-card {
       padding: var(--space-lg);
     }
   }
