@@ -164,20 +164,80 @@ const pageDescription = movementContent?.introduction
                           </button>
                         </div>
 
-                        {/* Columna derecha: Espacio reservado para el carrusel */}
+                        {/* Columna derecha: Carrusel de imágenes del experimento */}
                         <div
-                          class="carousel-placeholder"
-                          aria-label="Carousel reserved slot"
+                          class="carousel"
+                          aria-roledescription="carousel"
+                          aria-label={`Images for ${exp.title}`}
                         >
-                          <div class="carousel-placeholder__inner">
-                            <span class="carousel-placeholder__tag">Visual Documentation</span>
-                            <span class="carousel-placeholder__title">Comparative Analysis</span>
-                            <p class="carousel-placeholder__caption">
-                              {exp.images?.length > 0
-                                ? `${exp.images.length} archival images ready`
-                                : 'Archival images and scores'}
-                            </p>
+                          <div
+                            class="carousel__track"
+                            tabindex="0"
+                            role="region"
+                            aria-label={`Image gallery for ${exp.title}`}
+                          >
+                            {exp.images?.map((img, imgIdx) => (
+                              <div
+                                class="carousel__slide"
+                                role="group"
+                                aria-roledescription="slide"
+                                aria-label={`${imgIdx + 1} of ${exp.images.length}`}
+                              >
+                                <button
+                                  type="button"
+                                  class="carousel__image-btn"
+                                  aria-label={`View ${img.caption || img.alt || `image ${imgIdx + 1}`}`}
+                                  data-src={img.src}
+                                  data-alt={img.alt}
+                                  data-caption={img.caption}
+                                  data-explanation={img.explanation}
+                                >
+                                  <img
+                                    src={img.src}
+                                    alt={img.alt}
+                                    loading="lazy"
+                                    class="carousel__img"
+                                  />
+                                  <span class="carousel__zoom-hint" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+                                      <circle cx="11" cy="11" r="7"/>
+                                      <line x1="16.5" y1="16.5" x2="21" y2="21"/>
+                                      <line x1="11" y1="8" x2="11" y2="14"/>
+                                      <line x1="8" y1="11" x2="14" y2="11"/>
+                                    </svg>
+                                  </span>
+                                </button>
+                                {img.caption && (
+                                  <div class="carousel__caption-bar" aria-hidden="true">
+                                    <span class="carousel__caption-text">{img.caption}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
+
+                          {/* Controles de navegación y contador "1 / 2" */}
+                          {exp.images?.length > 1 && (
+                            <div class="carousel__controls" aria-label="Carousel navigation">
+                              <button
+                                type="button"
+                                class="carousel__nav-btn carousel__nav-btn--prev"
+                                aria-label="Previous image"
+                              >
+                                ←
+                              </button>
+                              <span class="carousel__counter" aria-live="polite" aria-atomic="true">
+                                1 / {exp.images.length}
+                              </span>
+                              <button
+                                type="button"
+                                class="carousel__nav-btn carousel__nav-btn--next"
+                                aria-label="Next image"
+                              >
+                                →
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -363,9 +423,85 @@ const pageDescription = movementContent?.introduction
     });
   }
 
+  // ── 6. Image Carousel (scroll-snap, buttons, counter) ────
+  function setupCarousels() {
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('.carousel__track');
+      const prevBtn = carousel.querySelector('.carousel__nav-btn--prev');
+      const nextBtn = carousel.querySelector('.carousel__nav-btn--next');
+      const counter = carousel.querySelector('.carousel__counter');
+      const slides = carousel.querySelectorAll('.carousel__slide');
+      const total = slides.length;
+
+      if (!track || total <= 1) return;
+
+      function updateCounter(index) {
+        if (counter) {
+          counter.textContent = `${index + 1} / ${total}`;
+        }
+      }
+
+      function getCurrentIndex() {
+        const slideWidth = track.clientWidth || 1;
+        return Math.round(track.scrollLeft / slideWidth);
+      }
+
+      function scrollToSlide(index) {
+        const slideWidth = track.clientWidth;
+        track.scrollTo({
+          left: index * slideWidth,
+          behavior: 'smooth',
+        });
+        updateCounter(index);
+      }
+
+      prevBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cur = getCurrentIndex();
+        const prev = (cur - 1 + total) % total;
+        scrollToSlide(prev);
+      });
+
+      nextBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cur = getCurrentIndex();
+        const next = (cur + 1) % total;
+        scrollToSlide(next);
+      });
+
+      // Update counter on scroll
+      let scrollTimer;
+      track.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          updateCounter(getCurrentIndex());
+        }, 40);
+      }, { passive: true });
+
+      // Keyboard navigation with left/right arrows on track
+      track.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          const cur = getCurrentIndex();
+          scrollToSlide((cur + 1) % total);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const cur = getCurrentIndex();
+          scrollToSlide((cur - 1 + total) % total);
+        }
+      });
+    });
+  }
+
   // Run on initial load and page changes
-  setupTabs();
-  document.addEventListener('astro:page-load', setupTabs);
+  function initPage() {
+    setupTabs();
+    setupCarousels();
+  }
+
+  initPage();
+  document.addEventListener('astro:page-load', initPage);
 </script>
 
 <style>
@@ -698,46 +834,177 @@ const pageDescription = movementContent?.introduction
     border: 0;
   }
 
-  /* ── Carousel Placeholder (Step 2 reserved slot) ────────── */
-  .carousel-placeholder {
+  /* ── 6. CSS Scroll-Snap Carousel ───────────────────────── */
+  .carousel {
+    position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: var(--color-cream-dark);
-    border: 1px dashed rgba(26, 23, 20, 0.18);
+    background: var(--color-ink);
     border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.1);
+  }
+
+  .carousel__track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    outline: none;
+  }
+
+  .carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel__track:focus-visible {
+    outline: 2px solid var(--color-accent-light);
+    outline-offset: -2px;
+  }
+
+  .carousel__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
+  }
+
+  /* Each image is a button */
+  .carousel__image-btn {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .carousel__image-btn:focus-visible {
+    outline: 2px solid var(--color-accent-light);
+    outline-offset: -2px;
+  }
+
+  .carousel__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-base), filter var(--transition-base);
+  }
+
+  .carousel__image-btn:hover .carousel__img {
+    transform: scale(1.03);
+    filter: brightness(0.94);
+  }
+
+  /* Zoom hint icon on hover */
+  .carousel__zoom-hint {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: rgba(15, 12, 8, 0.65);
+    backdrop-filter: blur(4px);
+    color: var(--color-cream);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-md);
+    opacity: 0;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    z-index: 1;
   }
 
-  .carousel-placeholder__inner {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-xs);
+  .carousel__image-btn:hover .carousel__zoom-hint,
+  .carousel__image-btn:focus-visible .carousel__zoom-hint {
+    opacity: 1;
+    transform: scale(1.05);
   }
 
-  .carousel-placeholder__tag {
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
+  /* Caption bar at the bottom of the slide */
+  .carousel__caption-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.75rem 1rem 0.65rem;
+    background: linear-gradient(
+      to top,
+      rgba(15, 12, 8, 0.85) 0%,
+      rgba(15, 12, 8, 0.4) 60%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 1;
   }
 
-  .carousel-placeholder__title {
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    color: var(--color-ink);
-  }
-
-  .carousel-placeholder__caption {
+  .carousel__caption-text {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
-    color: var(--color-ink-soft);
-    margin: 0;
+    color: rgba(245, 240, 232, 0.92);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Controls (buttons + counter "1 / 2") */
+  .carousel__controls {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(15, 12, 8, 0.72);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(245, 240, 232, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.45rem;
+    z-index: 2;
+  }
+
+  .carousel__nav-btn {
+    background: none;
+    border: none;
+    color: var(--color-cream);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1;
+    padding: 0.2rem 0.35rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+
+  .carousel__nav-btn:hover {
+    background: rgba(245, 240, 232, 0.2);
+    color: var(--color-white);
+  }
+
+  .carousel__nav-btn:focus-visible {
+    outline: 2px solid var(--color-white);
+  }
+
+  .carousel__counter {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(245, 240, 232, 0.9);
+    padding-inline: 0.25rem;
+    user-select: none;
   }
 
   /* ── Description below row ──────────────────────────────── */
