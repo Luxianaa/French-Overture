@@ -46,50 +46,52 @@ const pageDescription = movementContent?.introduction
         <p class="movement-intro__text">{movementContent.introduction}</p>
       </div>
 
-      {/* 3. Subsecciones como PESTAÑAS */}
+      {/* 3. Subsecciones como PESTAÑAS (solo si hay más de una subsección) */}
       <div class="tabs-wrapper" id="tabs-root">
-        <div class="tablist-bar">
-          <div
-            role="tablist"
-            class="tablist"
-            aria-label={`${movement.title} subsections`}
-          >
-            {movementContent.subsections.map((sub, index) => (
+        {movementContent.subsections.length > 1 && (
+          <div class="tablist-bar">
+            <div
+              role="tablist"
+              class="tablist"
+              aria-label={`${movement.title} subsections`}
+            >
+              {movementContent.subsections.map((sub, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`tab-${sub.id}`}
+                  class={`tab-button ${index === 0 ? 'is-active' : ''}`}
+                  aria-selected={index === 0 ? 'true' : 'false'}
+                  aria-controls={`panel-${sub.id}`}
+                  tabindex={index === 0 ? 0 : -1}
+                  data-target={sub.id}
+                >
+                  {sub.title}
+                </button>
+              ))}
+            </div>
+
+            {/* Botones Previous / Next */}
+            <div class="tab-nav-controls" aria-label="Subsection navigation">
               <button
                 type="button"
-                role="tab"
-                id={`tab-${sub.id}`}
-                class={`tab-button ${index === 0 ? 'is-active' : ''}`}
-                aria-selected={index === 0 ? 'true' : 'false'}
-                aria-controls={`panel-${sub.id}`}
-                tabindex={index === 0 ? 0 : -1}
-                data-target={sub.id}
+                id="prev-tab-btn"
+                class="tab-nav-btn"
+                aria-label="Previous subsection"
               >
-                {sub.title}
+                ← Previous
               </button>
-            ))}
+              <button
+                type="button"
+                id="next-tab-btn"
+                class="tab-nav-btn"
+                aria-label="Next subsection"
+              >
+                Next →
+              </button>
+            </div>
           </div>
-
-          {/* Botones Previous / Next */}
-          <div class="tab-nav-controls" aria-label="Subsection navigation">
-            <button
-              type="button"
-              id="prev-tab-btn"
-              class="tab-nav-btn"
-              aria-label="Previous subsection"
-            >
-              ← Previous
-            </button>
-            <button
-              type="button"
-              id="next-tab-btn"
-              class="tab-nav-btn"
-              aria-label="Next subsection"
-            >
-              Next →
-            </button>
-          </div>
-        </div>
+        )}
 
         {/* 4. Paneles (Astro renderiza TODOS en el HTML con hidden) */}
         <div class="panels-container">
@@ -105,7 +107,9 @@ const pageDescription = movementContent?.introduction
             >
               <header class="panel-header">
                 <span class="panel-eyebrow">
-                  Part {index + 1} of {movementContent.subsections.length}
+                  {movementContent.subsections.length > 1
+                    ? `Part ${index + 1} of ${movementContent.subsections.length}`
+                    : 'Complete Movement'}
                 </span>
                 <h2 class="panel-title">{sub.title}</h2>
                 <p class="panel-question">{sub.question}</p>
