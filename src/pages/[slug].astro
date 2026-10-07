@@ -1,0 +1,481 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { movements } from '../data/movements.js';
+import defaultHeroImg from '../assets/hero-home.jpg';
+
+export function getStaticPaths() {
+  return movements.map((m) => {
+    const slugKey = m.slug.replace(/^\//, '');
+    return {
+      params: { slug: slugKey },
+      props: { movement: m },
+    };
+  });
+}
+
+const { movement } = Astro.props;
+const { slug } = Astro.params;
+
+// Discover content files dynamically without touching template
+const contentModules = import.meta.glob('../data/content/*.js', { eager: true });
+const contentFilePath = `../data/content/${slug}.js`;
+const movementContent = contentModules[contentFilePath]?.content || null;
+
+const heroImage = movementContent?.heroImage || defaultHeroImg.src;
+const heroTitle = `${movement.number}. ${movementContent?.title || movement.title}`;
+const pageTitle = `${movement.title} — French Overture`;
+const pageDescription = movementContent?.introduction
+  ? movementContent.introduction.replace(/\s+/g, ' ').trim().slice(0, 160) + '...'
+  : `${movement.title} (Movement ${movement.number}) from Bach's French Overture BWV 831.`;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <!-- 1. Hero propio del movimiento -->
+  <Hero
+    image={heroImage}
+    title={heroTitle}
+    subtitle="French Overture in B minor, BWV 831"
+  />
+
+  {movementContent && movementContent.subsections?.length > 0 ? (
+    <section class="section container movement-container" id="movement-content">
+      {/* 2. Concepto general (introduction) */}
+      <div class="movement-intro">
+        <span class="movement-intro__label">General Concept</span>
+        <p class="movement-intro__text">{movementContent.introduction}</p>
+      </div>
+
+      {/* 3. Subsecciones como PESTAÑAS */}
+      <div class="tabs-wrapper" id="tabs-root">
+        <div class="tablist-bar">
+          <div
+            role="tablist"
+            class="tablist"
+            aria-label={`${movement.title} subsections`}
+          >
+            {movementContent.subsections.map((sub, index) => (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-${sub.id}`}
+                class={`tab-button ${index === 0 ? 'is-active' : ''}`}
+                aria-selected={index === 0 ? 'true' : 'false'}
+                aria-controls={`panel-${sub.id}`}
+                tabindex={index === 0 ? 0 : -1}
+                data-target={sub.id}
+              >
+                {sub.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Botones Previous / Next */}
+          <div class="tab-nav-controls" aria-label="Subsection navigation">
+            <button
+              type="button"
+              id="prev-tab-btn"
+              class="tab-nav-btn"
+              aria-label="Previous subsection"
+            >
+              ← Previous
+            </button>
+            <button
+              type="button"
+              id="next-tab-btn"
+              class="tab-nav-btn"
+              aria-label="Next subsection"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+
+        {/* 4. Paneles (Astro renderiza TODOS en el HTML con hidden) */}
+        <div class="panels-container">
+          {movementContent.subsections.map((sub, index) => (
+            <div
+              role="tabpanel"
+              id={`panel-${sub.id}`}
+              aria-labelledby={`tab-${sub.id}`}
+              class="tabpanel"
+              hidden={index !== 0}
+              data-panel-id={sub.id}
+              tabindex="0"
+            >
+              <header class="panel-header">
+                <span class="panel-eyebrow">
+                  Part {index + 1} of {movementContent.subsections.length}
+                </span>
+                <h2 class="panel-title">{sub.title}</h2>
+                <p class="panel-question">{sub.question}</p>
+              </header>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ) : (
+    <section class="section container coming-soon-section">
+      <div class="coming-soon-card">
+        <span class="coming-soon-label">Movement {movement.number}</span>
+        <h2 class="coming-soon-title">{movement.title}</h2>
+        <p class="coming-soon-text">Content coming soon</p>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<script>
+  function setupTabs() {
+    const tabsRoot = document.getElementById('tabs-root');
+    if (!tabsRoot) return;
+
+    const tabs = Array.from(tabsRoot.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(tabsRoot.querySelectorAll('[role="tabpanel"]'));
+    const prevBtn = document.getElementById('prev-tab-btn');
+    const nextBtn = document.getElementById('next-tab-btn');
+    const tablist = tabsRoot.querySelector('[role="tablist"]');
+
+    if (!tabs.length || !panels.length) return;
+
+    function getSubIdByIndex(idx) {
+      return tabs[idx]?.getAttribute('data-target');
+    }
+
+    function getCurrentIndex() {
+      return tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+    }
+
+    function activateTab(subId, setFocus = false) {
+      let targetIndex = tabs.findIndex((tab) => tab.getAttribute('data-target') === subId);
+      if (targetIndex === -1) targetIndex = 0;
+
+      const activeSubId = getSubIdByIndex(targetIndex);
+
+      tabs.forEach((tab, idx) => {
+        const isSelected = idx === targetIndex;
+        tab.setAttribute('aria-selected', String(isSelected));
+        tab.setAttribute('tabindex', isSelected ? '0' : '-1');
+        tab.classList.toggle('is-active', isSelected);
+      });
+
+      panels.forEach((panel) => {
+        const matches = panel.getAttribute('data-panel-id') === activeSubId;
+        panel.hidden = !matches;
+      });
+
+      // Update URL hash without jumping page scroll
+      if (window.location.hash !== `#${activeSubId}`) {
+        history.replaceState(null, '', `#${activeSubId}`);
+      }
+
+      if (setFocus) {
+        tabs[targetIndex]?.focus();
+      }
+    }
+
+    // Click handler for tab buttons
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const subId = tab.getAttribute('data-target');
+        if (subId) activateTab(subId, false);
+      });
+    });
+
+    // Previous / Next buttons
+    prevBtn?.addEventListener('click', () => {
+      const cur = getCurrentIndex();
+      const prevIdx = (cur - 1 + tabs.length) % tabs.length;
+      const subId = getSubIdByIndex(prevIdx);
+      if (subId) activateTab(subId, false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const cur = getCurrentIndex();
+      const nextIdx = (cur + 1) % tabs.length;
+      const subId = getSubIdByIndex(nextIdx);
+      if (subId) activateTab(subId, false);
+    });
+
+    // Keyboard navigation on tablist: Left / Right arrows
+    tablist?.addEventListener('keydown', (e) => {
+      const activeEl = document.activeElement;
+      const cur = tabs.indexOf(activeEl);
+      if (cur === -1) return;
+
+      let nextIdx = cur;
+      if (e.key === 'ArrowRight') {
+        nextIdx = (cur + 1) % tabs.length;
+        e.preventDefault();
+      } else if (e.key === 'ArrowLeft') {
+        nextIdx = (cur - 1 + tabs.length) % tabs.length;
+        e.preventDefault();
+      } else if (e.key === 'Home') {
+        nextIdx = 0;
+        e.preventDefault();
+      } else if (e.key === 'End') {
+        nextIdx = tabs.length - 1;
+        e.preventDefault();
+      }
+
+      if (nextIdx !== cur) {
+        const subId = getSubIdByIndex(nextIdx);
+        if (subId) activateTab(subId, true);
+      }
+    });
+
+    // Synchronize with URL hash on load
+    const currentHash = window.location.hash.replace('#', '');
+    if (currentHash) {
+      activateTab(currentHash, false);
+    }
+
+    // Handle browser back/forward with hash
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) activateTab(hash, false);
+    });
+  }
+
+  // Run on initial load and page changes
+  setupTabs();
+  document.addEventListener('astro:page-load', setupTabs);
+</script>
+
+<style>
+  /* ── Movement Layout ────────────────────────────────────── */
+  .movement-container {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+    max-width: min(90%, 1100px);
+    margin-inline: auto;
+  }
+
+  /* ── 2. Introduction / General Concept ──────────────────── */
+  .movement-intro {
+    border-left: 2px solid var(--color-accent);
+    padding-left: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .movement-intro__label {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: var(--space-xs);
+  }
+
+  .movement-intro__text {
+    font-family: var(--font-serif);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.6;
+    color: var(--color-ink);
+    max-width: var(--measure-wide);
+    font-style: italic;
+  }
+
+  /* ── 3. Tabs Navigation Bar ─────────────────────────────── */
+  .tabs-wrapper {
+    margin-top: var(--space-xl);
+  }
+
+  .tablist-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    border-bottom: 1px solid rgba(26, 23, 20, 0.12);
+    padding-bottom: var(--space-xs);
+    flex-wrap: wrap;
+  }
+
+  .tablist {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .tab-button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+
+  .tab-button:hover {
+    color: var(--color-ink);
+    background-color: var(--color-cream-dark);
+  }
+
+  .tab-button.is-active {
+    color: var(--color-ink);
+    font-weight: 500;
+    border-bottom-color: var(--color-ink);
+    background-color: rgba(237, 229, 213, 0.4);
+  }
+
+  .tab-button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Previous / Next buttons */
+  .tab-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .tab-nav-btn {
+    background: none;
+    border: 1px solid rgba(26, 23, 20, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .tab-nav-btn:hover {
+    background: var(--color-cream-dark);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+
+  .tab-nav-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ── 4. Tab Panels ──────────────────────────────────────── */
+  .panels-container {
+    margin-top: var(--space-xl);
+  }
+
+  .tabpanel {
+    outline: none;
+  }
+
+  .panel-header {
+    background: var(--color-cream-dark);
+    padding: var(--space-xl);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(26, 23, 20, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .panel-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .panel-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+    font-weight: 300;
+    color: var(--color-ink);
+    line-height: 1.15;
+  }
+
+  .panel-question {
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+    max-width: var(--measure);
+    margin-top: var(--space-xs);
+  }
+
+  /* ── Fallback: Coming soon ──────────────────────────────── */
+  .coming-soon-section {
+    padding-block: var(--space-2xl);
+  }
+
+  .coming-soon-card {
+    text-align: center;
+    background: var(--color-cream-dark);
+    padding: var(--space-2xl) var(--space-xl);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(26, 23, 20, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .coming-soon-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .coming-soon-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    color: var(--color-ink);
+  }
+
+  .coming-soon-text {
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: var(--space-sm);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .tablist-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-md);
+    }
+
+    .tablist {
+      width: 100%;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: var(--space-xs);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-button {
+      white-space: nowrap;
+    }
+
+    .tab-nav-controls {
+      justify-content: flex-end;
+    }
+
+    .panel-header {
+      padding: var(--space-lg);
+    }
+  }
+</style>
