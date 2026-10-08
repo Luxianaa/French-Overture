@@ -28,6 +28,10 @@ const pageTitle = `${movement.title} — French Overture`;
 const pageDescription = movementContent?.introduction
   ? movementContent.introduction.replace(/\s+/g, ' ').trim().slice(0, 160) + '...'
   : `${movement.title} (Movement ${movement.number}) from Bach's French Overture BWV 831.`;
+
+const currentMovementIndex = movements.findIndex((m) => m.slug === movement.slug || m.slug === `/${slug}`);
+const prevMovement = currentMovementIndex > 0 ? movements[currentMovementIndex - 1] : null;
+const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movements.length - 1 ? movements[currentMovementIndex + 1] : null;
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
@@ -71,25 +75,29 @@ const pageDescription = movementContent?.introduction
               ))}
             </div>
 
-            {/* Botones Previous / Next */}
-            <div class="tab-nav-controls" aria-label="Subsection navigation">
-              <button
-                type="button"
-                id="prev-tab-btn"
-                class="tab-nav-btn"
-                aria-label="Previous subsection"
-              >
-                ← Previous
-              </button>
-              <button
-                type="button"
-                id="next-tab-btn"
-                class="tab-nav-btn"
-                aria-label="Next subsection"
-              >
-                Next →
-              </button>
-            </div>
+            {/* Botones Previous / Next para navegar entre movimientos */}
+            {(prevMovement || nextMovement) && (
+              <div class="tab-nav-controls" aria-label="Movement navigation">
+                {prevMovement && (
+                  <a
+                    href={prevMovement.slug}
+                    class="tab-nav-btn"
+                    aria-label={`Previous movement: ${prevMovement.title}`}
+                  >
+                    ← Previous: {prevMovement.title}
+                  </a>
+                )}
+                {nextMovement && (
+                  <a
+                    href={nextMovement.slug}
+                    class="tab-nav-btn"
+                    aria-label={`Next movement: ${nextMovement.title}`}
+                  >
+                    Next: {nextMovement.title} →
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -330,8 +338,6 @@ const pageDescription = movementContent?.introduction
 
     const tabs = Array.from(tabsRoot.querySelectorAll('[role="tab"]'));
     const panels = Array.from(tabsRoot.querySelectorAll('[role="tabpanel"]'));
-    const prevBtn = document.getElementById('prev-tab-btn');
-    const nextBtn = document.getElementById('next-tab-btn');
     const tablist = tabsRoot.querySelector('[role="tablist"]');
 
     if (!tabs.length || !panels.length) return;
@@ -426,20 +432,7 @@ const pageDescription = movementContent?.introduction
       });
     });
 
-    // Previous / Next buttons
-    prevBtn?.addEventListener('click', () => {
-      const cur = getCurrentIndex();
-      const prevIdx = (cur - 1 + tabs.length) % tabs.length;
-      const subId = getSubIdByIndex(prevIdx);
-      if (subId) activateTab(subId, false);
-    });
 
-    nextBtn?.addEventListener('click', () => {
-      const cur = getCurrentIndex();
-      const nextIdx = (cur + 1) % tabs.length;
-      const subId = getSubIdByIndex(nextIdx);
-      if (subId) activateTab(subId, false);
-    });
 
     // Keyboard navigation on tablist: Left / Right arrows
     tablist?.addEventListener('keydown', (e) => {
@@ -732,6 +725,10 @@ const pageDescription = movementContent?.introduction
     text-transform: uppercase;
     color: var(--color-ink-soft);
     cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
     transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
   }
 
