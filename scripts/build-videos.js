@@ -8,40 +8,93 @@ const __dirname = path.dirname(__filename);
 const videosTxtPath = path.join(__dirname, '../videos.txt');
 const outputPath = path.join(__dirname, '../src/data/videos.js');
 
-// Track number to subsection ID mapping
-const TRACK_MAP = {
-  '01': 'ouverture-a',
-  '02': 'fugue',
-  '03': 'ouverture-b',
-  '04': 'courante-a',
-  '05': 'courante-b',
-  '06': 'gavotte-1-a',
-  '07': 'gavotte-1-b',
-  '08': 'gavotte-2-a',
-  '09': 'gavotte-2-b',
-  '10': 'passepied-1-a',
-  '11': 'passepied-1-b',
-  '12': 'passepied-2-a',
-  '13': 'passepied-2-b',
-  '14': 'sarabande-a',
-  '15': 'sarabande-b',
-  '16': 'bourree-1-a',
-  '17': 'bourree-1-b',
-  '18': 'bourree-2-a',
-  '19': 'bourree-2-b',
-  '20': 'gigue-a',
-  '21': 'gigue-b',
-  '22': 'echo-a',
-  '23': 'echo-b',
+// ── 1. Mapeo de códigos de movimiento a IDs de subsección ─────
+const CODE_MAP = {
+  'OUV-A': 'ouverture-a',
+  'OUV-FUG': 'fugue',
+  'OUV-AR': 'ouverture-b',
+  'COU-A': 'courante-a',
+  'COU-B': 'courante-b',
+  'GAV1-A': 'gavotte-1-a',
+  'GAV1-B': 'gavotte-1-b',
+  'GAV2-A': 'gavotte-2-a',
+  'GAV2-B': 'gavotte-2-b',
+  'PAS1-A': 'passepied-1-a',
+  'PAS1-B': 'passepied-1-b',
+  'PAS2-A': 'passepied-2-a',
+  'PAS2-B': 'passepied-2-b',
+  'SAR-A': 'sarabande-a',
+  'SAR-B': 'sarabande-b',
+  'BOU1-A': 'bourree-1-a',
+  'BOU1-B': 'bourree-1-b',
+  'BOU2-A': 'bourree-2-a',
+  'BOU2-B': 'bourree-2-b',
+  'GIG-A': 'gigue-a',
+  'GIG-B': 'gigue-b',
+  'ECH-A': 'echo-a',
+  'ECH-B': 'echo-b',
 };
 
-const VERSION_MAP = {
-  1: 'structural',
-  2: 'rhetorical',
-  3: 'extreme',
+// Orden cronológico estricto de las 23 subsecciones
+const ORDERED_SUBSECTIONS = [
+  'ouverture-a',
+  'fugue',
+  'ouverture-b',
+  'courante-a',
+  'courante-b',
+  'gavotte-1-a',
+  'gavotte-1-b',
+  'gavotte-2-a',
+  'gavotte-2-b',
+  'passepied-1-a',
+  'passepied-1-b',
+  'passepied-2-a',
+  'passepied-2-b',
+  'sarabande-a',
+  'sarabande-b',
+  'bourree-1-a',
+  'bourree-1-b',
+  'bourree-2-a',
+  'bourree-2-b',
+  'gigue-a',
+  'gigue-b',
+  'echo-a',
+  'echo-b',
+];
+
+// Conteos esperados según las reglas del usuario (total 85)
+const EXPECTED_COUNTS = {
+  'ouverture-a': 3,
+  'fugue': 3,
+  'ouverture-b': 4,
+  'courante-a': 3,
+  'courante-b': 3,
+  'gavotte-1-a': 4,
+  'gavotte-1-b': 4,
+  'gavotte-2-a': 3,
+  'gavotte-2-b': 3,
+  'passepied-1-a': 3,
+  'passepied-1-b': 4,
+  'passepied-2-a': 4,
+  'passepied-2-b': 7,
+  'sarabande-a': 3,
+  'sarabande-b': 3,
+  'bourree-1-a': 4,
+  'bourree-1-b': 5,
+  'bourree-2-a': 4,
+  'bourree-2-b': 5,
+  'gigue-a': 4,
+  'gigue-b': 3,
+  'echo-a': 3,
+  'echo-b': 3,
 };
 
-// Read file (supports UTF-16LE with BOM or UTF-8)
+// ── 2. Leer archivo videos.txt ─────────────────────────────────
+if (!fs.existsSync(videosTxtPath)) {
+  console.error(`[ERROR] No se encontró el archivo: ${videosTxtPath}`);
+  process.exit(1);
+}
+
 let rawBuffer = fs.readFileSync(videosTxtPath);
 let content;
 if (rawBuffer[0] === 0xff && rawBuffer[1] === 0xfe) {
@@ -52,108 +105,206 @@ if (rawBuffer[0] === 0xff && rawBuffer[1] === 0xfe) {
 
 const lines = content.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
-const videos = {};
-// Initialize all subsections as empty objects
-Object.values(TRACK_MAP).forEach((subId) => {
-  videos[subId] = {};
+const parsedBySection = {};
+ORDERED_SUBSECTIONS.forEach((subId) => {
+  parsedBySection[subId] = [];
 });
 
-const assigned = [];
-const extras = [];
-const unassigned = [];
+const unassignedLines = [];
+const seenIds = new Set();
+const duplicateIds = [];
 
-for (const line of lines) {
+// ── 3. Procesar cada línea ─────────────────────────────────────
+for (let i = 0; i < lines.length; i++) {
+  const line = lines[i];
   const parts = line.split('|');
   if (parts.length < 2) {
-    unassigned.push({ line, reason: 'Invalid separator' });
+    unassignedLines.push({ lineIndex: i + 1, line, reason: 'Separador | no encontrado' });
     continue;
   }
 
-  const id = parts[0].trim();
-  const title = parts[1].trim();
+  const youtubeId = parts[0].trim();
+  const rawTitle = parts.slice(1).join('|').trim();
 
-  // Pattern: "01 OUV A  PNO 01 PIANO VERSION 1 [EXTRA]"
-  const match = title.match(/^(\d+)\s+([A-Z0-9]+)\s+([A-Z0-9]+)\s+([A-Z]+)\s+(\d+)(.*)$/);
-  if (!match) {
-    unassigned.push({ line, reason: 'Pattern mismatch' });
-    continue;
-  }
-
-  const trackNum = match[1];
-  const verNum = parseInt(match[5], 10);
-  const extraText = match[6].trim();
-
-  const subId = TRACK_MAP[trackNum];
-  if (!subId) {
-    unassigned.push({ line, reason: `Unknown track number ${trackNum}` });
-    continue;
-  }
-
-  const expType = VERSION_MAP[verNum];
-  if (expType) {
-    // If already assigned and this is a TAKE 02, prefer TAKE 02
-    if (videos[subId][expType]) {
-      if (extraText.includes('TAKE 02')) {
-        extras.push({ subId, expType, id: videos[subId][expType], reason: 'Replaced by TAKE 02' });
-        videos[subId][expType] = id;
-        assigned.push({ subId, expType, id, title });
-      } else {
-        extras.push({ subId, expType, id, reason: 'Duplicate version' });
-      }
-    } else {
-      videos[subId][expType] = id;
-      assigned.push({ subId, expType, id, title });
-    }
+  // Detectar duplicados de YouTube ID
+  if (seenIds.has(youtubeId)) {
+    duplicateIds.push({ lineIndex: i + 1, youtubeId, title: rawTitle });
   } else {
-    extras.push({ subId, verNum, id, title, reason: `Version ${verNum} exceeds standard 1-3` });
+    seenIds.add(youtubeId);
   }
+
+  // Normalizar título: mayúsculas, guiones bajos a espacios, colapsar espacios
+  const norm = rawTitle
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
+
+  // Buscar coincidencia de código de subsección
+  let matchedSubId = null;
+  for (const [code, subId] of Object.entries(CODE_MAP)) {
+    // Permite que el código tenga guión o espacio: ej 'OUV-A' o 'OUV A'
+    const regex = new RegExp('(?:^|\\s)' + code.replace('-', '[- ]') + '(?:\\s|$)');
+    if (regex.test(norm)) {
+      matchedSubId = subId;
+      break;
+    }
+  }
+
+  if (!matchedSubId) {
+    unassignedLines.push({ lineIndex: i + 1, line, reason: 'Código de subsección no reconocido' });
+    continue;
+  }
+
+  // Detectar instrumento (PNO / PIANO -> piano; otros en minúsculas)
+  let instrument = 'unknown';
+  if (norm.includes('PNO') || norm.includes('PIANO')) {
+    instrument = 'piano';
+  } else {
+    const instMatch = norm.match(/\b([A-Z]{3,4})\b/);
+    if (instMatch) {
+      instrument = instMatch[1].toLowerCase();
+    }
+  }
+
+  // Detectar versión
+  let version = null;
+  // EXCEPCIÓN: "13 PAS2-B PNO-03 PIANO VERSION 3 TAKE-02" es la versión 4 de passepied-2-b
+  if (
+    matchedSubId === 'passepied-2-b' &&
+    (/VERSION[- ]?3.*TAKE[- ]?0?2/i.test(norm) || /TAKE[- ]?0?2.*VERSION[- ]?3/i.test(norm))
+  ) {
+    version = 4;
+  } else {
+    const verMatch = norm.match(/VERSION\s*(\d+)/);
+    if (verMatch) {
+      version = parseInt(verMatch[1], 10);
+    }
+  }
+
+  if (version === null) {
+    unassignedLines.push({ lineIndex: i + 1, line, reason: 'Número de versión no encontrado' });
+    continue;
+  }
+
+  parsedBySection[matchedSubId].push({
+    version,
+    instrument,
+    youtubeId,
+    _rawTitle: rawTitle,
+    _lineIndex: i + 1,
+  });
 }
 
-// Generate src/data/videos.js
+// ── 4. Ordenar cada subsección por versión y verificar duplicados de versión ─
+const versionDuplicates = [];
+const finalVideos = {};
+
+ORDERED_SUBSECTIONS.forEach((subId) => {
+  const list = parsedBySection[subId];
+  list.sort((a, b) => a.version - b.version);
+
+  // Verificar si hay versiones duplicadas dentro de la misma subsección
+  const seenVersions = new Set();
+  list.forEach((item) => {
+    if (seenVersions.has(item.version)) {
+      versionDuplicates.push({ subId, version: item.version, youtubeId: item.youtubeId, title: item._rawTitle });
+    }
+    seenVersions.add(item.version);
+  });
+
+  // Limpiar campos auxiliares para el JSON final
+  finalVideos[subId] = list.map((item) => ({
+    version: item.version,
+    instrument: item.instrument,
+    youtubeId: item.youtubeId,
+  }));
+});
+
+// ── 5. Escribir src/data/videos.js ──────────────────────────────
 const fileHeader = `// Generated automatically by scripts/build-videos.js from videos.txt
 // Do not edit manually; update videos.txt and run: node scripts/build-videos.js
 
-export const videos = ${JSON.stringify(videos, null, 2)};
+export const videos = ${JSON.stringify(finalVideos, null, 2)};
 `;
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 fs.writeFileSync(outputPath, fileHeader, 'utf8');
 
-console.log('════════════════════════════════════════════════════════════');
-console.log('                 INFORME BUILD VIDEOS                       ');
-console.log('════════════════════════════════════════════════════════════');
-console.log(`✓ Total líneas procesadas: ${lines.length}`);
-console.log(`✓ Vídeos asignados con éxito: ${assigned.length}`);
+// ── 6. Generar Informe Detallado ────────────────────────────────
+console.log('════════════════════════════════════════════════════════════════════');
+console.log('              INFORME DE AUDITORÍA Y BUILD VIDEOS                  ');
+console.log('════════════════════════════════════════════════════════════════════\n');
+
+console.log(`✓ Total líneas leídas en videos.txt: ${lines.length}`);
+let totalAssigned = 0;
+Object.values(finalVideos).forEach((arr) => (totalAssigned += arr.length));
+console.log(`✓ Total vídeos asignados en videos.js: ${totalAssigned}`);
 console.log(`✓ Archivo generado en: ${outputPath}\n`);
 
-console.log('── Experimentos SIN vídeo asignado:');
-let missingCount = 0;
-for (const subId of Object.values(TRACK_MAP)) {
-  const missing = [];
-  ['structural', 'rhetorical', 'extreme', 'harpsichord'].forEach((type) => {
-    if (!videos[subId][type]) {
-      missing.push(type);
-      missingCount++;
-    }
-  });
-  if (missing.length > 0) {
-    console.log(`  • ${subId.padEnd(16)} falta: [ ${missing.join(', ')} ]`);
+// 6A. Duplicados
+console.log('── DUPLICADOS:');
+if (duplicateIds.length === 0 && versionDuplicates.length === 0) {
+  console.log('✓ Ningún YouTube ID ni versión duplicada.');
+} else {
+  if (duplicateIds.length > 0) {
+    console.log(`⚠️ YouTube IDs duplicados (${duplicateIds.length}):`);
+    duplicateIds.forEach((d) => console.log(`   • Línea ${d.lineIndex}: [${d.youtubeId}] ${d.title}`));
+  }
+  if (versionDuplicates.length > 0) {
+    console.log(`⚠️ Versiones duplicadas en la misma subsección (${versionDuplicates.length}):`);
+    versionDuplicates.forEach((vd) => console.log(`   • ${vd.subId} versión ${vd.version} (${vd.youtubeId}): ${vd.title}`));
   }
 }
-console.log(`\nTotal experimentos sin vídeo: ${missingCount} (incluye harpsichord en todas)\n`);
 
-if (extras.length > 0) {
-  console.log(`── Versiones extra / alternativas (${extras.length}):`);
-  extras.forEach((e) => {
-    console.log(`  • ${e.subId}: ${e.title || e.id} (${e.reason})`);
-  });
-  console.log();
-}
-
-if (unassigned.length > 0) {
-  console.log(`⚠ Líneas no asignadas (${unassigned.length}):`);
-  unassigned.forEach((u) => console.log(`  • ${u.line} -> ${u.reason}`));
+// 6B. Líneas sin asignar
+console.log('\n── LÍNEAS SIN ASIGNAR:');
+if (unassignedLines.length === 0) {
+  console.log('✓ 0 líneas sin asignar (100% de los títulos cuadraron con el patrón).');
 } else {
-  console.log('✓ 0 líneas sin asignar o con errores de sintaxis.');
+  console.log(`⚠️ Líneas sin asignar (${unassignedLines.length}):`);
+  unassignedLines.forEach((u) => console.log(`   • Línea ${u.lineIndex} [${u.reason}]: "${u.line}"`));
 }
-console.log('════════════════════════════════════════════════════════════');
+
+// 6C. Comparación con conteos esperados
+console.log('\n── COMPARACIÓN CON CONTEOS ESPERADOS (TOTAL ESPERADO 85):');
+let hasMismatch = false;
+
+ORDERED_SUBSECTIONS.forEach((subId) => {
+  const expected = EXPECTED_COUNTS[subId];
+  const actualList = finalVideos[subId];
+  const actual = actualList.length;
+  const versionsPresent = actualList.map((v) => v.version);
+
+  // Calcular versiones faltantes
+  const missingVersions = [];
+  for (let v = 1; v <= expected; v++) {
+    if (!versionsPresent.includes(v)) missingVersions.push(v);
+  }
+
+  // Calcular versiones sobrantes o fuera de rango
+  const unexpectedVersions = versionsPresent.filter((v) => v > expected || versionsPresent.filter((x) => x === v).length > 1);
+
+  if (actual === expected && missingVersions.length === 0) {
+    console.log(`✓ ${subId.padEnd(15)} Esperados: ${expected} | Obtenidos: ${actual} | Versiones: [ ${versionsPresent.join(', ')} ]`);
+  } else {
+    hasMismatch = true;
+    const diff = actual - expected;
+    const sign = diff > 0 ? `+${diff}` : `${diff}`;
+    console.log(`⚠️ ${subId.padEnd(15)} Esperados: ${expected} | Obtenidos: ${actual} (${sign}) | Versiones: [ ${versionsPresent.join(', ')} ]`);
+    if (missingVersions.length > 0) {
+      console.log(`   └─> Faltan versiones: [ ${missingVersions.join(', ')} ]`);
+    }
+    if (unexpectedVersions.length > 0) {
+      console.log(`   └─> Versiones extras o inesperadas: [ ${unexpectedVersions.join(', ')} ]`);
+    }
+  }
+});
+
+console.log('\n════════════════════════════════════════════════════════════════════');
+if (!hasMismatch && unassignedLines.length === 0 && duplicateIds.length === 0) {
+  console.log('✓ ÉXITO TOTAL: Todas las subsecciones cumplen exactamente los 85 esperados.');
+} else {
+  console.log('⚠️ Se completó con observaciones señaladas arriba.');
+}
+console.log('════════════════════════════════════════════════════════════════════\n');

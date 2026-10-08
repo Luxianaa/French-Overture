@@ -122,16 +122,20 @@ const pageDescription = movementContent?.introduction
                   <div class="experiments-stack">
                     {activeExperiments.map((exp, expIdx) => {
                       const numStr = String(expIdx + 1).padStart(2, '0');
-                      const typeLabel = exp.type
-                        ? exp.type.charAt(0).toUpperCase() + exp.type.slice(1)
-                        : '';
+                      const rawInst = exp.instrument || 'piano';
+                      const instCap = rawInst.charAt(0).toUpperCase() + rawInst.slice(1);
+                      const defaultBadge = exp.version
+                        ? `${numStr} — ${instCap} / Version ${exp.version}`
+                        : (exp.type ? `${numStr} — ${exp.type.charAt(0).toUpperCase() + exp.type.slice(1)}` : numStr);
+                      const badgeLabel = exp.badge || defaultBadge;
+                      const dotClass = exp.type ? `type-dot--${exp.type}` : 'type-dot--neutral';
 
                       return (
                         <article class="experiment-card" aria-labelledby={`exp-title-${sub.id}-${expIdx}`}>
                           <header class="experiment-header">
                             <div class="experiment-badge">
-                              <span class={`type-dot type-dot--${exp.type}`} aria-hidden="true"></span>
-                              <span class="type-label">{numStr} — {typeLabel}</span>
+                              <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
+                              <span class="type-label">{badgeLabel}</span>
                             </div>
                             <h3 id={`exp-title-${sub.id}-${expIdx}`} class="experiment-title">
                               {exp.title}
@@ -860,6 +864,10 @@ const pageDescription = movementContent?.introduction
 
   .type-dot--harpsichord {
     background-color: var(--type-harpsichord);
+  }
+
+  .type-dot--neutral {
+    background-color: var(--color-ink-muted);
   }
 
   .type-label {
