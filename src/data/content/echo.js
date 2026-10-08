@@ -17,13 +17,13 @@ export const content = {
       id: 'echo-a',
       title: 'Echo A',
       question: 'How do rapid dynamic shifts between manuals create the illusion of physical distance in section A?',
-      experiments: generatePlaceholderExperiments('Echo', 'Echo A'),
+      experiments: generatePlaceholderExperiments('Echo', 'echo-a', 'Echo A'),
     },
     {
       id: 'echo-b',
       title: 'Echo B',
       question: 'Does the second reprise deepen the acoustic perspective or dissolve the illusion into pure virtuosity?',
-      experiments: generatePlaceholderExperiments('Echo', 'Echo B'),
+      experiments: generatePlaceholderExperiments('Echo', 'echo-b', 'Echo B'),
     },
   ],
 };

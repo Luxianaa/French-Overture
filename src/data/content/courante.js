@@ -17,13 +17,13 @@ export const content = {
       id: 'courante-a',
       title: 'Courante A',
       question: 'Where is the metric pulse when the 3/2 and 6/4 meters perpetually contradict each other?',
-      experiments: generatePlaceholderExperiments('Courante', 'Courante A'),
+      experiments: generatePlaceholderExperiments('Courante', 'courante-a', 'Courante A'),
     },
     {
       id: 'courante-b',
       title: 'Courante B',
       question: 'Does the second section resolve the metric tension or accelerate its dissolution?',
-      experiments: generatePlaceholderExperiments('Courante', 'Courante B'),
+      experiments: generatePlaceholderExperiments('Courante', 'courante-b', 'Courante B'),
     },
   ],
 };

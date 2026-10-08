@@ -17,13 +17,13 @@ export const content = {
       id: 'passepied-1-a',
       title: 'Passepied I — A',
       question: 'Can the swift 3/8 meter maintain rhythmic articulation without sacrificing lyrical continuity?',
-      experiments: generatePlaceholderExperiments('Passepied I', 'Passepied I — A'),
+      experiments: generatePlaceholderExperiments('Passepied I', 'passepied-1-a', 'Passepied I — A'),
     },
     {
       id: 'passepied-1-b',
       title: 'Passepied I — B',
       question: 'How do rapid cross-rhythms and running sequences challenge the pulse in the second reprise?',
-      experiments: generatePlaceholderExperiments('Passepied I', 'Passepied I — B'),
+      experiments: generatePlaceholderExperiments('Passepied I', 'passepied-1-b', 'Passepied I — B'),
     },
   ],
 };

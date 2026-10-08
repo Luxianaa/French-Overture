@@ -17,13 +17,13 @@ export const content = {
       id: 'gavotte-2-a',
       title: 'Gavotte II — A',
       question: 'How does the drone-like pedal texture transform the delicate lightness of the gavotte rhythm?',
-      experiments: generatePlaceholderExperiments('Gavotte II', 'Gavotte II — A'),
+      experiments: generatePlaceholderExperiments('Gavotte II', 'gavotte-2-a', 'Gavotte II — A'),
     },
     {
       id: 'gavotte-2-b',
       title: 'Gavotte II — B',
       question: 'What tonal and registral contrast prepares the eventual Da Capo return to Gavotte I?',
-      experiments: generatePlaceholderExperiments('Gavotte II', 'Gavotte II — B'),
+      experiments: generatePlaceholderExperiments('Gavotte II', 'gavotte-2-b', 'Gavotte II — B'),
     },
   ],
 };

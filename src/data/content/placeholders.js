@@ -1,16 +1,20 @@
 import heroImg from '../../assets/hero-home.jpg';
 import portraitImg from '../../assets/portrait.jpg';
+import { videos } from '../videos.js';
 
 // ─── Helper: Generate Placeholder Experiments ────────────────────────────────
-// Generates the 4 required experiment types with distinct explanations and images.
+// Dynamically assigns youtubeId from src/data/videos.js matching sectionId and type.
+// If an experiment type has no video assigned in videos.js, youtubeId is null.
 // When adding real research/editorial content, replace this call with explicit data objects.
 
-export function generatePlaceholderExperiments(movementTitle, sectionTitle) {
+export function generatePlaceholderExperiments(movementTitle, sectionId, sectionTitle) {
+  const sectionVideos = videos[sectionId] || {};
+
   return [
     {
       type: 'structural',
       title: `${sectionTitle} — Metric & formal architecture`,
-      youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual recording ID
+      youtubeId: sectionVideos.structural || null,
       description: `Exploring how formal proportions and phrase lengths govern the rhythmic momentum of ${movementTitle} (${sectionTitle}).`,
       images: [
         {
@@ -30,7 +34,7 @@ export function generatePlaceholderExperiments(movementTitle, sectionTitle) {
     {
       type: 'rhetorical',
       title: `${sectionTitle} — Rhetorical figures and affect`,
-      youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual recording ID
+      youtubeId: sectionVideos.rhetorical || null,
       description: `Examining the expressive pauses, interrogative leaps, and declamatory phrasing in ${movementTitle}.`,
       images: [
         {
@@ -50,7 +54,7 @@ export function generatePlaceholderExperiments(movementTitle, sectionTitle) {
     {
       type: 'extreme',
       title: `${sectionTitle} — Tempo elasticity & pulse limits`,
-      youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual recording ID
+      youtubeId: sectionVideos.extreme || null,
       description: `Pushing tempo boundaries to observe where dance character disintegrates into pure abstraction.`,
       images: [
         {
@@ -70,7 +74,7 @@ export function generatePlaceholderExperiments(movementTitle, sectionTitle) {
     {
       type: 'harpsichord',
       title: `${sectionTitle} — Timbral registration & manual balance`,
-      youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual recording ID
+      youtubeId: sectionVideos.harpsichord || null,
       description: `Investigating 8-foot stop combinations versus coupled manuals to reshape the sonic body of ${movementTitle}.`,
       images: [
         {

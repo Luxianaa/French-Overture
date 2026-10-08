@@ -17,13 +17,13 @@ export const content = {
       id: 'bourree-1-a',
       title: 'Bourrée I — A',
       question: 'How does the single quarter-note anacrusis define the kinetic drive of the main motif?',
-      experiments: generatePlaceholderExperiments('Bourrée I', 'Bourrée I — A'),
+      experiments: generatePlaceholderExperiments('Bourrée I', 'bourree-1-a', 'Bourrée I — A'),
     },
     {
       id: 'bourree-1-b',
       title: 'Bourrée I — B',
       question: 'Where do syncopations and wide interval leaps test the stability of the duple pulse?',
-      experiments: generatePlaceholderExperiments('Bourrée I', 'Bourrée I — B'),
+      experiments: generatePlaceholderExperiments('Bourrée I', 'bourree-1-b', 'Bourrée I — B'),
     },
   ],
 };

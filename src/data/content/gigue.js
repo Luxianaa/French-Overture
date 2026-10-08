@@ -17,13 +17,13 @@ export const content = {
       id: 'gigue-a',
       title: 'Gigue A',
       question: 'Is the French dotted gigue primarily a virtuosic showcase or an intricate rhythmic puzzle?',
-      experiments: generatePlaceholderExperiments('Gigue', 'Gigue A'),
+      experiments: generatePlaceholderExperiments('Gigue', 'gigue-a', 'Gigue A'),
     },
     {
       id: 'gigue-b',
       title: 'Gigue B',
       question: 'How clearly does the inverted fugal subject project through the dense polyphonic texture?',
-      experiments: generatePlaceholderExperiments('Gigue', 'Gigue B'),
+      experiments: generatePlaceholderExperiments('Gigue', 'gigue-b', 'Gigue B'),
     },
   ],
 };

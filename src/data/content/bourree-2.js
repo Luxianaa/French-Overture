@@ -17,13 +17,13 @@ export const content = {
       id: 'bourree-2-a',
       title: 'Bourrée II — A',
       question: 'How does the softer contrapuntal texture alter the characteristic bourrée bounce?',
-      experiments: generatePlaceholderExperiments('Bourrée II', 'Bourrée II — A'),
+      experiments: generatePlaceholderExperiments('Bourrée II', 'bourree-2-a', 'Bourrée II — A'),
     },
     {
       id: 'bourree-2-b',
       title: 'Bourrée II — B',
       question: 'What tonal shading enhances the poignant transition back to the da capo repeat?',
-      experiments: generatePlaceholderExperiments('Bourrée II', 'Bourrée II — B'),
+      experiments: generatePlaceholderExperiments('Bourrée II', 'bourree-2-b', 'Bourrée II — B'),
     },
   ],
 };

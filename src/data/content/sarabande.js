@@ -17,13 +17,13 @@ export const content = {
       id: 'sarabande-a',
       title: 'Sarabande A',
       question: 'How heavily should the second beat lean before the contemplative breath becomes static?',
-      experiments: generatePlaceholderExperiments('Sarabande', 'Sarabande A'),
+      experiments: generatePlaceholderExperiments('Sarabande', 'sarabande-a', 'Sarabande A'),
     },
     {
       id: 'sarabande-b',
       title: 'Sarabande B',
       question: 'Do increasingly dense agréments and chromatic descents heighten solemnity or obscure line?',
-      experiments: generatePlaceholderExperiments('Sarabande', 'Sarabande B'),
+      experiments: generatePlaceholderExperiments('Sarabande', 'sarabande-b', 'Sarabande B'),
     },
   ],
 };

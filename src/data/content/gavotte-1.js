@@ -17,13 +17,13 @@ export const content = {
       id: 'gavotte-1-a',
       title: 'Gavotte I — A',
       question: 'Does the characteristic half-bar upbeat initiate motion or establish rhetorical weight?',
-      experiments: generatePlaceholderExperiments('Gavotte I', 'Gavotte I — A'),
+      experiments: generatePlaceholderExperiments('Gavotte I', 'gavotte-1-a', 'Gavotte I — A'),
     },
     {
       id: 'gavotte-1-b',
       title: 'Gavotte I — B',
       question: 'How do the expanding phrase structures in section B alter the perception of the opening pulse?',
-      experiments: generatePlaceholderExperiments('Gavotte I', 'Gavotte I — B'),
+      experiments: generatePlaceholderExperiments('Gavotte I', 'gavotte-1-b', 'Gavotte I — B'),
     },
   ],
 };

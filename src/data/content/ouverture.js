@@ -1,8 +1,9 @@
 import heroImg from '../../assets/hero-home.jpg';
 import portraitImg from '../../assets/portrait.jpg';
+import { videos } from '../videos.js';
 
 // ─── Ouverture — content data ───────────────────────────────────────────────
-// youtubeId: TODO — replace with actual recording ID before launch
+// Dynamic youtubeIds loaded from src/data/videos.js
 
 export const content = {
   title: 'Ouverture',
@@ -23,7 +24,7 @@ export const content = {
         {
           type: 'structural',
           title: 'The double-dotting question',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-a']?.structural || null,
           description: `French overture convention allows — some say demands — the sharpening of
             dotted figures beyond their written value. This experiment takes that convention
             to its logical extreme and asks: at what point does precision become parody?`,
@@ -49,7 +50,7 @@ export const content = {
         {
           type: 'rhetorical',
           title: 'Tempo as argument',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-a']?.rhetorical || null,
           description: `What happens to the Ouverture's authority when the tempo is pushed
             uncomfortably slow? Authority and glacial deliberateness share the same posture —
             this experiment tests where one ends and the other begins.`,
@@ -75,7 +76,7 @@ export const content = {
         {
           type: 'extreme',
           title: 'Against the bar line',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-a']?.extreme || null,
           description: `The barline in French overture style is a guide, not a governor.
             This experiment redistributes weight systematically away from the notated downbeat
             to see what the music looks like when its metric skeleton is questioned.`,
@@ -101,7 +102,7 @@ export const content = {
         {
           type: 'harpsichord',
           title: 'Registration as interpretation',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-a']?.harpsichord || null,
           description: `The Ouverture A on a single 8-foot stop versus full registration with
             the 4-foot coupler. This is not about volume — it is about texture, density,
             and what "grandeur" means when its sonic body changes shape.`,
@@ -136,7 +137,7 @@ export const content = {
         {
           type: 'structural',
           title: 'Subject identity across episodes',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['fugue']?.structural || null,
           description: `The fugue subject transforms through inversion and augmentation.
             This experiment tracks those transformations with consistent articulation choices
             to ask whether the subject's identity survives — or whether identity is precisely
@@ -164,7 +165,7 @@ export const content = {
         {
           type: 'rhetorical',
           title: 'The fugue as conversation',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['fugue']?.rhetorical || null,
           description: `What if the voices of the fugue are not working together but arguing?
             This experiment differentiates articulation sharply between voices to see if
             the fugue can sustain an interpretation where polyphony means conflict.`,
@@ -190,7 +191,7 @@ export const content = {
         {
           type: 'extreme',
           title: 'Tempo gradient across the fugue',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['fugue']?.extreme || null,
           description: `Rather than a single fugue tempo, this experiment allows the tempo
             to drift — accelerating through episodes, broadening at stretto — to treat
             the fugue as a living process rather than a fixed machine.`,
@@ -216,7 +217,7 @@ export const content = {
         {
           type: 'harpsichord',
           title: 'Single manual, all voices equal',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['fugue']?.harpsichord || null,
           description: `With all voices on the same manual, at the same registration,
             differentiation must come entirely from timing and touch. This experiment
             forces the question of whether harpsichord polyphony is ever truly equal-voiced.`,
@@ -251,7 +252,7 @@ export const content = {
         {
           type: 'structural',
           title: 'The return as quotation',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-b']?.structural || null,
           description: `After the fugue, the opening material returns — but the listener has
             heard it before. This experiment treats the return as a conscious quotation:
             slightly slower, slightly more aware of itself, as if the music knows it has
@@ -278,7 +279,7 @@ export const content = {
         {
           type: 'rhetorical',
           title: 'Slower than the opening',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-b']?.rhetorical || null,
           description: `If the return is heavier — bearing the weight of the fugue — then
             it should move more slowly. This experiment tests that hypothesis directly:
             what is gained and what is lost when the return takes longer than the opening?`,
@@ -304,7 +305,7 @@ export const content = {
         {
           type: 'extreme',
           title: 'The return as interruption',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-b']?.extreme || null,
           description: `What if the return erupts rather than arrives? This experiment
             places no ritardando at the fugue's end and launches the return at a tempo
             faster than the opening — the grand gesture as shock rather than closure.`,
@@ -330,7 +331,7 @@ export const content = {
         {
           type: 'harpsichord',
           title: 'Registration change at the return',
-          youtubeId: 'dQw4w9WgXcQ', // TODO: replace with actual video
+          youtubeId: videos['ouverture-b']?.harpsichord || null,
           description: `A change of registration at the point of return is one of the most
             conventional interpretive gestures in French overture performance. This experiment
             does it, then questions why — and whether the convention carries meaning
