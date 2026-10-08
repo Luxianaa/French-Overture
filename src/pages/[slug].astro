@@ -625,7 +625,7 @@ const pageDescription = movementContent?.introduction
   .movement-container {
     padding-top: var(--space-xl);
     padding-bottom: var(--space-2xl);
-    max-width: min(90%, 1100px);
+    max-width: min(94%, 1380px);
     margin-inline: auto;
   }
 
@@ -816,31 +816,31 @@ const pageDescription = movementContent?.introduction
     background: var(--color-cream);
     border: 1px solid rgba(26, 23, 20, 0.08);
     border-radius: var(--radius-md);
-    padding: var(--space-xl);
-    box-shadow: 0 2px 12px rgba(26, 23, 20, 0.03);
+    padding: clamp(1.75rem, 3vw, 2.75rem);
+    box-shadow: 0 4px 20px rgba(26, 23, 20, 0.04);
     transition: box-shadow var(--transition-base);
   }
 
   .experiment-card:hover {
-    box-shadow: 0 4px 20px rgba(26, 23, 20, 0.06);
+    box-shadow: 0 8px 30px rgba(26, 23, 20, 0.08);
   }
 
   .experiment-header {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xs);
-    margin-bottom: var(--space-lg);
+    gap: 0.5rem;
+    margin-bottom: var(--space-xl);
   }
 
   .experiment-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .type-dot {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
@@ -864,16 +864,16 @@ const pageDescription = movementContent?.introduction
 
   .type-label {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-ink-muted);
   }
 
   .experiment-title {
     font-family: var(--font-serif);
-    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    font-size: clamp(1.65rem, 2.7vw, 2.35rem);
     font-weight: 400;
     color: var(--color-ink);
     line-height: 1.25;
@@ -883,7 +883,7 @@ const pageDescription = movementContent?.introduction
   .experiment-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-lg);
+    gap: clamp(1.25rem, 2.2vw, 2.25rem);
     align-items: stretch;
   }
 
@@ -895,7 +895,7 @@ const pageDescription = movementContent?.introduction
     background: #000;
     border-radius: var(--radius-sm);
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.1);
+    box-shadow: 0 6px 24px rgba(26, 23, 20, 0.12);
   }
 
   .video-play-btn {
@@ -938,20 +938,22 @@ const pageDescription = movementContent?.introduction
   }
 
   .play-icon-circle {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: rgba(245, 240, 232, 0.95);
     color: var(--color-ink);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
   }
 
   .play-svg {
-    margin-left: 2px; /* optical center */
+    width: 26px;
+    height: 26px;
+    margin-left: 3px; /* optical center */
   }
 
   .video-play-btn:hover .play-icon-circle {
@@ -1072,11 +1074,11 @@ const pageDescription = movementContent?.introduction
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 1.75rem 1rem 0.65rem;
+    padding: 2rem 1.25rem 0.85rem;
     background: linear-gradient(
       to top,
-      rgba(15, 12, 8, 0.85) 0%,
-      rgba(15, 12, 8, 0.4) 60%,
+      rgba(15, 12, 8, 0.88) 0%,
+      rgba(15, 12, 8, 0.45) 60%,
       transparent 100%
     );
     pointer-events: none;
@@ -1085,8 +1087,8 @@ const pageDescription = movementContent?.introduction
 
   .carousel__caption-text {
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: rgba(245, 240, 232, 0.92);
+    font-size: 0.9375rem;
+    color: rgba(245, 240, 232, 0.95);
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -1096,16 +1098,16 @@ const pageDescription = movementContent?.introduction
   /* Controls (buttons + counter "1 / 2") */
   .carousel__controls {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0.85rem;
+    right: 0.85rem;
     display: flex;
     align-items: center;
-    gap: 0.3rem;
-    background: rgba(15, 12, 8, 0.72);
+    gap: 0.4rem;
+    background: rgba(15, 12, 8, 0.75);
     backdrop-filter: blur(6px);
-    border: 1px solid rgba(245, 240, 232, 0.15);
+    border: 1px solid rgba(245, 240, 232, 0.2);
     border-radius: var(--radius-sm);
-    padding: 0.2rem 0.45rem;
+    padding: 0.25rem 0.6rem;
     z-index: 2;
   }
 
@@ -1115,9 +1117,9 @@ const pageDescription = movementContent?.introduction
     color: var(--color-cream);
     cursor: pointer;
     font-family: var(--font-sans);
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1;
-    padding: 0.2rem 0.35rem;
+    padding: 0.25rem 0.45rem;
     border-radius: var(--radius-sm);
     transition: background var(--transition-fast), color var(--transition-fast);
   }
@@ -1133,24 +1135,24 @@ const pageDescription = movementContent?.introduction
 
   .carousel__counter {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: 0.08em;
-    color: rgba(245, 240, 232, 0.9);
-    padding-inline: 0.25rem;
+    color: rgba(245, 240, 232, 0.95);
+    padding-inline: 0.35rem;
     user-select: none;
   }
 
   /* ── Description below row ──────────────────────────────── */
   .experiment-description {
     font-family: var(--font-sans);
-    font-size: 0.95rem;
-    line-height: 1.7;
+    font-size: 1.0625rem;
+    line-height: 1.75;
     color: var(--color-ink-soft);
-    max-width: var(--measure-wide);
-    margin-top: var(--space-lg);
-    padding-top: var(--space-md);
-    border-top: 1px solid rgba(26, 23, 20, 0.06);
+    max-width: 85ch;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(26, 23, 20, 0.08);
   }
 
   /* ── Fallback: Coming soon ──────────────────────────────── */
@@ -1239,8 +1241,8 @@ const pageDescription = movementContent?.introduction
     padding: 0;
     border: none;
     background: transparent;
-    max-width: min(92vw, 1100px);
-    max-height: 88vh;
+    max-width: min(94vw, 1300px);
+    max-height: 90vh;
     width: 100%;
     overflow: visible;
   }
