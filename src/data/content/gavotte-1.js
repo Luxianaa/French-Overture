@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Gavotte I',
-  introduction: `Built on a half-measure upbeat in duple meter, the Gavotte embodies aristocratic
-    buoyancy. Its clear binary symmetry hides complex phrase groupings that challenge the
-    performer to balance pastoral lightness with contrapuntal rigor.`,
+  introduction: ``,
   heroImage: '/references/gavotte-1-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'gavotte-1-a',
       title: 'Gavotte I — A',
-      question: 'Does the characteristic half-bar upbeat initiate motion or establish rhetorical weight?',
+      question: '',
       experiments: generatePlaceholderExperiments('Gavotte I', 'gavotte-1-a', 'Gavotte I — A'),
     },
     {
       id: 'gavotte-1-b',
       title: 'Gavotte I — B',
-      question: 'How do the expanding phrase structures in section B alter the perception of the opening pulse?',
+      question: '',
       experiments: generatePlaceholderExperiments('Gavotte I', 'gavotte-1-b', 'Gavotte I — B'),
     },
   ],

@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Bourrée II',
-  introduction: `Providing a gentler, more intimate interlude between the outer statements of
-    Bourrée I, this second dance trades percussive thrust for canonic counterpoint and
-    refined harmonic suspensions.`,
+  introduction: ``,
   heroImage: '/references/bourree-2-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'bourree-2-a',
       title: 'Bourrée II — A',
-      question: 'How does the softer contrapuntal texture alter the characteristic bourrée bounce?',
+      question: '',
       experiments: generatePlaceholderExperiments('Bourrée II', 'bourree-2-a', 'Bourrée II — A'),
     },
     {
       id: 'bourree-2-b',
       title: 'Bourrée II — B',
-      question: 'What tonal shading enhances the poignant transition back to the da capo repeat?',
+      question: '',
       experiments: generatePlaceholderExperiments('Bourrée II', 'bourree-2-b', 'Bourrée II — B'),
     },
   ],

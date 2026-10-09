@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Bourrée I',
-  introduction: `A brisk, energetic duple dance characterized by a quarter-note upbeat and decisive
-    dactylic pulses. Bourrée I pulses with rhythmic propulsion and athletic clarity across
-    both manuals of the instrument.`,
+  introduction: ``,
   heroImage: '/references/bourree-1-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'bourree-1-a',
       title: 'Bourrée I — A',
-      question: 'How does the single quarter-note anacrusis define the kinetic drive of the main motif?',
+      question: '',
       experiments: generatePlaceholderExperiments('Bourrée I', 'bourree-1-a', 'Bourrée I — A'),
     },
     {
       id: 'bourree-1-b',
       title: 'Bourrée I — B',
-      question: 'Where do syncopations and wide interval leaps test the stability of the duple pulse?',
+      question: '',
       experiments: generatePlaceholderExperiments('Bourrée I', 'bourree-1-b', 'Bourrée I — B'),
     },
   ],

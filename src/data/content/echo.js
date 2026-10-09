@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Echo',
-  introduction: `The dramatic climax and conclusion of BWV 831. Exploiting the two manuals of the
-    French harpsichord (forte on the lower manual, piano on the upper), Bach constructs a
-    theatrical dialogue of spatial distance, repetition, and acoustic illusion.`,
+  introduction: ``,
   heroImage: '/references/echo-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'echo-a',
       title: 'Echo A',
-      question: 'How do rapid dynamic shifts between manuals create the illusion of physical distance in section A?',
+      question: '',
       experiments: generatePlaceholderExperiments('Echo', 'echo-a', 'Echo A'),
     },
     {
       id: 'echo-b',
       title: 'Echo B',
-      question: 'Does the second reprise deepen the acoustic perspective or dissolve the illusion into pure virtuosity?',
+      question: '',
       experiments: generatePlaceholderExperiments('Echo', 'echo-b', 'Echo B'),
     },
   ],

@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Sarabande',
-  introduction: `The expressive core of the French Overture suite. A slow triple meter with marked
-    emphasis on the second beat, the Sarabande demands profound rhetorical gravity, luxurious
-    ornamentation, and a sustained balance between contemplation and forward motion.`,
+  introduction: ``,
   heroImage: '/references/sarabande-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'sarabande-a',
       title: 'Sarabande A',
-      question: 'How heavily should the second beat lean before the contemplative breath becomes static?',
+      question: '',
       experiments: generatePlaceholderExperiments('Sarabande', 'sarabande-a', 'Sarabande A'),
     },
     {
       id: 'sarabande-b',
       title: 'Sarabande B',
-      question: 'Do increasingly dense agréments and chromatic descents heighten solemnity or obscure line?',
+      question: '',
       experiments: generatePlaceholderExperiments('Sarabande', 'sarabande-b', 'Sarabande B'),
     },
   ],

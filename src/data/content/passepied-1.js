@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Passepied I',
-  introduction: `A rapid, agile dance in 3/8 meter originating in Brittany, the Passepied possesses
-    the vitality of a fast minuet but with a swifter syncopated current. Precision of touch
-    must convey speed without mechanical haste.`,
+  introduction: ``,
   heroImage: '/references/passepied-1-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'passepied-1-a',
       title: 'Passepied I — A',
-      question: 'Can the swift 3/8 meter maintain rhythmic articulation without sacrificing lyrical continuity?',
+      question: '',
       experiments: generatePlaceholderExperiments('Passepied I', 'passepied-1-a', 'Passepied I — A'),
     },
     {
       id: 'passepied-1-b',
       title: 'Passepied I — B',
-      question: 'How do rapid cross-rhythms and running sequences challenge the pulse in the second reprise?',
+      question: '',
       experiments: generatePlaceholderExperiments('Passepied I', 'passepied-1-b', 'Passepied I — B'),
     },
   ],

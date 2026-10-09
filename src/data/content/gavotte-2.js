@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Gavotte II',
-  introduction: `Serving as an alternative trio to Gavotte I, Gavotte II introduces a more rustic,
-    musette-like texture with persistent pedal points and cascading quavers that shift the
-    character from ceremonial court to pastoral reverie.`,
+  introduction: ``,
   heroImage: '/references/gavotte-2-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'gavotte-2-a',
       title: 'Gavotte II — A',
-      question: 'How does the drone-like pedal texture transform the delicate lightness of the gavotte rhythm?',
+      question: '',
       experiments: generatePlaceholderExperiments('Gavotte II', 'gavotte-2-a', 'Gavotte II — A'),
     },
     {
       id: 'gavotte-2-b',
       title: 'Gavotte II — B',
-      question: 'What tonal and registral contrast prepares the eventual Da Capo return to Gavotte I?',
+      question: '',
       experiments: generatePlaceholderExperiments('Gavotte II', 'gavotte-2-b', 'Gavotte II — B'),
     },
   ],

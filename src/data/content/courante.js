@@ -7,22 +7,20 @@ import { generatePlaceholderExperiments } from './placeholders.js';
 
 export const content = {
   title: 'Courante',
-  introduction: `The French Courante is a dance of rhythmic ambiguity and suspended gravity.
-    Notated in 3/2 with frequent hemiolas slipping into 6/4, its pulse is never settled
-    and its elegance lives precisely in this perpetual hesitation.`,
+  introduction: ``,
   heroImage: '/references/courante-a/piano-1.jpg',
 
   subsections: [
     {
       id: 'courante-a',
       title: 'Courante A',
-      question: 'Where is the metric pulse when the 3/2 and 6/4 meters perpetually contradict each other?',
+      question: '',
       experiments: generatePlaceholderExperiments('Courante', 'courante-a', 'Courante A'),
     },
     {
       id: 'courante-b',
       title: 'Courante B',
-      question: 'Does the second section resolve the metric tension or accelerate its dissolution?',
+      question: '',
       experiments: generatePlaceholderExperiments('Courante', 'courante-b', 'Courante B'),
     },
   ],
