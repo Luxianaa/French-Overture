@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import heroImg from '../assets/myversiosnhero.jpeg';
-import { versions } from '../data/content/my-versions.js';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroImg from "../assets/myversiosnhero.jpeg";
+import { versions } from "../data/content/my-versions.js";
 ---
 
 <BaseLayout
@@ -15,268 +15,385 @@ import { versions } from '../data/content/my-versions.js';
     subtitle="Three readings after the laboratory"
   />
 
-  <section class="section container movement-container" aria-label="My Versions recordings and materials">
+  <section
+    class="section container movement-container"
+    aria-label="My Versions recordings and materials"
+  >
     <div class="experiments-stack">
-      {versions.map((ver) => (
-        <article
-          class={`experiment-card ${ver.instrument === 'harpsichord' ? 'experiment-card--harpsichord' : ''}`}
-          id={ver.id}
-          aria-labelledby={`exp-title-${ver.id}`}
-        >
-          <header class="experiment-header">
-            <div class="experiment-badge">
-              <span
-                class={`type-dot ${ver.instrument === 'harpsichord' ? 'type-dot--harpsichord' : 'type-dot--piano'}`}
-                aria-hidden="true"
-              ></span>
-              <span class="type-label">{ver.label}</span>
-            </div>
-            <h2 id={`exp-title-${ver.id}`} class="experiment-title">
-              {ver.title}
-            </h2>
-          </header>
-
-          <div class="experiment-row">
-            {/* Columna Izquierda: Vídeo y descripción */}
-            <div class="experiment-col-media">
-              <div class="lazy-video" data-youtube-id={ver.youtubeId}>
-                <button
-                  type="button"
-                  class="video-play-btn"
-                  aria-label={`Play video: ${ver.title}`}
-                  data-title={ver.title}
-                >
-                  <img
-                    src={`https://img.youtube.com/vi/${ver.youtubeId}/hqdefault.jpg`}
-                    alt={`Thumbnail for ${ver.title}`}
-                    loading="lazy"
-                    class="video-thumbnail"
-                  />
-                  <div class="video-play-overlay">
-                    <span class="play-icon-circle">
-                      <svg
-                        class="play-svg"
-                        viewBox="0 0 24 24"
-                        width="20"
-                        height="20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <polygon points="6 4 20 12 6 20 6 4" />
-                      </svg>
-                    </span>
-                  </div>
-                </button>
+      {
+        versions.map((ver) => (
+          <article
+            class={`experiment-card ${ver.instrument === "harpsichord" ? "experiment-card--harpsichord" : ""}`}
+            id={ver.id}
+            aria-labelledby={`exp-title-${ver.id}`}
+          >
+            <header class="experiment-header">
+              <div class="experiment-badge">
+                <span
+                  class={`type-dot ${ver.instrument === "harpsichord" ? "type-dot--harpsichord" : "type-dot--piano"}`}
+                  aria-hidden="true"
+                />
+                <span class="type-label">{ver.label}</span>
               </div>
+              <h2 id={`exp-title-${ver.id}`} class="experiment-title">
+                {ver.title}
+              </h2>
+            </header>
 
-              {ver.description && (
-                <p class="experiment-description">{ver.description}</p>
-              )}
-            </div>
-
-            {/* Columna Derecha: Dos carruseles apilados (Paintings arriba, Scores abajo) */}
-            <div class="experiment-col-carousels">
-              {/* Carrusel Paintings */}
-              <div class="carousel-block carousel-block--paintings">
-                <div class="carousel-header">
-                  <span class="carousel-subheading">Paintings</span>
-                  {ver.paintings.length > 1 && (
-                    <div class="carousel-nav-group" aria-label="Paintings carousel navigation">
-                      <span class="carousel-counter-text" aria-live="polite" aria-atomic="true">
-                        1 / {ver.paintings.length}
+            <div class="experiment-row">
+              {/* Columna Izquierda: Vídeo y descripción */}
+              <div class="experiment-col-media">
+                <div class="carousel-header media-header">
+                  <span class="carousel-subheading">Video</span>
+                </div>
+                <div class="lazy-video" data-youtube-id={ver.youtubeId}>
+                  <button
+                    type="button"
+                    class="video-play-btn"
+                    aria-label={`Play video: ${ver.title}`}
+                    data-title={ver.title}
+                  >
+                    <img
+                      src={`https://img.youtube.com/vi/${ver.youtubeId}/hqdefault.jpg`}
+                      alt={`Thumbnail for ${ver.title}`}
+                      loading="lazy"
+                      class="video-thumbnail"
+                    />
+                    <div class="video-play-overlay">
+                      <span class="play-icon-circle">
+                        <svg
+                          class="play-svg"
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <polygon points="6 4 20 12 6 20 6 4" />
+                        </svg>
                       </span>
-                      <button
-                        type="button"
-                        class="carousel-circle-btn carousel__nav-btn--prev"
-                        aria-label="Previous painting"
-                      >
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                      </button>
-                      <button
-                        type="button"
-                        class="carousel-circle-btn carousel__nav-btn--next"
-                        aria-label="Next painting"
-                      >
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </button>
                     </div>
-                  )}
+                  </button>
                 </div>
 
-                <div
-                  class="carousel carousel--versions carousel--paintings"
-                  aria-roledescription="carousel"
-                  aria-label={`Paintings for ${ver.title}`}
-                >
-                  <div
-                    class="carousel__track"
-                    tabindex="0"
-                    role="region"
-                    aria-label={`Paintings for ${ver.title}`}
-                  >
-                    {ver.paintings.map((p, pIdx) => (
+                {ver.description && (
+                  <p class="experiment-description">{ver.description}</p>
+                )}
+              </div>
+
+              {/* Columna Derecha: Dos carruseles apilados (Paintings arriba, Scores abajo) */}
+              <div class="experiment-col-carousels">
+                {/* Carrusel Paintings */}
+                <div class="carousel-block carousel-block--paintings">
+                  <div class="carousel-header">
+                    <span class="carousel-subheading">Paintings</span>
+                    {ver.paintings.length > 1 && (
                       <div
-                        class="carousel__slide"
-                        role="group"
-                        aria-roledescription="slide"
-                        aria-label={`${pIdx + 1} of ${ver.paintings.length}`}
+                        class="carousel-nav-group"
+                        aria-label="Paintings carousel navigation"
                       >
+                        <span
+                          class="carousel-counter-text"
+                          aria-live="polite"
+                          aria-atomic="true"
+                        >
+                          1 / {ver.paintings.length}
+                        </span>
                         <button
                           type="button"
-                          class="carousel__image-btn"
-                          aria-label={`View ${p.caption || p.alt || `artwork ${pIdx + 1}`}`}
-                          data-src={p.src}
-                          data-alt={p.alt}
-                          data-caption={p.caption}
-                          data-explanation={p.explanation}
-                          data-credit={p.credit}
-                          data-license={p.license || ''}
-                          data-license-url={p.licenseUrl || ''}
-                          data-section={p.section}
-                          data-kind="painting"
+                          class="carousel-circle-btn carousel__nav-btn--prev"
+                          aria-label="Previous painting"
                         >
-                          <img
-                            src={p.thumb || p.src}
-                            srcset={`${p.thumb || p.src} 640w, ${p.src} 1800w`}
-                            sizes="(max-width: 900px) 100vw, 50vw"
-                            alt={p.alt}
-                            width={p.width}
-                            height={p.height}
-                            loading="lazy"
-                            decoding="async"
-                            class="carousel__img"
-                          />
-                          <span class="carousel__zoom-hint" aria-hidden="true">
-                            <svg
-                              viewBox="0 0 24 24"
-                              width="16"
-                              height="16"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="1.8"
-                            >
-                              <circle cx="11" cy="11" r="7" />
-                              <line x1="16.5" y1="16.5" x2="21" y2="21" />
-                              <line x1="11" y1="8" x2="11" y2="14" />
-                              <line x1="8" y1="11" x2="14" y2="11" />
-                            </svg>
-                          </span>
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="15"
+                            height="15"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
                         </button>
-                        <div class="painting-gradient-overlay" aria-hidden="true">
-                          <span class="painting-section-tag">{p.section}</span>
-                        </div>
+                        <button
+                          type="button"
+                          class="carousel-circle-btn carousel__nav-btn--next"
+                          aria-label="Next painting"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="15"
+                            height="15"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
                       </div>
-                    ))}
+                    )}
                   </div>
-                </div>
 
-                <div
-                  class="carousel-progress"
-                  role="progressbar"
-                  aria-valuenow="1"
-                  aria-valuemin="1"
-                  aria-valuemax={ver.paintings.length}
-                >
                   <div
-                    class="carousel-progress__bar"
-                    style={`width: ${(1 / ver.paintings.length) * 100}%`}
-                  ></div>
-                </div>
-              </div>
-
-              {/* Carrusel Scores */}
-              <div class="carousel-block carousel-block--scores">
-                <div class="carousel-header">
-                  <span class="carousel-subheading">Scores</span>
-                  {ver.scores && ver.scores.length > 1 && (
-                    <div class="carousel-nav-group" aria-label="Scores carousel navigation">
-                      <span class="carousel-counter-text" aria-live="polite" aria-atomic="true">
-                        1 / {ver.scores.length}
-                      </span>
-                      <button
-                        type="button"
-                        class="carousel-circle-btn carousel__nav-btn--prev"
-                        aria-label="Previous score"
-                      >
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                      </button>
-                      <button
-                        type="button"
-                        class="carousel-circle-btn carousel__nav-btn--next"
-                        aria-label="Next score"
-                      >
-                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {ver.scores && ver.scores.length > 0 ? (
-                  <div
-                    class="carousel carousel--versions carousel--scores"
+                    class="carousel carousel--versions carousel--paintings"
                     aria-roledescription="carousel"
-                    aria-label={`Scores for ${ver.title}`}
+                    aria-label={`Paintings for ${ver.title}`}
                   >
                     <div
                       class="carousel__track"
                       tabindex="0"
                       role="region"
-                      aria-label={`Scores for ${ver.title}`}
+                      aria-label={`Paintings for ${ver.title}`}
                     >
-                      {ver.scores.map((s, sIdx) => (
+                      {ver.paintings.map((p, pIdx) => (
                         <div
                           class="carousel__slide"
                           role="group"
                           aria-roledescription="slide"
-                          aria-label={`${sIdx + 1} of ${ver.scores.length}`}
+                          aria-label={`${pIdx + 1} of ${ver.paintings.length}`}
                         >
-                          <div class="score-stave">
-                            <svg class="score-stave__lines" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
-                              <line x1="0" y1="6" x2="400" y2="6" stroke="currentColor" stroke-width="1" />
-                              <line x1="0" y1="18" x2="400" y2="18" stroke="currentColor" stroke-width="1" />
-                              <line x1="0" y1="30" x2="400" y2="30" stroke="currentColor" stroke-width="1" />
-                              <line x1="0" y1="42" x2="400" y2="42" stroke="currentColor" stroke-width="1" />
-                              <line x1="0" y1="54" x2="400" y2="54" stroke="currentColor" stroke-width="1" />
-                            </svg>
-                            <span class="score-stave__caption">{s.caption}</span>
+                          <button
+                            type="button"
+                            class="carousel__image-btn"
+                            aria-label={`View ${p.caption || p.alt || `artwork ${pIdx + 1}`}`}
+                            data-src={p.src}
+                            data-alt={p.alt}
+                            data-caption={p.caption}
+                            data-explanation={p.explanation}
+                            data-credit={p.credit}
+                            data-license={p.license || ""}
+                            data-license-url={p.licenseUrl || ""}
+                            data-section={p.section}
+                            data-kind="painting"
+                          >
+                            <img
+                              src={p.thumb || p.src}
+                              srcset={`${p.thumb || p.src} 640w, ${p.src} 1800w`}
+                              sizes="(max-width: 900px) 100vw, 50vw"
+                              alt={p.alt}
+                              width={p.width}
+                              height={p.height}
+                              loading="lazy"
+                              decoding="async"
+                              class="carousel__img"
+                            />
+                            <span
+                              class="carousel__zoom-hint"
+                              aria-hidden="true"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                              >
+                                <circle cx="11" cy="11" r="7" />
+                                <line x1="16.5" y1="16.5" x2="21" y2="21" />
+                                <line x1="11" y1="8" x2="11" y2="14" />
+                                <line x1="8" y1="11" x2="14" y2="11" />
+                              </svg>
+                            </span>
+                          </button>
+                          <div
+                            class="painting-gradient-overlay"
+                            aria-hidden="true"
+                          >
+                            <span class="painting-section-tag">
+                              {p.section}
+                            </span>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                ) : (
-                  <div class="scores-placeholder" aria-label="Scores to be added">
-                    <span class="scores-placeholder__text">Scores to be added</span>
-                  </div>
-                )}
 
-                {ver.scores && ver.scores.length > 1 && (
                   <div
                     class="carousel-progress"
                     role="progressbar"
                     aria-valuenow="1"
                     aria-valuemin="1"
-                    aria-valuemax={ver.scores.length}
+                    aria-valuemax={ver.paintings.length}
                   >
                     <div
                       class="carousel-progress__bar"
-                      style={`width: ${(1 / ver.scores.length) * 100}%`}
-                    ></div>
+                      style={`width: ${(1 / ver.paintings.length) * 100}%`}
+                    />
                   </div>
-                )}
+                </div>
+
+                {/* Carrusel Scores */}
+                <div class="carousel-block carousel-block--scores">
+                  <div class="carousel-header">
+                    <span class="carousel-subheading">Scores</span>
+                    {ver.scores && ver.scores.length > 1 && (
+                      <div
+                        class="carousel-nav-group"
+                        aria-label="Scores carousel navigation"
+                      >
+                        <span
+                          class="carousel-counter-text"
+                          aria-live="polite"
+                          aria-atomic="true"
+                        >
+                          1 / {ver.scores.length}
+                        </span>
+                        <button
+                          type="button"
+                          class="carousel-circle-btn carousel__nav-btn--prev"
+                          aria-label="Previous score"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="15"
+                            height="15"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          class="carousel-circle-btn carousel__nav-btn--next"
+                          aria-label="Next score"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="15"
+                            height="15"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {ver.scores && ver.scores.length > 0 ? (
+                    <div
+                      class="carousel carousel--versions carousel--scores"
+                      aria-roledescription="carousel"
+                      aria-label={`Scores for ${ver.title}`}
+                    >
+                      <div
+                        class="carousel__track"
+                        tabindex="0"
+                        role="region"
+                        aria-label={`Scores for ${ver.title}`}
+                      >
+                        {ver.scores.map((s, sIdx) => (
+                          <div
+                            class="carousel__slide"
+                            role="group"
+                            aria-roledescription="slide"
+                            aria-label={`${sIdx + 1} of ${ver.scores.length}`}
+                          >
+                            <div class="score-stave">
+                              <svg
+                                class="score-stave__lines"
+                                viewBox="0 0 400 60"
+                                preserveAspectRatio="none"
+                                aria-hidden="true"
+                              >
+                                <line
+                                  x1="0"
+                                  y1="6"
+                                  x2="400"
+                                  y2="6"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                />
+                                <line
+                                  x1="0"
+                                  y1="18"
+                                  x2="400"
+                                  y2="18"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                />
+                                <line
+                                  x1="0"
+                                  y1="30"
+                                  x2="400"
+                                  y2="30"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                />
+                                <line
+                                  x1="0"
+                                  y1="42"
+                                  x2="400"
+                                  y2="42"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                />
+                                <line
+                                  x1="0"
+                                  y1="54"
+                                  x2="400"
+                                  y2="54"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                />
+                              </svg>
+                              <span class="score-stave__caption">
+                                {s.caption}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      class="scores-placeholder"
+                      aria-label="Scores to be added"
+                    >
+                      <span class="scores-placeholder__text">
+                        Scores to be added
+                      </span>
+                    </div>
+                  )}
+
+                  {ver.scores && ver.scores.length > 1 && (
+                    <div
+                      class="carousel-progress"
+                      role="progressbar"
+                      aria-valuenow="1"
+                      aria-valuemin="1"
+                      aria-valuemax={ver.scores.length}
+                    >
+                      <div
+                        class="carousel-progress__bar"
+                        style={`width: ${(1 / ver.scores.length) * 100}%`}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </article>
-      ))}
+          </article>
+        ))
+      }
     </div>
   </section>
 
@@ -303,8 +420,8 @@ import { versions } from '../data/content/my-versions.js';
           stroke-width="2"
           stroke-linecap="round"
         >
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
 
@@ -328,16 +445,11 @@ import { versions } from '../data/content/my-versions.js';
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <polyline points="15 18 9 12 15 6" />
+              <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
 
-          <img
-            id="lightbox-img"
-            src=""
-            alt=""
-            class="lightbox__img"
-          />
+          <img id="lightbox-img" src="" alt="" class="lightbox__img" />
 
           <button
             type="button"
@@ -356,7 +468,7 @@ import { versions } from '../data/content/my-versions.js';
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <polyline points="9 18 15 12 9 6" />
+              <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
 
@@ -364,8 +476,7 @@ import { versions } from '../data/content/my-versions.js';
             id="lightbox-counter"
             class="lightbox__counter"
             aria-live="polite"
-            aria-atomic="true"
-          ></span>
+            aria-atomic="true"></span>
         </div>
 
         {/* Metadatos a la derecha */}
@@ -408,7 +519,8 @@ import { versions } from '../data/content/my-versions.js';
   /* ── Harpsichord Variant Container ──────────────────────── */
   .experiment-card--harpsichord {
     background: color-mix(in srgb, var(--type-harpsichord) 16%, #1c1916);
-    border: 1px solid color-mix(in srgb, var(--type-harpsichord) 35%, rgba(255, 255, 255, 0.08));
+    border: 1px solid
+      color-mix(in srgb, var(--type-harpsichord) 35%, rgba(255, 255, 255, 0.08));
     border-left: 5px solid var(--type-harpsichord);
     border-radius: var(--radius-md);
     padding: clamp(1.75rem, 3vw, 2.75rem);
@@ -568,7 +680,9 @@ import { versions } from '../data/content/my-versions.js';
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform var(--transition-base), filter var(--transition-base);
+    transition:
+      transform var(--transition-base),
+      filter var(--transition-base);
   }
 
   .video-play-btn:hover .video-thumbnail {
@@ -600,7 +714,9 @@ import { versions } from '../data/content/my-versions.js';
     align-items: center;
     justify-content: center;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-    transition: transform var(--transition-fast), background var(--transition-fast);
+    transition:
+      transform var(--transition-fast),
+      background var(--transition-fast);
   }
 
   .play-svg {
@@ -653,6 +769,11 @@ import { versions } from '../data/content/my-versions.js';
     justify-content: space-between;
     padding-inline: 0.15rem;
     margin-bottom: 0.5rem;
+    min-height: 37px;
+  }
+
+  .media-header {
+    min-height: 25px;
   }
 
   .carousel-subheading {
@@ -693,7 +814,10 @@ import { versions } from '../data/content/my-versions.js';
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast);
   }
 
   .carousel-circle-btn:hover {
@@ -838,7 +962,9 @@ import { versions } from '../data/content/my-versions.js';
     justify-content: center;
     opacity: 0;
     transform: scale(0.9);
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    transition:
+      opacity var(--transition-fast),
+      transform var(--transition-fast);
     pointer-events: none;
     z-index: 3;
   }
@@ -984,7 +1110,9 @@ import { versions } from '../data/content/my-versions.js';
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
     z-index: 10;
   }
 
@@ -1041,7 +1169,10 @@ import { versions } from '../data/content/my-versions.js';
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast),
+      color var(--transition-fast);
     z-index: 5;
   }
 
@@ -1193,64 +1324,69 @@ import { versions } from '../data/content/my-versions.js';
 
 <script is:inline>
   (function () {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     // ── 1. Lazy Video & Mutual Exclusion ───────────────────────────
-    const videoContainers = document.querySelectorAll('.lazy-video');
+    const videoContainers = document.querySelectorAll(".lazy-video");
 
     function resetAllVideos() {
-      const activeIframes = document.querySelectorAll('.lazy-video iframe');
+      const activeIframes = document.querySelectorAll(".lazy-video iframe");
       activeIframes.forEach((iframe) => {
-        const container = iframe.closest('.lazy-video');
+        const container = iframe.closest(".lazy-video");
         iframe.remove();
         if (container) {
-          const btn = container.querySelector('.video-play-btn');
-          if (btn) btn.style.display = '';
+          const btn = container.querySelector(".video-play-btn");
+          if (btn) btn.style.display = "";
         }
       });
     }
 
     videoContainers.forEach((container) => {
-      const playBtn = container.querySelector('.video-play-btn');
+      const playBtn = container.querySelector(".video-play-btn");
       if (!playBtn) return;
 
-      playBtn.addEventListener('click', () => {
-        const youtubeId = container.getAttribute('data-youtube-id');
-        if (!youtubeId || youtubeId.startsWith('TODO')) return;
+      playBtn.addEventListener("click", () => {
+        const youtubeId = container.getAttribute("data-youtube-id");
+        if (!youtubeId || youtubeId.startsWith("TODO")) return;
 
         // Mutually exclusive: when one video starts, all other videos stop & return to thumbnail
         resetAllVideos();
 
-        const iframe = document.createElement('iframe');
+        const iframe = document.createElement("iframe");
         iframe.setAttribute(
-          'src',
-          `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`
+          "src",
+          `https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0`,
         );
-        iframe.setAttribute('title', playBtn.getAttribute('data-title') || 'YouTube video player');
-        iframe.setAttribute('frameborder', '0');
         iframe.setAttribute(
-          'allow',
-          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+          "title",
+          playBtn.getAttribute("data-title") || "YouTube video player",
         );
-        iframe.setAttribute('allowfullscreen', 'true');
-        iframe.className = 'video-iframe';
+        iframe.setAttribute("frameborder", "0");
+        iframe.setAttribute(
+          "allow",
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+        );
+        iframe.setAttribute("allowfullscreen", "true");
+        iframe.className = "video-iframe";
 
-        playBtn.style.display = 'none';
+        playBtn.style.display = "none";
         container.appendChild(iframe);
       });
     });
 
     // ── 2. Carousels Navigation (Paintings & Scores) ─────────────────
-    const carousels = document.querySelectorAll('.carousel--versions');
+    const carousels = document.querySelectorAll(".carousel--versions");
     carousels.forEach((carousel) => {
-      const track = carousel.querySelector('.carousel__track');
-      const wrapper = carousel.closest('.carousel-block');
-      const prevBtn = wrapper?.querySelector('.carousel__nav-btn--prev');
-      const nextBtn = wrapper?.querySelector('.carousel__nav-btn--next');
-      const counterText = wrapper?.querySelector('.carousel-counter-text');
-      const progressBar = wrapper?.querySelector('.carousel-progress__bar');
-      const progressContainer = wrapper?.querySelector('.carousel-progress');
-      const slides = carousel.querySelectorAll('.carousel__slide');
+      const track = carousel.querySelector(".carousel__track");
+      const wrapper = carousel.closest(".carousel-block");
+      const prevBtn = wrapper?.querySelector(".carousel__nav-btn--prev");
+      const nextBtn = wrapper?.querySelector(".carousel__nav-btn--next");
+      const counterText = wrapper?.querySelector(".carousel-counter-text");
+      const progressBar = wrapper?.querySelector(".carousel-progress__bar");
+      const progressContainer = wrapper?.querySelector(".carousel-progress");
+      const slides = carousel.querySelectorAll(".carousel__slide");
       const total = slides.length;
 
       if (!track || total <= 1) return;
@@ -1264,7 +1400,7 @@ import { versions } from '../data/content/my-versions.js';
           progressBar.style.width = `${pct}%`;
         }
         if (progressContainer) {
-          progressContainer.setAttribute('aria-valuenow', String(index + 1));
+          progressContainer.setAttribute("aria-valuenow", String(index + 1));
         }
       }
 
@@ -1277,19 +1413,19 @@ import { versions } from '../data/content/my-versions.js';
         const slideWidth = track.clientWidth;
         track.scrollTo({
           left: index * slideWidth,
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          behavior: prefersReducedMotion ? "auto" : "smooth",
         });
         updateState(index);
       }
 
-      prevBtn?.addEventListener('click', (e) => {
+      prevBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         const cur = getCurrentIndex();
         const prev = (cur - 1 + total) % total;
         scrollToSlide(prev);
       });
 
-      nextBtn?.addEventListener('click', (e) => {
+      nextBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         const cur = getCurrentIndex();
         const next = (cur + 1) % total;
@@ -1297,19 +1433,23 @@ import { versions } from '../data/content/my-versions.js';
       });
 
       let scrollTimer;
-      track.addEventListener('scroll', () => {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-          updateState(getCurrentIndex());
-        }, 40);
-      }, { passive: true });
+      track.addEventListener(
+        "scroll",
+        () => {
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(() => {
+            updateState(getCurrentIndex());
+          }, 40);
+        },
+        { passive: true },
+      );
 
-      track.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') {
+      track.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") {
           e.preventDefault();
           const cur = getCurrentIndex();
           scrollToSlide((cur + 1) % total);
-        } else if (e.key === 'ArrowLeft') {
+        } else if (e.key === "ArrowLeft") {
           e.preventDefault();
           const cur = getCurrentIndex();
           scrollToSlide((cur - 1 + total) % total);
@@ -1318,21 +1458,21 @@ import { versions } from '../data/content/my-versions.js';
     });
 
     // ── 3. Lightbox Dialog ──────────────────────────────────────────
-    const dialog = document.getElementById('my-versions-lightbox');
+    const dialog = document.getElementById("my-versions-lightbox");
     if (!dialog) return;
 
-    const closeBtn = document.getElementById('lightbox-close-btn');
-    const mediaContainer = dialog.querySelector('.lightbox__media');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const prevBtn = document.getElementById('lightbox-prev-btn');
-    const nextBtn = document.getElementById('lightbox-next-btn');
-    const counterEl = document.getElementById('lightbox-counter');
-    const sectionEl = document.getElementById('lightbox-section');
-    const captionEl = document.getElementById('lightbox-caption');
-    const explanationEl = document.getElementById('lightbox-explanation');
-    const metaContainer = document.getElementById('lightbox-meta');
-    const creditEl = document.getElementById('lightbox-credit');
-    const licenseEl = document.getElementById('lightbox-license');
+    const closeBtn = document.getElementById("lightbox-close-btn");
+    const mediaContainer = dialog.querySelector(".lightbox__media");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const prevBtn = document.getElementById("lightbox-prev-btn");
+    const nextBtn = document.getElementById("lightbox-next-btn");
+    const counterEl = document.getElementById("lightbox-counter");
+    const sectionEl = document.getElementById("lightbox-section");
+    const captionEl = document.getElementById("lightbox-caption");
+    const explanationEl = document.getElementById("lightbox-explanation");
+    const metaContainer = document.getElementById("lightbox-meta");
+    const creditEl = document.getElementById("lightbox-credit");
+    const licenseEl = document.getElementById("lightbox-license");
 
     let triggerElement = null;
     let activeButtons = [];
@@ -1345,52 +1485,53 @@ import { versions } from '../data/content/my-versions.js';
     }
 
     function updateLightbox(index) {
-      if (!activeButtons.length || index < 0 || index >= activeButtons.length) return;
+      if (!activeButtons.length || index < 0 || index >= activeButtons.length)
+        return;
       currentIndex = index;
 
       const btn = activeButtons[currentIndex];
-      const src = btn.getAttribute('data-src') || '';
-      const alt = btn.getAttribute('data-alt') || '';
-      const caption = btn.getAttribute('data-caption') || '';
-      const explanation = btn.getAttribute('data-explanation') || '';
-      const credit = btn.getAttribute('data-credit') || '';
-      const license = btn.getAttribute('data-license') || '';
-      const licenseUrl = btn.getAttribute('data-license-url') || '';
-      const section = btn.getAttribute('data-section') || '';
+      const src = btn.getAttribute("data-src") || "";
+      const alt = btn.getAttribute("data-alt") || "";
+      const caption = btn.getAttribute("data-caption") || "";
+      const explanation = btn.getAttribute("data-explanation") || "";
+      const credit = btn.getAttribute("data-credit") || "";
+      const license = btn.getAttribute("data-license") || "";
+      const licenseUrl = btn.getAttribute("data-license-url") || "";
+      const section = btn.getAttribute("data-section") || "";
       const total = activeButtons.length;
 
       if (lightboxImg) {
         lightboxImg.src = src;
-        lightboxImg.alt = alt || caption || 'Enlarged view';
+        lightboxImg.alt = alt || caption || "Enlarged view";
       }
 
       if (sectionEl) {
         if (section) {
           sectionEl.textContent = section;
-          sectionEl.style.display = '';
+          sectionEl.style.display = "";
         } else {
-          sectionEl.style.display = 'none';
+          sectionEl.style.display = "none";
         }
       }
 
       if (captionEl) {
         captionEl.textContent = caption;
-        captionEl.style.display = caption ? '' : 'none';
+        captionEl.style.display = caption ? "" : "none";
       }
 
       if (explanationEl) {
         explanationEl.textContent = explanation;
-        explanationEl.style.display = explanation ? '' : 'none';
+        explanationEl.style.display = explanation ? "" : "none";
       }
 
       if (metaContainer) {
         let hasMeta = false;
         if (credit && creditEl) {
           creditEl.textContent = credit;
-          creditEl.style.display = '';
+          creditEl.style.display = "";
           hasMeta = true;
         } else if (creditEl) {
-          creditEl.style.display = 'none';
+          creditEl.style.display = "none";
         }
 
         if (license && licenseEl) {
@@ -1399,34 +1540,35 @@ import { versions } from '../data/content/my-versions.js';
           } else {
             licenseEl.textContent = license;
           }
-          licenseEl.style.display = '';
+          licenseEl.style.display = "";
           hasMeta = true;
         } else if (licenseEl) {
-          licenseEl.style.display = 'none';
+          licenseEl.style.display = "none";
         }
 
-        metaContainer.style.display = hasMeta ? 'flex' : 'none';
+        metaContainer.style.display = hasMeta ? "flex" : "none";
       }
 
       if (total <= 1) {
-        if (prevBtn) prevBtn.style.display = 'none';
-        if (nextBtn) nextBtn.style.display = 'none';
-        if (counterEl) counterEl.style.display = 'none';
+        if (prevBtn) prevBtn.style.display = "none";
+        if (nextBtn) nextBtn.style.display = "none";
+        if (counterEl) counterEl.style.display = "none";
       } else {
-        if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
-        if (nextBtn) nextBtn.style.display = currentIndex < total - 1 ? '' : 'none';
+        if (prevBtn) prevBtn.style.display = currentIndex > 0 ? "" : "none";
+        if (nextBtn)
+          nextBtn.style.display = currentIndex < total - 1 ? "" : "none";
         if (counterEl) {
-          counterEl.style.display = '';
+          counterEl.style.display = "";
           counterEl.textContent = `${currentIndex + 1} / ${total}`;
         }
       }
 
       // Preload adjacent images
       if (currentIndex > 0) {
-        preloadImage(activeButtons[currentIndex - 1].getAttribute('data-src'));
+        preloadImage(activeButtons[currentIndex - 1].getAttribute("data-src"));
       }
       if (currentIndex < total - 1) {
-        preloadImage(activeButtons[currentIndex + 1].getAttribute('data-src'));
+        preloadImage(activeButtons[currentIndex + 1].getAttribute("data-src"));
       }
     }
 
@@ -1443,55 +1585,59 @@ import { versions } from '../data/content/my-versions.js';
     }
 
     // Attach click handler to each image button in paintings carousels
-    const imageButtons = document.querySelectorAll('.carousel--paintings .carousel__image-btn');
+    const imageButtons = document.querySelectorAll(
+      ".carousel--paintings .carousel__image-btn",
+    );
     imageButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener("click", () => {
         triggerElement = btn;
-        const currentCarousel = btn.closest('.carousel');
+        const currentCarousel = btn.closest(".carousel");
         if (!currentCarousel) return;
 
         // Scoped exclusively to the same carousel
-        activeButtons = Array.from(currentCarousel.querySelectorAll('.carousel__image-btn'));
+        activeButtons = Array.from(
+          currentCarousel.querySelectorAll(".carousel__image-btn"),
+        );
         const clickedIndex = activeButtons.indexOf(btn);
 
         updateLightbox(clickedIndex >= 0 ? clickedIndex : 0);
 
-        if (typeof dialog.showModal === 'function') {
+        if (typeof dialog.showModal === "function") {
           dialog.showModal();
         } else {
-          dialog.setAttribute('open', '');
+          dialog.setAttribute("open", "");
         }
 
         closeBtn?.focus();
       });
     });
 
-    closeBtn?.addEventListener('click', () => {
+    closeBtn?.addEventListener("click", () => {
       dialog.close();
     });
 
-    dialog.addEventListener('click', (e) => {
+    dialog.addEventListener("click", (e) => {
       if (e.target === dialog) {
         dialog.close();
       }
     });
 
-    dialog.addEventListener('close', () => {
-      if (triggerElement && typeof triggerElement.focus === 'function') {
+    dialog.addEventListener("close", () => {
+      if (triggerElement && typeof triggerElement.focus === "function") {
         triggerElement.focus();
       }
       triggerElement = null;
       activeButtons = [];
     });
 
-    prevBtn?.addEventListener('click', showPrev);
-    nextBtn?.addEventListener('click', showNext);
+    prevBtn?.addEventListener("click", showPrev);
+    nextBtn?.addEventListener("click", showNext);
 
-    dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') {
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") {
         e.preventDefault();
         showPrev();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         e.preventDefault();
         showNext();
       }
@@ -1501,24 +1647,35 @@ import { versions } from '../data/content/my-versions.js';
     let touchStartX = 0;
     let touchStartY = 0;
 
-    mediaContainer?.addEventListener('touchstart', (e) => {
-      const touch = e.changedTouches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    }, { passive: true });
+    mediaContainer?.addEventListener(
+      "touchstart",
+      (e) => {
+        const touch = e.changedTouches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      },
+      { passive: true },
+    );
 
-    mediaContainer?.addEventListener('touchend', (e) => {
-      const touch = e.changedTouches[0];
-      const deltaX = touch.clientX - touchStartX;
-      const deltaY = touch.clientY - touchStartY;
+    mediaContainer?.addEventListener(
+      "touchend",
+      (e) => {
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
 
-      if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
-        if (deltaX > 0) {
-          showPrev();
-        } else {
-          showNext();
+        if (
+          Math.abs(deltaX) > 40 &&
+          Math.abs(deltaX) > Math.abs(deltaY) * 1.5
+        ) {
+          if (deltaX > 0) {
+            showPrev();
+          } else {
+            showNext();
+          }
         }
-      }
-    }, { passive: true });
+      },
+      { passive: true },
+    );
   })();
 </script>

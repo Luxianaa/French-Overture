@@ -127,6 +127,7 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
                   </span>
                   <h2 class="panel-title">{sub.title}</h2>
                   <p class="panel-question">{sub.question}</p>
+                  <p class="selection-hint">Star your favourite version of each section to build your own version.</p>
                 </header>
 
                 {activeExperiments.length > 0 ? (
@@ -148,16 +149,43 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
 
                       return (
                         <article
+                          id={`exp-${rawInst}-${exp.version}`}
                           class={`experiment-card ${rawInst === 'harpsichord' ? 'experiment-card--harpsichord' : ''}`}
                           aria-labelledby={`exp-title-${sub.id}-${expIdx}`}
+                          data-sub-id={sub.id}
+                          data-instrument={rawInst}
+                          data-version={exp.version}
+                          data-selection-key={`${sub.id}:${rawInst}:${exp.version}`}
+                          data-anchor={`exp-${rawInst}-${exp.version}`}
                         >
                           <header class="experiment-header">
-                            {badgeLabel && (
-                              <div class="experiment-badge">
-                                <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
-                                <span class="type-label">{badgeLabel}</span>
-                              </div>
-                            )}
+                            <div class="experiment-header__meta">
+                              {badgeLabel && (
+                                <div class="experiment-badge">
+                                  <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
+                                  <span class="type-label">{badgeLabel}</span>
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                class="star-btn"
+                                aria-pressed="false"
+                                aria-label={`Mark as my choice for ${sub.title}`}
+                                data-sub-id={sub.id}
+                                data-instrument={rawInst}
+                                data-version={exp.version}
+                                data-key={`${sub.id}:${rawInst}:${exp.version}`}
+                                title={`Mark as my choice for ${sub.title}`}
+                              >
+                                <svg class="star-icon star-icon--outline" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
+                                <svg class="star-icon star-icon--filled" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
+                                <span class="star-btn__label">My choice</span>
+                              </button>
+                            </div>
                             <h3 id={`exp-title-${sub.id}-${expIdx}`} class="experiment-title">
                               {exp.title}
                             </h3>
@@ -513,16 +541,48 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
       }
     });
 
-    // Synchronize with URL hash on load
-    const currentHash = window.location.hash.replace('#', '');
-    if (currentHash) {
-      activateTab(currentHash, false);
+    // Synchronize with URL hash on load (supporting tabs & direct experiment anchors)
+    function handleUrlHash() {
+      const rawHash = window.location.hash.replace('#', '');
+      if (!rawHash) return;
+
+      let targetSubId = null;
+      let targetExpAnchor = null;
+
+      if (rawHash.includes(':')) {
+        const parts = rawHash.split(':');
+        targetSubId = parts[0];
+        targetExpAnchor = parts[1];
+      } else if (rawHash.startsWith('exp-')) {
+        targetExpAnchor = rawHash;
+        const targetCard = document.getElementById(targetExpAnchor) || document.querySelector(`[data-anchor="${targetExpAnchor}"]`);
+        if (targetCard) {
+          const panel = targetCard.closest('[role="tabpanel"]');
+          if (panel) targetSubId = panel.getAttribute('data-panel-id');
+        }
+      } else {
+        targetSubId = rawHash;
+      }
+
+      if (targetSubId) {
+        activateTab(targetSubId, false);
+      }
+
+      if (targetExpAnchor) {
+        setTimeout(() => {
+          const targetEl = document.getElementById(targetExpAnchor) || document.querySelector(`[data-anchor="${targetExpAnchor}"]`);
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 150);
+      }
     }
+
+    handleUrlHash();
 
     // Handle browser back/forward with hash
     window.addEventListener('hashchange', () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash) activateTab(hash, false);
+      handleUrlHash();
     });
   }
 
@@ -797,11 +857,92 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     });
   }
 
+  // ── 8. Visitor Final Selection (Storage & Toggles) ──────
+  const STORAGE_KEY = 'bach.finalSelection.v1';
+  let memorySelection = null;
+
+  function getStoredSelection() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {
+      if (memorySelection) return memorySelection;
+    }
+    return {};
+  }
+
+  function saveStoredSelection(data) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      memorySelection = data;
+    }
+  }
+
+  function syncSelectionUI() {
+    const sel = getStoredSelection();
+    const cards = document.querySelectorAll('.experiment-card');
+    cards.forEach((card) => {
+      const subId = card.getAttribute('data-sub-id');
+      const inst = card.getAttribute('data-instrument');
+      const ver = Number(card.getAttribute('data-version'));
+      const starBtn = card.querySelector('.star-btn');
+
+      const isChosen = Boolean(
+        sel[subId] &&
+        sel[subId].instrument === inst &&
+        Number(sel[subId].version) === ver
+      );
+
+      card.classList.toggle('is-selected', isChosen);
+      if (starBtn) {
+        starBtn.setAttribute('aria-pressed', isChosen ? 'true' : 'false');
+      }
+    });
+  }
+
+  function setupSelection() {
+    syncSelectionUI();
+
+    const starButtons = document.querySelectorAll('.star-btn');
+    starButtons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const subId = btn.getAttribute('data-sub-id');
+        const inst = btn.getAttribute('data-instrument');
+        const ver = Number(btn.getAttribute('data-version'));
+        if (!subId) return;
+
+        const sel = getStoredSelection();
+        const isCurrent =
+          sel[subId] &&
+          sel[subId].instrument === inst &&
+          Number(sel[subId].version) === ver;
+
+        if (isCurrent) {
+          delete sel[subId];
+        } else {
+          sel[subId] = { instrument: inst, version: ver };
+        }
+
+        saveStoredSelection(sel);
+        syncSelectionUI();
+      });
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEY) {
+        syncSelectionUI();
+      }
+    });
+  }
+
   // Run on initial load and page changes
   function initPage() {
     setupTabs();
     setupCarousels();
     setupLightbox();
+    setupSelection();
   }
 
   initPage();
@@ -979,6 +1120,15 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     margin-top: var(--space-xs);
   }
 
+  .selection-hint {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    color: var(--color-ink-muted);
+    margin-top: var(--space-xs);
+    font-style: italic;
+  }
+
   .panel-empty {
     padding: var(--space-2xl) var(--space-xl);
     text-align: center;
@@ -1010,11 +1160,17 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     border-radius: var(--radius-md);
     padding: clamp(1.75rem, 3vw, 2.75rem);
     box-shadow: 0 4px 20px rgba(26, 23, 20, 0.04);
-    transition: box-shadow var(--transition-base);
+    transition: box-shadow var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
   }
 
   .experiment-card:hover {
     box-shadow: 0 8px 30px rgba(26, 23, 20, 0.08);
+  }
+
+  .experiment-card.is-selected {
+    border-left: 4px solid var(--color-accent);
+    background: linear-gradient(to right, rgba(184, 134, 11, 0.04) 0%, transparent 140px), var(--color-cream);
+    box-shadow: 0 6px 26px rgba(184, 134, 11, 0.1);
   }
 
   /* ── Harpsichord Distinct Container ─────────────────────── */
@@ -1023,6 +1179,11 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     border: 1px solid color-mix(in srgb, var(--type-harpsichord) 35%, rgba(255, 255, 255, 0.08));
     border-left: 5px solid var(--type-harpsichord);
     box-shadow: 0 10px 30px rgba(15, 12, 8, 0.16);
+  }
+
+  .experiment-card--harpsichord.is-selected {
+    border-left: 5px solid var(--color-accent);
+    box-shadow: 0 12px 36px rgba(212, 160, 23, 0.2);
   }
 
   .experiment-card--harpsichord:hover {
@@ -1071,6 +1232,86 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     flex-direction: column;
     gap: 0.5rem;
     margin-bottom: var(--space-xl);
+  }
+
+  .experiment-header__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .star-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: 1px solid rgba(26, 23, 20, 0.14);
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .star-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-ink);
+    background: rgba(184, 134, 11, 0.08);
+  }
+
+  .star-btn .star-icon--filled {
+    display: none;
+  }
+  .star-btn .star-icon--outline {
+    display: block;
+    color: var(--color-ink-muted);
+  }
+
+  .star-btn[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: rgba(184, 134, 11, 0.12);
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  .star-btn[aria-pressed="true"] .star-icon--outline {
+    display: none;
+  }
+  .star-btn[aria-pressed="true"] .star-icon--filled {
+    display: block;
+    color: var(--color-accent);
+  }
+
+  .star-btn[aria-pressed="true"] .star-btn__label {
+    color: var(--color-ink);
+  }
+
+  /* Harpsichord card star-btn styling */
+  .experiment-card--harpsichord .star-btn {
+    border-color: rgba(245, 240, 232, 0.2);
+    color: rgba(245, 240, 232, 0.75);
+  }
+
+  .experiment-card--harpsichord .star-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-cream);
+    background: rgba(212, 160, 23, 0.15);
+  }
+
+  .experiment-card--harpsichord .star-btn[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: rgba(212, 160, 23, 0.22);
+    color: var(--color-cream);
+  }
+
+  .experiment-card--harpsichord .star-btn[aria-pressed="true"] .star-btn__label {
+    color: var(--color-cream);
   }
 
   .experiment-badge {

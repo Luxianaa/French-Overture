@@ -1,40 +1,1593 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import heroImg from '../assets/libraryhero.jpg';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroImg from "../assets/libraryhero.jpg";
+import { movements } from "../data/movements.js";
+import { references } from "../data/references.js";
+
+// Load all movement content modules dynamically
+const contentModules = import.meta.glob("../data/content/*.js", {
+  eager: true,
+});
+
+function parseArtworkDetails(item) {
+  if (!item) return { title: "Visual Reference", authorYear: "" };
+
+  let title = "";
+  let authorYear = "";
+
+  if (item.caption) {
+    const parts = item.caption
+      .split(".")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) {
+      const author = parts[0];
+      title = parts[1];
+      const year = parts[2] || "";
+      authorYear = [author, year].filter(Boolean).join(" · ");
+    } else if (parts.length === 1) {
+      title = parts[0];
+    }
+  }
+
+  if (!title && item.alt) {
+    if (item.alt.includes("—")) {
+      const altParts = item.alt.split("—").map((p) => p.trim());
+      title = altParts[0];
+      authorYear = altParts[1] || "";
+    } else {
+      title = item.alt;
+    }
+  }
+
+  return {
+    title: title || "Artwork",
+    authorYear,
+  };
+}
+
+// Build the catalog of 11 movements and 23 subsections in musical order
+const movementsCatalog = movements.map((m) => {
+  const slugKey = m.slug.replace(/^\//, "");
+  const movContent =
+    contentModules[`../data/content/${slugKey}.js`]?.content || null;
+  const subs = (movContent?.subsections || []).map((sub) => {
+    const exps = (sub.experiments || []).map((exp) => {
+      const rawInst = exp.instrument || "piano";
+      const ver = exp.version;
+      const refItem = references[sub.id]?.[rawInst]?.[ver] || null;
+      const { title: artTitle, authorYear } = parseArtworkDetails(refItem);
+      const instCap = rawInst.charAt(0).toUpperCase() + rawInst.slice(1);
+
+      let versionLabel = "";
+      if (rawInst === "harpsichord") {
+        versionLabel = `Harpsichord (Version ${ver})`;
+      } else {
+        versionLabel = `Piano (Version ${ver})`;
+      }
+
+      return {
+        key: `${sub.id}:${rawInst}:${ver}`,
+        instrument: rawInst,
+        version: ver,
+        type: exp.type || (rawInst === "harpsichord" ? "harpsichord" : null),
+        title: exp.title,
+        versionLabel,
+        ref: refItem
+          ? {
+              src: refItem.src,
+              thumb: refItem.thumb || refItem.src,
+              width: refItem.width || 1350,
+              height: refItem.height || 1800,
+              alt: refItem.alt || "",
+              caption: refItem.caption || "",
+              explanation: refItem.explanation || "",
+              credit: refItem.credit || "",
+              artTitle,
+              authorYear,
+            }
+          : null,
+      };
+    });
+
+    return {
+      id: sub.id,
+      title: sub.title,
+      movementSlug: m.slug,
+      movementTitle: m.title,
+      movementNumber: m.number,
+      experiments: exps,
+    };
+  });
+
+  return {
+    number: m.number,
+    title: m.title,
+    slug: m.slug,
+    subsections: subs,
+  };
+});
+
+const totalSubsections = movementsCatalog.reduce(
+  (acc, m) => acc + m.subsections.length,
+  0,
+);
 ---
 
-<BaseLayout title="Library — French Overture" description="A curated selection of recordings, scores and essays related to Bach's French Overture BWV 831.">
+<BaseLayout
+  title="Library — French Overture"
+  description="Your final selection of interpretations and visual works across Bach's French Overture BWV 831."
+>
   <Hero
     image={heroImg.src}
     title="Library"
     subtitle="French Overture — A Laboratory of Doubt Against Automatic Bach"
   />
 
-  <section class="section container stub-content">
-    <h2 class="stub-heading">Library</h2>
-    <p class="stub-body">
-      This page is a placeholder. Content will be added in a future version of this site.
-    </p>
+  <section
+    class="selection-page container"
+    id="final-selection"
+    aria-labelledby="selection-heading"
+  >
+    <!-- Header of the Final Selection view -->
+    <header class="selection-header">
+      <div class="selection-header__main">
+        <span class="selection-header__eyebrow">Personal Laboratory</span>
+        <h2 id="selection-heading" class="selection-header__title">
+          Your final selection
+        </h2>
+      </div>
+
+      <div class="selection-header__actions">
+        <span
+          id="selection-counter"
+          class="selection-counter"
+          aria-live="polite">0 / {totalSubsections} chosen</span
+        >
+        <button
+          type="button"
+          id="clear-selection-btn"
+          class="clear-selection-btn"
+          aria-label="Clear my final selection"
+        >
+          Clear my selection
+        </button>
+      </div>
+    </header>
+
+    <!-- Empty state (0 / 23 chosen) -->
+    <div id="selection-empty" class="selection-empty" style="display: none;">
+      <div class="selection-empty__card">
+        <div class="selection-empty__icon" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="36"
+            height="36"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            ></polygon>
+          </svg>
+        </div>
+        <h3 class="selection-empty__title">
+          Your final selection will appear here.
+        </h3>
+        <p class="selection-empty__text">
+          Explore the movements in the Laboratory and star your favourite
+          version of each section to construct your personal reading of the
+          French Overture.
+        </p>
+        <a href="/ouverture" class="selection-empty__cta">
+          Start with the Overture →
+        </a>
+      </div>
+    </div>
+
+    <!-- Active state (>= 1 chosen) -->
+    <div
+      id="selection-content"
+      class="selection-content"
+      style="display: none;"
+    >
+      <!-- PART 1: The version, in order (Grid Layout) -->
+      <section
+        class="selection-part selection-part--order"
+        aria-labelledby="part1-heading"
+      >
+        <header class="part-header">
+          <span class="part-tag">Part 1</span>
+          <h3 id="part1-heading" class="part-title">The version, in order</h3>
+          <p class="part-subtitle">
+            The suite assembled from your individual choices across the eleven
+            movements.
+          </p>
+        </header>
+
+        <div id="movements-list" class="movements-list">
+          <!-- Populated dynamically by client script in a responsive grid -->
+        </div>
+      </section>
+
+      <!-- PART 2: The paintings of your version -->
+      <section
+        class="selection-part selection-part--paintings"
+        aria-labelledby="part2-heading"
+      >
+        <header class="part-header">
+          <span class="part-tag">Part 2</span>
+          <h3 id="part2-heading" class="part-title">
+            The paintings of your version
+          </h3>
+          <p class="part-subtitle">
+            The visual works that accompany your selected interpretations,
+            presented in the musical order of the suite.
+          </p>
+        </header>
+
+        <div class="paintings-wall" id="paintings-wall">
+          <!-- Populated dynamically by client script -->
+        </div>
+      </section>
+    </div>
   </section>
+
+  <!-- Lightbox Dialog for Selected Paintings -->
+  <dialog
+    id="library-lightbox"
+    class="library-lightbox"
+    aria-labelledby="library-lightbox-caption"
+    aria-describedby="library-lightbox-explanation"
+  >
+    <div class="library-lightbox__container">
+      <button
+        type="button"
+        id="library-lightbox-close"
+        class="library-lightbox__close-btn"
+        aria-label="Close dialog"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="library-lightbox__body">
+        <!-- Left: Image viewer with navigation -->
+        <div class="library-lightbox__media" id="library-lightbox-media">
+          <button
+            type="button"
+            id="library-lightbox-prev"
+            class="library-lightbox__nav library-lightbox__nav--prev"
+            aria-label="Previous artwork"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+
+          <img
+            id="library-lightbox-img"
+            src=""
+            alt=""
+            class="library-lightbox__img"
+          />
+
+          <button
+            type="button"
+            id="library-lightbox-next"
+            class="library-lightbox__nav library-lightbox__nav--next"
+            aria-label="Next artwork"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          <span
+            id="library-lightbox-counter"
+            class="library-lightbox__counter"
+            aria-live="polite"
+            aria-atomic="true"></span>
+        </div>
+
+        <!-- Right: Text details -->
+        <div class="library-lightbox__info">
+          <span id="library-lightbox-tag" class="library-lightbox__tag"></span>
+          <h2 id="library-lightbox-caption" class="library-lightbox__caption">
+          </h2>
+          <p
+            id="library-lightbox-explanation"
+            class="library-lightbox__explanation"
+          >
+          </p>
+          <div id="library-lightbox-meta" class="library-lightbox__meta">
+            <span id="library-lightbox-credit" class="library-lightbox__credit"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Embed JSON Catalog for Client-side hydration -->
+  <script
+    type="application/json"
+    id="library-catalog-data"
+    set:html={JSON.stringify(movementsCatalog)}
+  />
 </BaseLayout>
 
-<style>
-  .stub-content {
-    padding-block: var(--space-2xl);
+<script is:inline>
+  (function () {
+    const STORAGE_KEY = "bach.finalSelection.v1";
+    let memorySelection = null;
+
+    function getStoredSelection() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {
+        if (memorySelection) return memorySelection;
+      }
+      return {};
+    }
+
+    function clearStoredSelection() {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      memorySelection = {};
+    }
+
+    const dataEl = document.getElementById("library-catalog-data");
+    if (!dataEl) return;
+
+    let catalog = [];
+    try {
+      catalog = JSON.parse(dataEl.textContent || "[]");
+    } catch (e) {
+      console.error("Failed to parse catalog data", e);
+      return;
+    }
+
+    const counterEl = document.getElementById("selection-counter");
+    const clearBtn = document.getElementById("clear-selection-btn");
+    const emptyContainer = document.getElementById("selection-empty");
+    const contentContainer = document.getElementById("selection-content");
+    const movementsListEl = document.getElementById("movements-list");
+    const paintingsWallEl = document.getElementById("paintings-wall");
+
+    // Lightbox Elements
+    const lightboxDialog = document.getElementById("library-lightbox");
+    const lightboxClose = document.getElementById("library-lightbox-close");
+    const lightboxPrev = document.getElementById("library-lightbox-prev");
+    const lightboxNext = document.getElementById("library-lightbox-next");
+    const lightboxImg = document.getElementById("library-lightbox-img");
+    const lightboxCounter = document.getElementById("library-lightbox-counter");
+    const lightboxTag = document.getElementById("library-lightbox-tag");
+    const lightboxCaption = document.getElementById("library-lightbox-caption");
+    const lightboxExplanation = document.getElementById(
+      "library-lightbox-explanation",
+    );
+    const lightboxCredit = document.getElementById("library-lightbox-credit");
+
+    let activePaintings = [];
+    let currentLightboxIdx = 0;
+    let activeTriggerBtn = null;
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderSelection() {
+      const selection = getStoredSelection();
+      let chosenCount = 0;
+      let totalSubsectionsCount = 0;
+      activePaintings = [];
+
+      // Calculate totals
+      catalog.forEach((m) => {
+        m.subsections.forEach((sub) => {
+          totalSubsectionsCount++;
+          if (selection[sub.id]) {
+            chosenCount++;
+          }
+        });
+      });
+
+      // Update counter
+      if (counterEl) {
+        counterEl.textContent = `${chosenCount} / ${totalSubsectionsCount} chosen`;
+      }
+
+      if (chosenCount === 0) {
+        if (emptyContainer) emptyContainer.style.display = "block";
+        if (contentContainer) contentContainer.style.display = "none";
+        if (clearBtn) clearBtn.style.display = "none";
+        return;
+      }
+
+      if (emptyContainer) emptyContainer.style.display = "none";
+      if (contentContainer) contentContainer.style.display = "flex";
+      if (clearBtn) clearBtn.style.display = "inline-flex";
+
+      // ── PART 1: The version, in order (GRID) ────
+      let listHtml = "";
+      catalog.forEach((m) => {
+        let chosenInMov = 0;
+        m.subsections.forEach((sub) => {
+          if (selection[sub.id]) chosenInMov++;
+        });
+
+        const statusPill =
+          chosenInMov === m.subsections.length
+            ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
+            : chosenInMov > 0
+              ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
+              : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
+
+        listHtml += `
+          <div class="movement-group">
+            <div class="movement-group__header">
+              <div class="movement-group__title-wrap">
+                <span class="movement-group__number">${escapeHtml(m.number)}</span>
+                <h4 class="movement-group__title">${escapeHtml(m.title)}</h4>
+              </div>
+              ${statusPill}
+            </div>
+            <ul class="subsections-list">
+        `;
+
+        m.subsections.forEach((sub) => {
+          const chosen = selection[sub.id];
+          if (chosen) {
+            const exp = sub.experiments.find(
+              (e) =>
+                e.instrument === chosen.instrument &&
+                Number(e.version) === Number(chosen.version),
+            );
+            const dotType = exp?.type
+              ? `type-dot--${exp.type}`
+              : "type-dot--neutral";
+            const instName =
+              chosen.instrument === "harpsichord" ? "Harpsichord" : "Piano";
+            const versionLabel =
+              exp?.versionLabel || `${instName} (Version ${chosen.version})`;
+            const linkHref = `${m.slug}#${sub.id}:exp-${chosen.instrument}-${chosen.version}`;
+
+            listHtml += `
+              <li class="subsection-row is-chosen">
+                <div class="subsection-row__info">
+                  <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
+                  <div class="subsection-row__choice">
+                    <span class="type-dot ${dotType}" aria-hidden="true"></span>
+                    <span class="choice-label">${escapeHtml(versionLabel)}</span>
+                  </div>
+                </div>
+                <a href="${linkHref}" class="subsection-row__link" aria-label="Go to experiment for ${escapeHtml(sub.title)}">
+                  Go to experiment →
+                </a>
+              </li>
+            `;
+
+            // If this experiment has a visual reference, collect for Part 2
+            if (exp && exp.ref) {
+              activePaintings.push({
+                movementTitle: m.title,
+                subTitle: sub.title,
+                versionLabel,
+                tag: `${m.title} (${sub.title}) · ${versionLabel}`,
+                ...exp.ref,
+              });
+            }
+          } else {
+            // Unchosen row
+            const linkHref = `${m.slug}#${sub.id}`;
+            listHtml += `
+              <li class="subsection-row is-unchosen">
+                <div class="subsection-row__info">
+                  <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
+                  <span class="unchosen-label">Not chosen yet</span>
+                </div>
+                <a href="${linkHref}" class="subsection-row__link subsection-row__link--dim" aria-label="Explore ${escapeHtml(sub.title)}">
+                  Explore section →
+                </a>
+              </li>
+            `;
+          }
+        });
+
+        listHtml += `
+            </ul>
+          </div>
+        `;
+      });
+
+      if (movementsListEl) {
+        movementsListEl.innerHTML = listHtml;
+      }
+
+      // ── PART 2: The paintings of your version ────
+      if (paintingsWallEl) {
+        if (!activePaintings.length) {
+          paintingsWallEl.innerHTML = `
+            <div class="paintings-empty">
+              <p>No visual references for current selection.</p>
+            </div>
+          `;
+        } else {
+          let wallHtml = "";
+          activePaintings.forEach((item, pIdx) => {
+            wallHtml += `
+              <div class="painting-item" data-index="${pIdx}">
+                <button
+                  type="button"
+                  class="painting-card"
+                  data-index="${pIdx}"
+                  aria-label="View artwork: ${escapeHtml(item.artTitle)}"
+                >
+                  <div class="painting-card__frame">
+                    <img
+                      src="${item.thumb || item.src}"
+                      alt="${escapeHtml(item.alt)}"
+                      width="${item.width}"
+                      height="${item.height}"
+                      loading="lazy"
+                      class="painting-card__img"
+                    />
+                    <div class="painting-card__overlay" aria-hidden="true">
+                      <span class="painting-card__hover-title">${escapeHtml(item.artTitle)}</span>
+                    </div>
+                  </div>
+                  <div class="painting-card__info">
+                    <span class="painting-card__tag">${escapeHtml(item.movementTitle)} (${escapeHtml(item.subTitle)}) · ${escapeHtml(item.versionLabel)}</span>
+                    <h4 class="painting-card__title">${escapeHtml(item.artTitle)}</h4>
+                    ${item.authorYear ? `<p class="painting-card__artist">${escapeHtml(item.authorYear)}</p>` : ""}
+                  </div>
+                </button>
+              </div>
+            `;
+          });
+          paintingsWallEl.innerHTML = wallHtml;
+          setupPaintingsWall();
+        }
+      }
+    }
+
+    // ── Setup Lightbox and Entrance Animations ───────────
+    function setupPaintingsWall() {
+      if (!paintingsWallEl) return;
+      const cards = paintingsWallEl.querySelectorAll(".painting-card");
+      const items = paintingsWallEl.querySelectorAll(".painting-item");
+
+      // Scroll entrance animation
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if ("IntersectionObserver" in window && !prefersReduced) {
+        paintingsWallEl.classList.add("has-animation");
+        let batchCounter = 0;
+        let batchResetTimer = null;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const el = entry.target;
+                observer.unobserve(el);
+
+                const delay = (batchCounter % 6) * 60;
+                el.style.transitionDelay = delay + "ms";
+                el.classList.add("is-revealed");
+
+                batchCounter++;
+                clearTimeout(batchResetTimer);
+                batchResetTimer = setTimeout(() => {
+                  batchCounter = 0;
+                }, 120);
+              }
+            });
+          },
+          {
+            rootMargin: "0px 0px 50px 0px",
+            threshold: 0.01,
+          },
+        );
+
+        items.forEach((item) => observer.observe(item));
+
+        setTimeout(() => {
+          items.forEach((item) => {
+            if (!item.classList.contains("is-revealed")) {
+              item.classList.add("is-revealed");
+            }
+          });
+        }, 1200);
+      } else {
+        items.forEach((item) => item.classList.add("is-revealed"));
+      }
+
+      // Click card to open lightbox
+      cards.forEach((card) => {
+        card.addEventListener("click", () => {
+          const idx = Number(card.getAttribute("data-index"));
+          openLightbox(idx, card);
+        });
+      });
+    }
+
+    function renderLightboxItem(index) {
+      if (
+        !activePaintings.length ||
+        index < 0 ||
+        index >= activePaintings.length
+      )
+        return;
+      currentLightboxIdx = index;
+      const item = activePaintings[currentLightboxIdx];
+
+      if (lightboxImg) {
+        lightboxImg.src = item.src;
+        lightboxImg.alt = item.alt || item.artTitle || "Artwork";
+      }
+      if (lightboxTag) {
+        lightboxTag.textContent = item.tag || "";
+      }
+      if (lightboxCaption) {
+        lightboxCaption.textContent = item.caption || item.artTitle || "";
+      }
+      if (lightboxExplanation) {
+        lightboxExplanation.textContent = item.explanation || "";
+        lightboxExplanation.style.display = item.explanation ? "" : "none";
+      }
+      if (lightboxCredit) {
+        lightboxCredit.textContent = item.credit || "";
+        lightboxCredit.style.display = item.credit ? "" : "none";
+      }
+      if (lightboxCounter) {
+        lightboxCounter.textContent = `${currentLightboxIdx + 1} / ${activePaintings.length}`;
+      }
+
+      if (activePaintings.length <= 1) {
+        if (lightboxPrev) lightboxPrev.style.display = "none";
+        if (lightboxNext) lightboxNext.style.display = "none";
+      } else {
+        if (lightboxPrev) lightboxPrev.style.display = "";
+        if (lightboxNext) lightboxNext.style.display = "";
+      }
+    }
+
+    function openLightbox(index, triggerBtn) {
+      if (!lightboxDialog) return;
+      activeTriggerBtn = triggerBtn;
+      renderLightboxItem(index);
+
+      if (typeof lightboxDialog.showModal === "function") {
+        lightboxDialog.showModal();
+      }
+    }
+
+    function closeLightbox() {
+      if (!lightboxDialog || !lightboxDialog.open) return;
+      lightboxDialog.close();
+      if (activeTriggerBtn) {
+        activeTriggerBtn.focus();
+        activeTriggerBtn = null;
+      }
+    }
+
+    function showPrev() {
+      if (!activePaintings.length) return;
+      currentLightboxIdx =
+        (currentLightboxIdx - 1 + activePaintings.length) %
+        activePaintings.length;
+      renderLightboxItem(currentLightboxIdx);
+    }
+
+    function showNext() {
+      if (!activePaintings.length) return;
+      currentLightboxIdx = (currentLightboxIdx + 1) % activePaintings.length;
+      renderLightboxItem(currentLightboxIdx);
+    }
+
+    if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+    if (lightboxPrev) lightboxPrev.addEventListener("click", showPrev);
+    if (lightboxNext) lightboxNext.addEventListener("click", showNext);
+
+    if (lightboxDialog) {
+      lightboxDialog.addEventListener("click", (e) => {
+        if (e.target === lightboxDialog) {
+          closeLightbox();
+        }
+      });
+      lightboxDialog.addEventListener("cancel", (e) => {
+        e.preventDefault();
+        closeLightbox();
+      });
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (!lightboxDialog || !lightboxDialog.open) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        showPrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        showNext();
+      }
+    });
+
+    // Clear Selection Handler
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        const confirmed = window.confirm(
+          "Are you sure you want to clear your entire selection?",
+        );
+        if (confirmed) {
+          clearStoredSelection();
+          renderSelection();
+        }
+      });
+    }
+
+    // Sync across tabs
+    window.addEventListener("storage", (e) => {
+      if (e.key === STORAGE_KEY) {
+        renderSelection();
+      }
+    });
+
+    // Initial render
+    renderSelection();
+  })();
+</script>
+
+<style is:global>
+  /* ══════════════════ SELECTION PAGE CONTAINER ══════════════════ */
+  .selection-page {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+    max-width: min(94%, 1380px);
+    margin-inline: auto;
+  }
+
+  /* ══════════════════ SECTION HEADER ══════════════════ */
+  .selection-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid rgba(26, 23, 20, 0.12);
+    margin-bottom: var(--space-2xl);
+    flex-wrap: wrap;
+  }
+
+  .selection-header__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .selection-header__eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .selection-header__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    color: var(--color-ink);
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .selection-header__notice {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    font-style: italic;
+    margin: 0;
+    margin-top: 0.25rem;
+  }
+
+  .selection-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    align-self: flex-start;
+  }
+
+  .selection-counter {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 1rem;
+    background: var(--color-cream-dark);
+    border: 1px solid rgba(26, 23, 20, 0.1);
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+  }
+
+  .clear-selection-btn {
+    background: transparent;
+    border: 1px solid rgba(26, 23, 20, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.95rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .clear-selection-btn:hover {
+    border-color: #994e43;
+    color: #994e43;
+    background: rgba(153, 78, 67, 0.06);
+  }
+
+  .clear-selection-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ══════════════════ EMPTY STATE ══════════════════ */
+  .selection-empty {
+    padding-block: var(--space-xl) var(--space-2xl);
+  }
+
+  .selection-empty__card {
+    background: var(--color-cream-dark);
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-md);
+    padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+    text-align: center;
+    max-width: 680px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    box-shadow: 0 4px 20px rgba(26, 23, 20, 0.04);
+  }
+
+  .selection-empty__icon {
+    color: var(--color-accent);
+    opacity: 0.85;
+    margin-bottom: var(--space-xs);
+  }
+
+  .selection-empty__title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 300;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .selection-empty__text {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+    max-width: 50ch;
+    margin: 0;
+  }
+
+  .selection-empty__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: var(--space-sm);
+    padding: 0.75rem 1.75rem;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .selection-empty__cta:hover {
+    background: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .selection-empty__cta:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /* ══════════════════ CONTENT & PARTS ══════════════════ */
+  .selection-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3.5rem, 6vw, 6rem);
+  }
+
+  .selection-part {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  .selection-part--paintings {
+    margin-top: clamp(3.5rem, 6vw, 6rem);
+    padding-top: clamp(2.5rem, 5vw, 4.5rem);
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+  }
+
+  .part-header {
+    border-left: 2px solid var(--color-accent);
+    padding-left: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .part-tag {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .part-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 300;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .part-subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-ink-soft);
+    max-width: var(--measure);
+    margin: 0;
+  }
+
+  /* ══════════════════ PART 1: MOVEMENTS GRID ══════════════════ */
+  .movements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .movements-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .movement-group {
+    background: var(--color-cream-dark);
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgba(26, 23, 20, 0.02);
+    transition: box-shadow var(--transition-base);
+  }
+
+  .movement-group:hover {
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.06);
+  }
+
+  .movement-group__header {
+    padding: 0.85rem 1.15rem;
+    background: rgba(26, 23, 20, 0.03);
+    border-bottom: 1px solid rgba(26, 23, 20, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .movement-group__title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .movement-group__number {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+  }
+
+  .movement-group__title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .movement-group__status {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+
+  .movement-group__status--complete {
+    background: rgba(78, 112, 88, 0.14);
+    color: var(--type-harpsichord);
+    border: 1px solid rgba(78, 112, 88, 0.25);
+  }
+
+  .movement-group__status--partial {
+    background: rgba(139, 111, 71, 0.12);
+    color: var(--color-accent);
+    border: 1px solid rgba(139, 111, 71, 0.2);
+  }
+
+  .movement-group__status--empty {
+    background: rgba(26, 23, 20, 0.05);
+    color: var(--color-ink-muted);
+  }
+
+  .subsections-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .subsection-row {
+    padding: 0.8rem 1.15rem;
+    border-bottom: 1px solid rgba(26, 23, 20, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: background var(--transition-fast);
+  }
+
+  .subsection-row:last-child {
+    border-bottom: none;
+  }
+
+  .subsection-row.is-chosen {
+    background: var(--color-cream);
+    border-left: 3px solid var(--color-accent);
+  }
+
+  .subsection-row.is-unchosen {
+    background: rgba(237, 229, 213, 0.35);
+    opacity: 0.8;
+  }
+
+  .subsection-row__info {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .subsection-row__name {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .subsection-row__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .choice-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+    font-weight: 400;
+  }
+
+  .unchosen-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+    font-style: italic;
+  }
+
+  .subsection-row__link {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    align-self: flex-start;
+    transition:
+      color var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .subsection-row__link:hover {
+    color: var(--color-ink);
+    transform: translateX(2px);
+  }
+
+  .subsection-row__link--dim {
+    color: var(--color-ink-muted);
+  }
+
+  .subsection-row__link--dim:hover {
+    color: var(--color-accent);
+  }
+
+  /* Dot Types */
+  .type-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .type-dot--structural {
+    background-color: var(--type-structural);
+  }
+
+  .type-dot--rhetorical {
+    background-color: var(--type-rhetorical);
+  }
+
+  .type-dot--extreme {
+    background-color: var(--type-extreme);
+  }
+
+  .type-dot--harpsichord {
+    background-color: var(--type-harpsichord);
+  }
+
+  .type-dot--neutral {
+    background-color: var(--color-ink-muted);
+  }
+
+  /* ══════════════════ PART 2: PAINTINGS PICTURE WALL ══════════════════ */
+  .paintings-wall {
+    column-count: 4;
+    column-gap: 1.5rem;
+  }
+
+  @media (max-width: 1200px) {
+    .paintings-wall {
+      column-count: 3;
+      column-gap: 1.25rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .paintings-wall {
+      column-count: 2;
+      column-gap: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .paintings-wall {
+      column-count: 1;
+      column-gap: 1rem;
+    }
+  }
+
+  .painting-item {
+    break-inside: avoid;
+    margin-bottom: 1.75rem;
+  }
+
+  .paintings-wall.has-animation .painting-item {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(16px);
+    transition:
+      clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 700ms ease;
+    will-change: clip-path, transform, opacity;
+  }
+
+  .paintings-wall.has-animation .painting-item.is-revealed {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+
+  .painting-card {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    outline: none;
+    position: relative;
+    border-radius: var(--radius-sm);
+  }
+
+  .painting-card:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .painting-card__frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--color-cream-dark);
+    box-shadow: 0 4px 18px rgba(15, 12, 8, 0.08);
+    transition:
+      box-shadow var(--transition-base),
+      transform var(--transition-base);
+  }
+
+  .painting-card:hover .painting-card__frame {
+    box-shadow: 0 8px 28px rgba(15, 12, 8, 0.16);
+  }
+
+  .painting-card__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: scale(1);
+    transition: transform 350ms cubic-bezier(0.2, 0, 0.2, 1);
+  }
+
+  .painting-card:hover .painting-card__img {
+    transform: scale(1.035);
+  }
+
+  .painting-card__overlay {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 2.25rem 0.85rem 0.75rem;
+    background: linear-gradient(
+      to top,
+      rgba(15, 12, 8, 0.9) 0%,
+      rgba(15, 12, 8, 0.45) 60%,
+      transparent 100%
+    );
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 300ms ease,
+      transform 300ms ease;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .painting-card:hover .painting-card__overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .painting-card__hover-title {
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--color-cream);
+    line-height: 1.25;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .painting-card__info {
+    padding-top: 0.75rem;
+    padding-inline: 0.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: transparent;
+    border: none;
+  }
+
+  .painting-card__tag {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    line-height: 1.3;
+  }
+
+  .painting-card__title {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-ink);
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .painting-card__artist {
+    font-family: var(--font-sans);
+    font-size: 0.78125rem;
+    color: var(--color-ink-muted);
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  /* ══════════════════ LIGHTBOX DIALOG ══════════════════ */
+  .library-lightbox {
+    border: none;
+    padding: 0;
+    margin: auto;
+    background: transparent;
+    max-width: 90vw;
+    max-height: 90vh;
+    box-shadow: 0 25px 60px rgba(15, 12, 8, 0.45);
+    overflow: hidden;
+  }
+
+  .library-lightbox::backdrop {
+    background: rgba(15, 12, 8, 0.78);
+    backdrop-filter: blur(4px);
+  }
+
+  .library-lightbox__container {
+    position: relative;
+    background: var(--color-cream);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+  }
+
+  .library-lightbox__close-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(245, 240, 232, 0.88);
+    border: 1px solid rgba(26, 23, 20, 0.15);
+    border-radius: 50%;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .library-lightbox__close-btn:hover {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  .library-lightbox__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    max-height: 90vh;
+    overflow: hidden;
+  }
+
+  .library-lightbox__media {
+    position: relative;
+    background: #14120e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 480px;
+    overflow: hidden;
+  }
+
+  .library-lightbox__img {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    display: block;
+  }
+
+  .library-lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 12, 8, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--color-cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .library-lightbox__nav:hover {
+    background: rgba(15, 12, 8, 0.95);
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  .library-lightbox__nav--prev {
+    left: 1rem;
+  }
+
+  .library-lightbox__nav--next {
+    right: 1rem;
+  }
+
+  .library-lightbox__counter {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 12, 8, 0.65);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+  }
+
+  .library-lightbox__info {
+    padding: var(--space-xl);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
   }
-  .stub-heading {
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 300;
-    color: var(--color-ink);
+
+  .library-lightbox__tag {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
   }
-  .stub-body {
-    max-width: 55ch;
+
+  .library-lightbox__caption {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 400;
+    color: var(--color-ink);
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .library-lightbox__explanation {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.65;
     color: var(--color-ink-soft);
-    font-size: 1.0625rem;
+    margin: 0;
+  }
+
+  .library-lightbox__meta {
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+    padding-top: var(--space-sm);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* ══════════════════ RESPONSIVE ══════════════════ */
+  @media (max-width: 900px) {
+    .library-lightbox__body {
+      grid-template-columns: 1fr;
+      overflow-y: auto;
+    }
+    .library-lightbox__media {
+      min-height: 280px;
+      max-height: 45vh;
+    }
+    .library-lightbox__img {
+      max-height: 45vh;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .selection-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-md);
+    }
+    .selection-header__actions {
+      justify-content: space-between;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .selection-header__actions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
   }
 </style>
