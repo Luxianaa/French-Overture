@@ -138,7 +138,12 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
                       const defaultBadge = exp.version
                         ? `${numStr} — ${instCap} / Version ${exp.version}`
                         : (exp.type ? `${numStr} — ${exp.type.charAt(0).toUpperCase() + exp.type.slice(1)}` : numStr);
-                      const badgeLabel = exp.badge || defaultBadge;
+                      const badgeLabel =
+                        exp.badge !== undefined
+                          ? exp.badge
+                          : rawInst === 'harpsichord'
+                            ? null
+                            : defaultBadge;
                       const dotClass = exp.type ? `type-dot--${exp.type}` : 'type-dot--neutral';
 
                       return (
@@ -147,10 +152,12 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
                           aria-labelledby={`exp-title-${sub.id}-${expIdx}`}
                         >
                           <header class="experiment-header">
-                            <div class="experiment-badge">
-                              <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
-                              <span class="type-label">{badgeLabel}</span>
-                            </div>
+                            {badgeLabel && (
+                              <div class="experiment-badge">
+                                <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
+                                <span class="type-label">{badgeLabel}</span>
+                              </div>
+                            )}
                             <h3 id={`exp-title-${sub.id}-${expIdx}`} class="experiment-title">
                               {exp.title}
                             </h3>

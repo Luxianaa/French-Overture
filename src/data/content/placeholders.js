@@ -32,24 +32,24 @@ export function generatePlaceholderExperiments(
     if (rawInst === 'piano') {
       if (v.version === 1) {
         defaultType = 'structural';
-        defaultBadge = `${numStr} — Piano / Structural`;
+        defaultBadge = `${numStr} — Piano `;
       } else if (v.version === 2) {
         defaultType = 'rhetorical';
-        defaultBadge = `${numStr} — Piano / Rhetorical`;
+        defaultBadge = `${numStr} — Piano `;
       } else if (v.version === 3) {
         defaultType = 'extreme';
-        defaultBadge = `${numStr} — Piano / Extreme`;
+        defaultBadge = `${numStr} — Piano `;
       } else {
         defaultType = null;
         defaultBadge = `${numStr} — Piano / Version ${v.version}`;
       }
     } else if (rawInst === 'harpsichord') {
-      defaultType = 'harpsichord';
-      defaultBadge = 'Change of instrument — Harpsichord';
+      defaultType = null;
+      defaultBadge = null;
     }
 
     const type = override.type !== undefined ? override.type : defaultType;
-    const badge = override.badge || defaultBadge;
+    const badge = override.badge !== undefined ? override.badge : defaultBadge;
 
     // 2. Título y descripción
     const defaultTitle =

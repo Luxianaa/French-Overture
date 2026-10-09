@@ -110,7 +110,6 @@ ORDERED_SUBSECTIONS.forEach((subId) => {
   parsedBySection[subId] = [];
 });
 
-const suiteVideos = [];
 const unassignedLines = [];
 const nonHpsDetected = [];
 const seenIds = new Set();
@@ -142,13 +141,12 @@ for (let i = 0; i < lines.length; i++) {
     .trim()
     .toUpperCase();
 
-  // Detectar vídeos generales de obra completa
+  // Ignorar silenciosamente líneas de obra completa que no son experimentos
   if (
-    norm.includes('FRENCH OVERTURE 1') ||
-    norm.includes('FRENCH OVERTURE 2') ||
-    norm.includes('BACH FRENCH OVERTURE HARPSICHORD')
+    norm === 'FRENCH OVERTURE 1' ||
+    norm === 'FRENCH OVERTURE 2' ||
+    norm === 'BACH FRENCH OVERTURE HARPSICHORD'
   ) {
-    suiteVideos.push({ lineIndex: i + 1, youtubeId, title: rawTitle });
     continue;
   }
 
@@ -306,15 +304,7 @@ if (duplicateIds.length === 0 && versionDuplicates.length === 0) {
   }
 }
 
-// 6C. Vídeos de obra completa
-console.log('\n── VÍDEOS GENERALES DE OBRA COMPLETA (3):');
-if (suiteVideos.length > 0) {
-  suiteVideos.forEach((sv) => console.log(`   • Línea ${sv.lineIndex}: [${sv.youtubeId}] ${sv.title}`));
-} else {
-  console.log('   (Ninguno detectado)');
-}
-
-// 6D. Líneas sin asignar
+// 6C. Líneas sin asignar
 console.log('\n── LÍNEAS PENDIENTES / SIN ASIGNAR:');
 if (unassignedLines.length === 0) {
   console.log('✓ 0 pendientes (100% de los vídeos asignados correctamente).');
