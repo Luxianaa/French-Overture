@@ -179,7 +179,6 @@ export const versions = [
   {
     id: 'bach-french-overture-harpsichord',
     title: 'Bach French Overture Harpsichord',
-    label: '03 — Bach French Overture Harpsichord',
     youtubeId: 'FI861Vyyqkc',
     instrument: 'harpsichord',
     description:

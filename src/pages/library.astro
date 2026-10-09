@@ -1,67 +1,66 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import Hero from "../components/Hero.astro";
-import heroImg from "../assets/libraryhero.jpg";
-import { movements } from "../data/movements.js";
-import { references } from "../data/references.js";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import heroImg from '../assets/libraryhero.jpg';
+import { movements } from '../data/movements.js';
+import { references } from '../data/references.js';
+import { videos } from '../data/videos.js';
 
 // Load all movement content modules dynamically
-const contentModules = import.meta.glob("../data/content/*.js", {
-  eager: true,
-});
+const contentModules = import.meta.glob('../data/content/*.js', { eager: true });
 
 function parseArtworkDetails(item) {
-  if (!item) return { title: "Visual Reference", authorYear: "" };
+  if (!item) return { title: 'Visual Reference', authorYear: '' };
 
-  let title = "";
-  let authorYear = "";
+  let title = '';
+  let authorYear = '';
 
   if (item.caption) {
-    const parts = item.caption
-      .split(".")
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const parts = item.caption.split('.').map((p) => p.trim()).filter(Boolean);
     if (parts.length >= 2) {
       const author = parts[0];
       title = parts[1];
-      const year = parts[2] || "";
-      authorYear = [author, year].filter(Boolean).join(" · ");
+      const year = parts[2] || '';
+      authorYear = [author, year].filter(Boolean).join(' · ');
     } else if (parts.length === 1) {
       title = parts[0];
     }
   }
 
   if (!title && item.alt) {
-    if (item.alt.includes("—")) {
-      const altParts = item.alt.split("—").map((p) => p.trim());
+    if (item.alt.includes('—')) {
+      const altParts = item.alt.split('—').map((p) => p.trim());
       title = altParts[0];
-      authorYear = altParts[1] || "";
+      authorYear = altParts[1] || '';
     } else {
       title = item.alt;
     }
   }
 
   return {
-    title: title || "Artwork",
+    title: title || 'Artwork',
     authorYear,
   };
 }
 
 // Build the catalog of 11 movements and 23 subsections in musical order
 const movementsCatalog = movements.map((m) => {
-  const slugKey = m.slug.replace(/^\//, "");
-  const movContent =
-    contentModules[`../data/content/${slugKey}.js`]?.content || null;
+  const slugKey = m.slug.replace(/^\//, '');
+  const movContent = contentModules[`../data/content/${slugKey}.js`]?.content || null;
   const subs = (movContent?.subsections || []).map((sub) => {
     const exps = (sub.experiments || []).map((exp) => {
-      const rawInst = exp.instrument || "piano";
+      const rawInst = exp.instrument || 'piano';
       const ver = exp.version;
       const refItem = references[sub.id]?.[rawInst]?.[ver] || null;
       const { title: artTitle, authorYear } = parseArtworkDetails(refItem);
-      const instCap = rawInst.charAt(0).toUpperCase() + rawInst.slice(1);
 
-      let versionLabel = "";
-      if (rawInst === "harpsichord") {
+      // Match youtubeId from videos.js
+      const secVideos = videos[sub.id] || [];
+      const vMatch = secVideos.find((v) => v.instrument === rawInst && Number(v.version) === Number(ver));
+      const youtubeId = vMatch?.youtubeId || exp.youtubeId || null;
+
+      let versionLabel = '';
+      if (rawInst === 'harpsichord') {
         versionLabel = `Harpsichord (Version ${ver})`;
       } else {
         versionLabel = `Piano (Version ${ver})`;
@@ -71,7 +70,8 @@ const movementsCatalog = movements.map((m) => {
         key: `${sub.id}:${rawInst}:${ver}`,
         instrument: rawInst,
         version: ver,
-        type: exp.type || (rawInst === "harpsichord" ? "harpsichord" : null),
+        youtubeId,
+        type: exp.type || (rawInst === 'harpsichord' ? 'harpsichord' : null),
         title: exp.title,
         versionLabel,
         ref: refItem
@@ -80,10 +80,10 @@ const movementsCatalog = movements.map((m) => {
               thumb: refItem.thumb || refItem.src,
               width: refItem.width || 1350,
               height: refItem.height || 1800,
-              alt: refItem.alt || "",
-              caption: refItem.caption || "",
-              explanation: refItem.explanation || "",
-              credit: refItem.credit || "",
+              alt: refItem.alt || '',
+              caption: refItem.caption || '',
+              explanation: refItem.explanation || '',
+              credit: refItem.credit || '',
               artTitle,
               authorYear,
             }
@@ -109,10 +109,7 @@ const movementsCatalog = movements.map((m) => {
   };
 });
 
-const totalSubsections = movementsCatalog.reduce(
-  (acc, m) => acc + m.subsections.length,
-  0,
-);
+const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections.length, 0);
 ---
 
 <BaseLayout
@@ -125,26 +122,17 @@ const totalSubsections = movementsCatalog.reduce(
     subtitle="French Overture — A Laboratory of Doubt Against Automatic Bach"
   />
 
-  <section
-    class="selection-page container"
-    id="final-selection"
-    aria-labelledby="selection-heading"
-  >
+  <section class="selection-page container" id="final-selection" aria-labelledby="selection-heading">
     <!-- Header of the Final Selection view -->
     <header class="selection-header">
       <div class="selection-header__main">
         <span class="selection-header__eyebrow">Personal Laboratory</span>
-        <h2 id="selection-heading" class="selection-header__title">
-          Your final selection
-        </h2>
+        <h2 id="selection-heading" class="selection-header__title">Your final selection</h2>
+        <p class="selection-header__notice">Your selection is saved only in this browser.</p>
       </div>
 
       <div class="selection-header__actions">
-        <span
-          id="selection-counter"
-          class="selection-counter"
-          aria-live="polite">0 / {totalSubsections} chosen</span
-        >
+        <span id="selection-counter" class="selection-counter" aria-live="polite">0 / {totalSubsections} chosen</span>
         <button
           type="button"
           id="clear-selection-btn"
@@ -160,26 +148,13 @@ const totalSubsections = movementsCatalog.reduce(
     <div id="selection-empty" class="selection-empty" style="display: none;">
       <div class="selection-empty__card">
         <div class="selection-empty__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            width="36"
-            height="36"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.4"
-          >
-            <polygon
-              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-            ></polygon>
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.4">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
         </div>
-        <h3 class="selection-empty__title">
-          Your final selection will appear here.
-        </h3>
+        <h3 class="selection-empty__title">Your final selection will appear here.</h3>
         <p class="selection-empty__text">
-          Explore the movements in the Laboratory and star your favourite
-          version of each section to construct your personal reading of the
-          French Overture.
+          Explore the movements in the Laboratory and star your favourite version of each section to construct your personal reading of the French Overture.
         </p>
         <a href="/ouverture" class="selection-empty__cta">
           Start with the Overture →
@@ -188,24 +163,172 @@ const totalSubsections = movementsCatalog.reduce(
     </div>
 
     <!-- Active state (>= 1 chosen) -->
-    <div
-      id="selection-content"
-      class="selection-content"
-      style="display: none;"
-    >
+    <div id="selection-content" class="selection-content" style="display: none;">
       <!-- PART 1: The version, in order (Grid Layout) -->
-      <section
-        class="selection-part selection-part--order"
-        aria-labelledby="part1-heading"
-      >
+      <section class="selection-part selection-part--order" aria-labelledby="part1-heading">
         <header class="part-header">
           <span class="part-tag">Part 1</span>
           <h3 id="part1-heading" class="part-title">The version, in order</h3>
-          <p class="part-subtitle">
-            The suite assembled from your individual choices across the eleven
-            movements.
-          </p>
+          <p class="part-subtitle">The suite assembled from your individual choices across the eleven movements.</p>
         </header>
+
+        <!-- Play My Version Trigger Bar -->
+        <div class="playback-bar">
+          <button
+            type="button"
+            id="play-version-btn"
+            class="play-version-btn"
+            disabled
+            aria-label="Play my version"
+          >
+            <span class="play-version-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <polygon points="6 4 20 12 6 20 6 4" />
+              </svg>
+            </span>
+            <span id="play-version-btn-label">Choose at least one version in the Laboratory</span>
+          </button>
+        </div>
+
+        <!-- Now Playing Embedded Panel -->
+        <div
+          id="now-playing-panel"
+          class="now-playing-panel"
+          style="display: none;"
+          role="region"
+          aria-label="Now playing video player"
+        >
+          <div class="now-playing-panel__container">
+            <!-- Header bar of Now Playing -->
+            <div class="now-playing-panel__header">
+              <div class="now-playing-status-wrap">
+                <span class="now-playing-pulse" aria-hidden="true"></span>
+                <span class="now-playing-status-text">Now playing</span>
+                <span id="now-playing-announcement" class="sr-only" aria-live="polite"></span>
+              </div>
+              <button
+                type="button"
+                id="now-playing-close-btn"
+                class="now-playing-close-btn"
+                aria-label="Close player"
+                title="Close player"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body: Left Player 16:9, Right Artwork & Info -->
+            <div class="now-playing-panel__body">
+              <!-- Left Column: Video Player -->
+              <div class="now-playing-media-col">
+                <div class="now-playing-player-box">
+                  <div id="yt-player-container" class="now-playing-iframe-slot"></div>
+
+                  <!-- Autoplay blocker / Mobile continuation notice -->
+                  <div id="player-continue-wrap" class="player-continue-wrap" style="display: none;">
+                    <p id="player-status-message" class="player-continue-msg">Autoplay paused by browser.</p>
+                    <button type="button" id="player-continue-btn" class="player-continue-btn">
+                      Continue
+                    </button>
+                  </div>
+
+                  <!-- End of Your Version overlay -->
+                  <div id="player-ended-wrap" class="player-ended-wrap" style="display: none;">
+                    <div class="player-ended-content">
+                      <span class="player-ended-badge">Complete</span>
+                      <h4 class="player-ended-heading">End of your version</h4>
+                      <p class="player-ended-desc">You have listened through all selected pieces in musical order.</p>
+                      <button type="button" id="player-replay-btn" class="player-replay-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 4v6h6M23 20v-6h-6" />
+                          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                        </svg>
+                        Play again
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Artwork & Info -->
+              <div class="now-playing-info-col">
+                <div class="now-playing-meta-header">
+                  <span id="now-playing-movement" class="now-playing-movement">Ouverture</span>
+                  <h4 id="now-playing-piece" class="now-playing-piece">Ouverture A</h4>
+                  <div class="now-playing-version-row">
+                    <span id="now-playing-dot" class="type-dot" aria-hidden="true"></span>
+                    <span id="now-playing-version-label" class="now-playing-version-label">Version 1</span>
+                  </div>
+                </div>
+
+                <!-- Artwork Preview (Clickable to open Lightbox) -->
+                <button
+                  type="button"
+                  id="now-playing-artwork"
+                  class="now-playing-artwork"
+                  aria-label="View artwork details in lightbox"
+                  title="Click to view artwork details"
+                >
+                  <div class="now-playing-artwork__frame">
+                    <img id="now-playing-artwork-img" src="" alt="" class="now-playing-artwork__img" />
+                    <div class="now-playing-artwork__zoom-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="7" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        <line x1="11" y1="8" x2="11" y2="14" />
+                        <line x1="8" y1="11" x2="14" y2="11" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="now-playing-artwork__details">
+                    <span id="now-playing-art-title" class="now-playing-artwork__title"></span>
+                    <span id="now-playing-art-author" class="now-playing-artwork__author"></span>
+                    <span class="now-playing-artwork__hint">Click to enlarge</span>
+                  </div>
+                </button>
+
+                <!-- Controls & Progress: Piece progress line, Prev, Next -->
+                <div class="now-playing-controls-bar">
+                  <div class="now-playing-progress-meta">
+                    <span class="now-playing-progress-label">Piece</span>
+                    <span id="now-playing-counter" class="now-playing-counter">1 / 12</span>
+                  </div>
+                  <div
+                    class="now-playing-progress-line"
+                    role="progressbar"
+                    id="now-playing-progress-bar"
+                    aria-valuemin="1"
+                    aria-valuemax="12"
+                    aria-valuenow="1"
+                  >
+                    <div id="now-playing-progress-fill" class="now-playing-progress-fill" style="width: 8%;"></div>
+                  </div>
+
+                  <div class="now-playing-nav-actions">
+                    <button type="button" id="now-playing-prev-btn" class="now-playing-btn" aria-label="Previous piece">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                      <span>Previous</span>
+                    </button>
+                    <button type="button" id="now-playing-next-btn" class="now-playing-btn" aria-label="Next piece">
+                      <span>Next</span>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Discreet notice for pieces that could not be played -->
+                <div id="now-playing-error-notice" class="now-playing-error-notice" style="display: none;" role="status"></div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div id="movements-list" class="movements-list">
           <!-- Populated dynamically by client script in a responsive grid -->
@@ -213,19 +336,11 @@ const totalSubsections = movementsCatalog.reduce(
       </section>
 
       <!-- PART 2: The paintings of your version -->
-      <section
-        class="selection-part selection-part--paintings"
-        aria-labelledby="part2-heading"
-      >
+      <section class="selection-part selection-part--paintings" aria-labelledby="part2-heading">
         <header class="part-header">
           <span class="part-tag">Part 2</span>
-          <h3 id="part2-heading" class="part-title">
-            The paintings of your version
-          </h3>
-          <p class="part-subtitle">
-            The visual works that accompany your selected interpretations,
-            presented in the musical order of the suite.
-          </p>
+          <h3 id="part2-heading" class="part-title">The paintings of your version</h3>
+          <p class="part-subtitle">The visual works that accompany your selected interpretations, presented in the musical order of the suite.</p>
         </header>
 
         <div class="paintings-wall" id="paintings-wall">
@@ -249,17 +364,9 @@ const totalSubsections = movementsCatalog.reduce(
         class="library-lightbox__close-btn"
         aria-label="Close dialog"
       >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        >
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
 
@@ -272,18 +379,8 @@ const totalSubsections = movementsCatalog.reduce(
             class="library-lightbox__nav library-lightbox__nav--prev"
             aria-label="Previous artwork"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points="15 18 9 12 15 6"></polyline>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
 
@@ -300,18 +397,8 @@ const totalSubsections = movementsCatalog.reduce(
             class="library-lightbox__nav library-lightbox__nav--next"
             aria-label="Next artwork"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
             </svg>
           </button>
 
@@ -319,22 +406,17 @@ const totalSubsections = movementsCatalog.reduce(
             id="library-lightbox-counter"
             class="library-lightbox__counter"
             aria-live="polite"
-            aria-atomic="true"></span>
+            aria-atomic="true"
+          ></span>
         </div>
 
         <!-- Right: Text details -->
         <div class="library-lightbox__info">
           <span id="library-lightbox-tag" class="library-lightbox__tag"></span>
-          <h2 id="library-lightbox-caption" class="library-lightbox__caption">
-          </h2>
-          <p
-            id="library-lightbox-explanation"
-            class="library-lightbox__explanation"
-          >
-          </p>
+          <h2 id="library-lightbox-caption" class="library-lightbox__caption"></h2>
+          <p id="library-lightbox-explanation" class="library-lightbox__explanation"></p>
           <div id="library-lightbox-meta" class="library-lightbox__meta">
-            <span id="library-lightbox-credit" class="library-lightbox__credit"
-            ></span>
+            <span id="library-lightbox-credit" class="library-lightbox__credit"></span>
           </div>
         </div>
       </div>
@@ -342,16 +424,12 @@ const totalSubsections = movementsCatalog.reduce(
   </dialog>
 
   <!-- Embed JSON Catalog for Client-side hydration -->
-  <script
-    type="application/json"
-    id="library-catalog-data"
-    set:html={JSON.stringify(movementsCatalog)}
-  />
+  <script type="application/json" id="library-catalog-data" set:html={JSON.stringify(movementsCatalog)}></script>
 </BaseLayout>
 
 <script is:inline>
   (function () {
-    const STORAGE_KEY = "bach.finalSelection.v1";
+    const STORAGE_KEY = 'bach.finalSelection.v1';
     let memorySelection = null;
 
     function getStoredSelection() {
@@ -371,50 +449,135 @@ const totalSubsections = movementsCatalog.reduce(
       memorySelection = {};
     }
 
-    const dataEl = document.getElementById("library-catalog-data");
+    const dataEl = document.getElementById('library-catalog-data');
     if (!dataEl) return;
 
     let catalog = [];
     try {
-      catalog = JSON.parse(dataEl.textContent || "[]");
+      catalog = JSON.parse(dataEl.textContent || '[]');
     } catch (e) {
-      console.error("Failed to parse catalog data", e);
+      console.error('Failed to parse catalog data', e);
       return;
     }
 
-    const counterEl = document.getElementById("selection-counter");
-    const clearBtn = document.getElementById("clear-selection-btn");
-    const emptyContainer = document.getElementById("selection-empty");
-    const contentContainer = document.getElementById("selection-content");
-    const movementsListEl = document.getElementById("movements-list");
-    const paintingsWallEl = document.getElementById("paintings-wall");
+    // DOM references
+    const counterEl = document.getElementById('selection-counter');
+    const clearBtn = document.getElementById('clear-selection-btn');
+    const emptyContainer = document.getElementById('selection-empty');
+    const contentContainer = document.getElementById('selection-content');
+    const movementsListEl = document.getElementById('movements-list');
+    const paintingsWallEl = document.getElementById('paintings-wall');
+
+    // Play My Version Elements
+    const playVersionBtn = document.getElementById('play-version-btn');
+    const playVersionBtnLabel = document.getElementById('play-version-btn-label');
+    const nowPlayingPanel = document.getElementById('now-playing-panel');
+    const nowPlayingCloseBtn = document.getElementById('now-playing-close-btn');
+    const nowPlayingAnnouncement = document.getElementById('now-playing-announcement');
+    const nowPlayingMovement = document.getElementById('now-playing-movement');
+    const nowPlayingPiece = document.getElementById('now-playing-piece');
+    const nowPlayingDot = document.getElementById('now-playing-dot');
+    const nowPlayingVersionLabel = document.getElementById('now-playing-version-label');
+    const nowPlayingArtworkBtn = document.getElementById('now-playing-artwork');
+    const nowPlayingArtImg = document.getElementById('now-playing-artwork-img');
+    const nowPlayingArtTitle = document.getElementById('now-playing-art-title');
+    const nowPlayingArtAuthor = document.getElementById('now-playing-art-author');
+    const nowPlayingCounter = document.getElementById('now-playing-counter');
+    const nowPlayingProgressBar = document.getElementById('now-playing-progress-bar');
+    const nowPlayingProgressFill = document.getElementById('now-playing-progress-fill');
+    const nowPlayingPrevBtn = document.getElementById('now-playing-prev-btn');
+    const nowPlayingNextBtn = document.getElementById('now-playing-next-btn');
+    const nowPlayingErrorNotice = document.getElementById('now-playing-error-notice');
+    const playerContinueWrap = document.getElementById('player-continue-wrap');
+    const playerStatusMessage = document.getElementById('player-status-message');
+    const playerContinueBtn = document.getElementById('player-continue-btn');
+    const playerEndedWrap = document.getElementById('player-ended-wrap');
+    const playerReplayBtn = document.getElementById('player-replay-btn');
 
     // Lightbox Elements
-    const lightboxDialog = document.getElementById("library-lightbox");
-    const lightboxClose = document.getElementById("library-lightbox-close");
-    const lightboxPrev = document.getElementById("library-lightbox-prev");
-    const lightboxNext = document.getElementById("library-lightbox-next");
-    const lightboxImg = document.getElementById("library-lightbox-img");
-    const lightboxCounter = document.getElementById("library-lightbox-counter");
-    const lightboxTag = document.getElementById("library-lightbox-tag");
-    const lightboxCaption = document.getElementById("library-lightbox-caption");
-    const lightboxExplanation = document.getElementById(
-      "library-lightbox-explanation",
-    );
-    const lightboxCredit = document.getElementById("library-lightbox-credit");
+    const lightboxDialog = document.getElementById('library-lightbox');
+    const lightboxClose = document.getElementById('library-lightbox-close');
+    const lightboxPrev = document.getElementById('library-lightbox-prev');
+    const lightboxNext = document.getElementById('library-lightbox-next');
+    const lightboxImg = document.getElementById('library-lightbox-img');
+    const lightboxCounter = document.getElementById('library-lightbox-counter');
+    const lightboxTag = document.getElementById('library-lightbox-tag');
+    const lightboxCaption = document.getElementById('library-lightbox-caption');
+    const lightboxExplanation = document.getElementById('library-lightbox-explanation');
+    const lightboxCredit = document.getElementById('library-lightbox-credit');
 
     let activePaintings = [];
     let currentLightboxIdx = 0;
     let activeTriggerBtn = null;
 
+    // YouTube Player State
+    let ytPlayer = null;
+    let ytApiRequested = false;
+    let currentPlaylist = []; // Frozen playlist of pieces currently being played
+    let currentPieceIdx = 0;
+    let isPanelOpen = false;
+
     function escapeHtml(str) {
-      if (!str) return "";
+      if (!str) return '';
       return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Helper: Scroll into view only if not visible
+    function scrollIntoViewIfNeeded(el) {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const inView = rect.top >= 80 && rect.bottom <= (window.innerHeight - 80);
+      if (!inView) {
+        el.scrollIntoView({
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          block: 'nearest'
+        });
+      }
+    }
+
+    // Build the playable playlist from current selection
+    function buildPlayablePlaylist(selection) {
+      const items = [];
+      catalog.forEach((m) => {
+        m.subsections.forEach((sub) => {
+          const chosen = selection[sub.id];
+          if (chosen) {
+            const exp = sub.experiments.find(
+              (e) => e.instrument === chosen.instrument && Number(e.version) === Number(chosen.version)
+            );
+            if (exp && exp.youtubeId) {
+              const rawInst = chosen.instrument;
+              let versionDisplayName = '';
+              if (rawInst === 'harpsichord') {
+                versionDisplayName = 'Harpsichord';
+              } else {
+                versionDisplayName = `Version ${chosen.version}`;
+              }
+
+              items.push({
+                subId: sub.id,
+                subTitle: sub.title,
+                movementTitle: m.title,
+                movementSlug: m.slug,
+                instrument: rawInst,
+                version: chosen.version,
+                type: exp.type || null,
+                youtubeId: exp.youtubeId,
+                versionDisplayName,
+                ref: exp.ref || null,
+              });
+            }
+          }
+        });
+      });
+      return items;
     }
 
     function renderSelection() {
@@ -439,30 +602,45 @@ const totalSubsections = movementsCatalog.reduce(
       }
 
       if (chosenCount === 0) {
-        if (emptyContainer) emptyContainer.style.display = "block";
-        if (contentContainer) contentContainer.style.display = "none";
-        if (clearBtn) clearBtn.style.display = "none";
+        if (emptyContainer) emptyContainer.style.display = 'block';
+        if (contentContainer) contentContainer.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (isPanelOpen) closeNowPlayingPanel();
         return;
       }
 
-      if (emptyContainer) emptyContainer.style.display = "none";
-      if (contentContainer) contentContainer.style.display = "flex";
-      if (clearBtn) clearBtn.style.display = "inline-flex";
+      if (emptyContainer) emptyContainer.style.display = 'none';
+      if (contentContainer) contentContainer.style.display = 'flex';
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+
+      // Update Play My Version button state
+      const playableItems = buildPlayablePlaylist(selection);
+      if (playVersionBtn && playVersionBtnLabel) {
+        if (playableItems.length === 0) {
+          playVersionBtn.disabled = true;
+          playVersionBtn.classList.add('is-disabled');
+          playVersionBtnLabel.textContent = 'Choose at least one version in the Laboratory';
+        } else {
+          playVersionBtn.disabled = false;
+          playVersionBtn.classList.remove('is-disabled');
+          const countStr = `${playableItems.length} piece${playableItems.length === 1 ? '' : 's'}`;
+          playVersionBtnLabel.textContent = `Play my version (${countStr})`;
+        }
+      }
 
       // ── PART 1: The version, in order (GRID) ────
-      let listHtml = "";
+      let listHtml = '';
       catalog.forEach((m) => {
         let chosenInMov = 0;
         m.subsections.forEach((sub) => {
           if (selection[sub.id]) chosenInMov++;
         });
 
-        const statusPill =
-          chosenInMov === m.subsections.length
-            ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
-            : chosenInMov > 0
-              ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
-              : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
+        const statusPill = chosenInMov === m.subsections.length
+          ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
+          : chosenInMov > 0
+            ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
+            : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
 
         listHtml += `
           <div class="movement-group">
@@ -480,21 +658,15 @@ const totalSubsections = movementsCatalog.reduce(
           const chosen = selection[sub.id];
           if (chosen) {
             const exp = sub.experiments.find(
-              (e) =>
-                e.instrument === chosen.instrument &&
-                Number(e.version) === Number(chosen.version),
+              (e) => e.instrument === chosen.instrument && Number(e.version) === Number(chosen.version)
             );
-            const dotType = exp?.type
-              ? `type-dot--${exp.type}`
-              : "type-dot--neutral";
-            const instName =
-              chosen.instrument === "harpsichord" ? "Harpsichord" : "Piano";
-            const versionLabel =
-              exp?.versionLabel || `${instName} (Version ${chosen.version})`;
+            const dotType = exp?.type ? `type-dot--${exp.type}` : 'type-dot--neutral';
+            const instName = chosen.instrument === 'harpsichord' ? 'Harpsichord' : 'Piano';
+            const versionLabel = exp?.versionLabel || `${instName} (Version ${chosen.version})`;
             const linkHref = `${m.slug}#${sub.id}:exp-${chosen.instrument}-${chosen.version}`;
 
             listHtml += `
-              <li class="subsection-row is-chosen">
+              <li class="subsection-row is-chosen" data-sub-id="${escapeHtml(sub.id)}" data-instrument="${escapeHtml(chosen.instrument)}" data-version="${escapeHtml(chosen.version)}">
                 <div class="subsection-row__info">
                   <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
                   <div class="subsection-row__choice">
@@ -502,15 +674,17 @@ const totalSubsections = movementsCatalog.reduce(
                     <span class="choice-label">${escapeHtml(versionLabel)}</span>
                   </div>
                 </div>
-                <a href="${linkHref}" class="subsection-row__link" aria-label="Go to experiment for ${escapeHtml(sub.title)}">
-                  Go to experiment →
-                </a>
+                <div class="subsection-row__actions">
+                  <a href="${linkHref}" class="subsection-row__link" aria-label="Go to experiment for ${escapeHtml(sub.title)}">
+                    Go to experiment →
+                  </a>
+                </div>
               </li>
             `;
 
-            // If this experiment has a visual reference, collect for Part 2
             if (exp && exp.ref) {
               activePaintings.push({
+                subId: sub.id,
                 movementTitle: m.title,
                 subTitle: sub.title,
                 versionLabel,
@@ -519,17 +693,18 @@ const totalSubsections = movementsCatalog.reduce(
               });
             }
           } else {
-            // Unchosen row
             const linkHref = `${m.slug}#${sub.id}`;
             listHtml += `
-              <li class="subsection-row is-unchosen">
+              <li class="subsection-row is-unchosen" data-sub-id="${escapeHtml(sub.id)}">
                 <div class="subsection-row__info">
                   <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
                   <span class="unchosen-label">Not chosen yet</span>
                 </div>
-                <a href="${linkHref}" class="subsection-row__link subsection-row__link--dim" aria-label="Explore ${escapeHtml(sub.title)}">
-                  Explore section →
-                </a>
+                <div class="subsection-row__actions">
+                  <a href="${linkHref}" class="subsection-row__link subsection-row__link--dim" aria-label="Explore ${escapeHtml(sub.title)}">
+                    Explore section →
+                  </a>
+                </div>
               </li>
             `;
           }
@@ -543,6 +718,7 @@ const totalSubsections = movementsCatalog.reduce(
 
       if (movementsListEl) {
         movementsListEl.innerHTML = listHtml;
+        setupListRowClicks();
       }
 
       // ── PART 2: The paintings of your version ────
@@ -554,14 +730,15 @@ const totalSubsections = movementsCatalog.reduce(
             </div>
           `;
         } else {
-          let wallHtml = "";
+          let wallHtml = '';
           activePaintings.forEach((item, pIdx) => {
             wallHtml += `
-              <div class="painting-item" data-index="${pIdx}">
+              <div class="painting-item" data-index="${pIdx}" data-sub-id="${escapeHtml(item.subId)}">
                 <button
                   type="button"
                   class="painting-card"
                   data-index="${pIdx}"
+                  data-sub-id="${escapeHtml(item.subId)}"
                   aria-label="View artwork: ${escapeHtml(item.artTitle)}"
                 >
                   <div class="painting-card__frame">
@@ -578,9 +755,9 @@ const totalSubsections = movementsCatalog.reduce(
                     </div>
                   </div>
                   <div class="painting-card__info">
-                    <span class="painting-card__tag">${escapeHtml(item.movementTitle)} (${escapeHtml(item.subTitle)}) · ${escapeHtml(item.versionLabel)}</span>
+                    <span class="painting-card__tag">${escapeHtml(item.tag)}</span>
                     <h4 class="painting-card__title">${escapeHtml(item.artTitle)}</h4>
-                    ${item.authorYear ? `<p class="painting-card__artist">${escapeHtml(item.authorYear)}</p>` : ""}
+                    ${item.authorYear ? `<p class="painting-card__artist">${escapeHtml(item.authorYear)}</p>` : ''}
                   </div>
                 </button>
               </div>
@@ -590,108 +767,136 @@ const totalSubsections = movementsCatalog.reduce(
           setupPaintingsWall();
         }
       }
+
+      // If player is currently running, re-apply active highlight to new DOM
+      if (isPanelOpen && currentPlaylist.length > 0) {
+        syncActiveHighlights(currentPieceIdx);
+      }
+    }
+
+    // ── Setup List Row Clicks (jump to piece in player) ────
+    function setupListRowClicks() {
+      if (!movementsListEl) return;
+      const chosenRows = movementsListEl.querySelectorAll('.subsection-row.is-chosen');
+      chosenRows.forEach((row) => {
+        row.addEventListener('click', (e) => {
+          // If clicked the "Go to experiment" link, let normal navigation occur
+          if (e.target.closest('a')) return;
+
+          const subId = row.getAttribute('data-sub-id');
+          if (!subId) return;
+
+          // If player is open and playlist contains this piece, jump to it
+          if (isPanelOpen && ytPlayer && currentPlaylist.length > 0) {
+            const targetIdx = currentPlaylist.findIndex((item) => item.subId === subId);
+            if (targetIdx !== -1) {
+              if (typeof ytPlayer.playVideoAt === 'function') {
+                ytPlayer.playVideoAt(targetIdx);
+              }
+              return;
+            }
+          }
+
+          // If player is not open, open it starting at this piece
+          const selection = getStoredSelection();
+          const items = buildPlayablePlaylist(selection);
+          const targetIdx = items.findIndex((item) => item.subId === subId);
+          if (targetIdx !== -1) {
+            startPlayback(targetIdx);
+          }
+        });
+      });
     }
 
     // ── Setup Lightbox and Entrance Animations ───────────
     function setupPaintingsWall() {
       if (!paintingsWallEl) return;
-      const cards = paintingsWallEl.querySelectorAll(".painting-card");
-      const items = paintingsWallEl.querySelectorAll(".painting-item");
+      const cards = paintingsWallEl.querySelectorAll('.painting-card');
+      const items = paintingsWallEl.querySelectorAll('.painting-item');
 
       // Scroll entrance animation
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-      if ("IntersectionObserver" in window && !prefersReduced) {
-        paintingsWallEl.classList.add("has-animation");
+      if ('IntersectionObserver' in window && !prefersReducedMotion) {
+        paintingsWallEl.classList.add('has-animation');
         let batchCounter = 0;
         let batchResetTimer = null;
 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                const el = entry.target;
-                observer.unobserve(el);
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const el = entry.target;
+              observer.unobserve(el);
 
-                const delay = (batchCounter % 6) * 60;
-                el.style.transitionDelay = delay + "ms";
-                el.classList.add("is-revealed");
+              const delay = (batchCounter % 6) * 60;
+              el.style.transitionDelay = delay + 'ms';
+              el.classList.add('is-revealed');
 
-                batchCounter++;
-                clearTimeout(batchResetTimer);
-                batchResetTimer = setTimeout(() => {
-                  batchCounter = 0;
-                }, 120);
-              }
-            });
-          },
-          {
-            rootMargin: "0px 0px 50px 0px",
-            threshold: 0.01,
-          },
-        );
+              batchCounter++;
+              clearTimeout(batchResetTimer);
+              batchResetTimer = setTimeout(() => {
+                batchCounter = 0;
+              }, 120);
+            }
+          });
+        }, {
+          rootMargin: '0px 0px 50px 0px',
+          threshold: 0.01
+        });
 
         items.forEach((item) => observer.observe(item));
 
         setTimeout(() => {
           items.forEach((item) => {
-            if (!item.classList.contains("is-revealed")) {
-              item.classList.add("is-revealed");
+            if (!item.classList.contains('is-revealed')) {
+              item.classList.add('is-revealed');
             }
           });
         }, 1200);
       } else {
-        items.forEach((item) => item.classList.add("is-revealed"));
+        items.forEach((item) => item.classList.add('is-revealed'));
       }
 
       // Click card to open lightbox
       cards.forEach((card) => {
-        card.addEventListener("click", () => {
-          const idx = Number(card.getAttribute("data-index"));
+        card.addEventListener('click', () => {
+          const idx = Number(card.getAttribute('data-index'));
           openLightbox(idx, card);
         });
       });
     }
 
     function renderLightboxItem(index) {
-      if (
-        !activePaintings.length ||
-        index < 0 ||
-        index >= activePaintings.length
-      )
-        return;
+      if (!activePaintings.length || index < 0 || index >= activePaintings.length) return;
       currentLightboxIdx = index;
       const item = activePaintings[currentLightboxIdx];
 
       if (lightboxImg) {
         lightboxImg.src = item.src;
-        lightboxImg.alt = item.alt || item.artTitle || "Artwork";
+        lightboxImg.alt = item.alt || item.artTitle || 'Artwork';
       }
       if (lightboxTag) {
-        lightboxTag.textContent = item.tag || "";
+        lightboxTag.textContent = item.tag || '';
       }
       if (lightboxCaption) {
-        lightboxCaption.textContent = item.caption || item.artTitle || "";
+        lightboxCaption.textContent = item.caption || item.artTitle || '';
       }
       if (lightboxExplanation) {
-        lightboxExplanation.textContent = item.explanation || "";
-        lightboxExplanation.style.display = item.explanation ? "" : "none";
+        lightboxExplanation.textContent = item.explanation || '';
+        lightboxExplanation.style.display = item.explanation ? '' : 'none';
       }
       if (lightboxCredit) {
-        lightboxCredit.textContent = item.credit || "";
-        lightboxCredit.style.display = item.credit ? "" : "none";
+        lightboxCredit.textContent = item.credit || '';
+        lightboxCredit.style.display = item.credit ? '' : 'none';
       }
       if (lightboxCounter) {
         lightboxCounter.textContent = `${currentLightboxIdx + 1} / ${activePaintings.length}`;
       }
 
       if (activePaintings.length <= 1) {
-        if (lightboxPrev) lightboxPrev.style.display = "none";
-        if (lightboxNext) lightboxNext.style.display = "none";
+        if (lightboxPrev) lightboxPrev.style.display = 'none';
+        if (lightboxNext) lightboxNext.style.display = 'none';
       } else {
-        if (lightboxPrev) lightboxPrev.style.display = "";
-        if (lightboxNext) lightboxNext.style.display = "";
+        if (lightboxPrev) lightboxPrev.style.display = '';
+        if (lightboxNext) lightboxNext.style.display = '';
       }
     }
 
@@ -700,7 +905,7 @@ const totalSubsections = movementsCatalog.reduce(
       activeTriggerBtn = triggerBtn;
       renderLightboxItem(index);
 
-      if (typeof lightboxDialog.showModal === "function") {
+      if (typeof lightboxDialog.showModal === 'function') {
         lightboxDialog.showModal();
       }
     }
@@ -716,9 +921,7 @@ const totalSubsections = movementsCatalog.reduce(
 
     function showPrev() {
       if (!activePaintings.length) return;
-      currentLightboxIdx =
-        (currentLightboxIdx - 1 + activePaintings.length) %
-        activePaintings.length;
+      currentLightboxIdx = (currentLightboxIdx - 1 + activePaintings.length) % activePaintings.length;
       renderLightboxItem(currentLightboxIdx);
     }
 
@@ -728,40 +931,377 @@ const totalSubsections = movementsCatalog.reduce(
       renderLightboxItem(currentLightboxIdx);
     }
 
-    if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
-    if (lightboxPrev) lightboxPrev.addEventListener("click", showPrev);
-    if (lightboxNext) lightboxNext.addEventListener("click", showNext);
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightboxPrev) lightboxPrev.addEventListener('click', showPrev);
+    if (lightboxNext) lightboxNext.addEventListener('click', showNext);
 
     if (lightboxDialog) {
-      lightboxDialog.addEventListener("click", (e) => {
+      lightboxDialog.addEventListener('click', (e) => {
         if (e.target === lightboxDialog) {
           closeLightbox();
         }
       });
-      lightboxDialog.addEventListener("cancel", (e) => {
+      lightboxDialog.addEventListener('cancel', (e) => {
         e.preventDefault();
         closeLightbox();
       });
     }
 
-    window.addEventListener("keydown", (e) => {
-      if (!lightboxDialog || !lightboxDialog.open) return;
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        showPrev();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        showNext();
+    // ── 4. YouTube IFrame API Loading & Playback Engine ─────────────
+    function loadYouTubeApi(callback) {
+      if (window.YT && window.YT.Player) {
+        callback();
+        return;
       }
-    });
+
+      const existingCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof existingCallback === 'function') {
+          existingCallback();
+        }
+        callback();
+      };
+
+      if (!ytApiRequested) {
+        ytApiRequested = true;
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+      }
+    }
+
+    // Start or restart playback with frozen playlist
+    function startPlayback(startIndex = 0) {
+      const selection = getStoredSelection();
+      const items = buildPlayablePlaylist(selection);
+      if (!items.length) return;
+
+      currentPlaylist = items;
+      currentPieceIdx = Math.max(0, Math.min(startIndex, currentPlaylist.length - 1));
+      isPanelOpen = true;
+
+      if (nowPlayingPanel) {
+        nowPlayingPanel.style.display = 'block';
+        scrollIntoViewIfNeeded(nowPlayingPanel);
+      }
+      if (playerEndedWrap) playerEndedWrap.style.display = 'none';
+      if (playerContinueWrap) playerContinueWrap.style.display = 'none';
+      if (nowPlayingErrorNotice) nowPlayingErrorNotice.style.display = 'none';
+
+      updateNowPlayingUI(currentPieceIdx);
+
+      loadYouTubeApi(() => {
+        initOrUpdatePlayer(currentPieceIdx);
+      });
+    }
+
+    function initOrUpdatePlayer(startIndex) {
+      const playlistIds = currentPlaylist.map((item) => item.youtubeId);
+
+      if (!ytPlayer) {
+        // Create single player instance
+        ytPlayer = new window.YT.Player('yt-player-container', {
+          host: 'https://www.youtube-nocookie.com',
+          playerVars: {
+            rel: 0,
+            playsinline: 1,
+            modestbranding: 1,
+            autoplay: 1,
+          },
+          events: {
+            onReady: (event) => {
+              try {
+                event.target.loadPlaylist(playlistIds, startIndex);
+              } catch (e) {
+                console.error('Error loading playlist', e);
+              }
+            },
+            onStateChange: handlePlayerStateChange,
+            onError: handlePlayerError,
+          },
+        });
+      } else {
+        // Player already exists: reload with playlist
+        try {
+          if (typeof ytPlayer.loadPlaylist === 'function') {
+            ytPlayer.loadPlaylist(playlistIds, startIndex);
+          }
+        } catch (e) {
+          console.error('Error switching playlist', e);
+        }
+      }
+    }
+
+    function handlePlayerStateChange(event) {
+      if (!isPanelOpen || !ytPlayer) return;
+
+      const state = event.data;
+      if (state === window.YT.PlayerState.PLAYING || state === window.YT.PlayerState.BUFFERING) {
+        if (playerContinueWrap) playerContinueWrap.style.display = 'none';
+        if (playerEndedWrap) playerEndedWrap.style.display = 'none';
+
+        try {
+          const pIdx = ytPlayer.getPlaylistIndex();
+          if (typeof pIdx === 'number' && pIdx >= 0 && pIdx < currentPlaylist.length) {
+            currentPieceIdx = pIdx;
+            updateNowPlayingUI(currentPieceIdx);
+          }
+        } catch (e) {}
+      } else if (state === window.YT.PlayerState.ENDED) {
+        try {
+          const pIdx = ytPlayer.getPlaylistIndex();
+          // Check if end of playlist
+          if (pIdx === -1 || pIdx >= currentPlaylist.length - 1) {
+            showEndOfVersion();
+          }
+        } catch (e) {
+          showEndOfVersion();
+        }
+      } else if (state === window.YT.PlayerState.PAUSED) {
+        // Check if browser blocked autoplay on transition
+        try {
+          const pIdx = ytPlayer.getPlaylistIndex();
+          if (pIdx > 0 && ytPlayer.getCurrentTime() === 0) {
+            showContinuePrompt('Playback paused by browser');
+          }
+        } catch (e) {}
+      }
+    }
+
+    function handlePlayerError(event) {
+      if (!isPanelOpen) return;
+      const failedPiece = currentPlaylist[currentPieceIdx];
+      const failedTitle = failedPiece ? failedPiece.subTitle : `Piece ${currentPieceIdx + 1}`;
+
+      if (nowPlayingErrorNotice) {
+        nowPlayingErrorNotice.textContent = `${failedTitle} could not be played. Advancing to next piece...`;
+        nowPlayingErrorNotice.style.display = 'block';
+      }
+
+      // Advance to next piece if available
+      if (currentPieceIdx < currentPlaylist.length - 1) {
+        setTimeout(() => {
+          try {
+            if (ytPlayer && typeof ytPlayer.nextVideo === 'function') {
+              ytPlayer.nextVideo();
+            }
+          } catch (e) {
+            showContinuePrompt('Click to continue to next piece');
+          }
+        }, 1200);
+      } else {
+        showEndOfVersion();
+      }
+    }
+
+    function showContinuePrompt(msg) {
+      if (playerStatusMessage) playerStatusMessage.textContent = msg || 'Playback paused by browser.';
+      if (playerContinueWrap) playerContinueWrap.style.display = 'flex';
+    }
+
+    function showEndOfVersion() {
+      if (playerEndedWrap) playerEndedWrap.style.display = 'flex';
+      if (nowPlayingAnnouncement) nowPlayingAnnouncement.textContent = 'End of your version. Complete.';
+      clearActiveHighlights();
+    }
+
+    function updateNowPlayingUI(index) {
+      if (!currentPlaylist.length || index < 0 || index >= currentPlaylist.length) return;
+      const item = currentPlaylist[index];
+      const total = currentPlaylist.length;
+
+      // Update text details
+      if (nowPlayingMovement) nowPlayingMovement.textContent = item.movementTitle;
+      if (nowPlayingPiece) nowPlayingPiece.textContent = item.subTitle;
+
+      // Update version tag & dot
+      if (nowPlayingVersionLabel) {
+        nowPlayingVersionLabel.textContent = item.versionDisplayName;
+        if (item.instrument === 'harpsichord') {
+          nowPlayingVersionLabel.classList.add('is-harpsichord');
+        } else {
+          nowPlayingVersionLabel.classList.remove('is-harpsichord');
+        }
+      }
+
+      if (nowPlayingDot) {
+        nowPlayingDot.className = 'type-dot';
+        if (item.instrument === 'harpsichord') {
+          nowPlayingDot.classList.add('type-dot--harpsichord');
+        } else if (item.type) {
+          nowPlayingDot.classList.add(`type-dot--${item.type}`);
+        } else {
+          nowPlayingDot.classList.add('type-dot--neutral');
+        }
+      }
+
+      // Update Artwork Preview
+      if (item.ref && item.ref.src) {
+        if (nowPlayingArtImg) {
+          nowPlayingArtImg.src = item.ref.src;
+          nowPlayingArtImg.alt = item.ref.alt || item.ref.artTitle || 'Artwork';
+        }
+        if (nowPlayingArtTitle) nowPlayingArtTitle.textContent = item.ref.artTitle || 'Artwork';
+        if (nowPlayingArtAuthor) nowPlayingArtAuthor.textContent = item.ref.authorYear || '';
+        if (nowPlayingArtworkBtn) {
+          nowPlayingArtworkBtn.setAttribute(
+            'aria-label',
+            `View artwork: ${item.ref.artTitle || 'Artwork'}${item.ref.authorYear ? ` by ${item.ref.authorYear}` : ''}`
+          );
+        }
+      }
+
+      // Update progress
+      if (nowPlayingCounter) nowPlayingCounter.textContent = `${index + 1} / ${total}`;
+      const pct = Math.round(((index + 1) / total) * 100);
+      if (nowPlayingProgressFill) nowPlayingProgressFill.style.width = `${pct}%`;
+      if (nowPlayingProgressBar) nowPlayingProgressBar.setAttribute('aria-valuenow', String(index + 1));
+
+      // Update Nav buttons state
+      if (nowPlayingPrevBtn) nowPlayingPrevBtn.disabled = index === 0;
+      if (nowPlayingNextBtn) nowPlayingNextBtn.disabled = index >= total - 1;
+
+      // Screen reader announcement
+      if (nowPlayingAnnouncement) {
+        nowPlayingAnnouncement.textContent = `Now playing: ${item.subTitle} — ${item.versionDisplayName}`;
+      }
+
+      // Synchronize highlighting in Part 1 (list) and Part 2 (wall)
+      syncActiveHighlights(index);
+    }
+
+    function syncActiveHighlights(index) {
+      if (!currentPlaylist[index]) return;
+      const targetSubId = currentPlaylist[index].subId;
+
+      // Highlight in Part 1 (movements list)
+      if (movementsListEl) {
+        const rows = movementsListEl.querySelectorAll('.subsection-row');
+        rows.forEach((row) => {
+          const isCurrent = row.getAttribute('data-sub-id') === targetSubId;
+          row.classList.toggle('is-now-playing', isCurrent);
+        });
+      }
+
+      // Highlight in Part 2 (paintings wall)
+      if (paintingsWallEl) {
+        const cards = paintingsWallEl.querySelectorAll('.painting-card');
+        cards.forEach((card) => {
+          const isCurrent = card.getAttribute('data-sub-id') === targetSubId;
+          card.classList.toggle('is-now-playing', isCurrent);
+        });
+      }
+    }
+
+    function clearActiveHighlights() {
+      if (movementsListEl) {
+        movementsListEl.querySelectorAll('.subsection-row.is-now-playing').forEach((el) => {
+          el.classList.remove('is-now-playing');
+        });
+      }
+      if (paintingsWallEl) {
+        paintingsWallEl.querySelectorAll('.painting-card.is-now-playing').forEach((el) => {
+          el.classList.remove('is-now-playing');
+        });
+      }
+    }
+
+    function closeNowPlayingPanel() {
+      isPanelOpen = false;
+      if (nowPlayingPanel) nowPlayingPanel.style.display = 'none';
+
+      // Destroy YouTube player instance to stop audio and free resources
+      if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+        try {
+          ytPlayer.destroy();
+        } catch (e) {}
+        ytPlayer = null;
+      }
+
+      clearActiveHighlights();
+      currentPlaylist = [];
+      if (playVersionBtn) playVersionBtn.focus();
+    }
+
+    // ── Event Listeners for Player Controls ─────────────────────────
+    if (playVersionBtn) {
+      playVersionBtn.addEventListener('click', () => {
+        startPlayback(0);
+      });
+    }
+
+    if (nowPlayingCloseBtn) {
+      nowPlayingCloseBtn.addEventListener('click', closeNowPlayingPanel);
+    }
+
+    if (nowPlayingArtworkBtn) {
+      nowPlayingArtworkBtn.addEventListener('click', () => {
+        if (!currentPlaylist.length || currentPieceIdx < 0 || currentPieceIdx >= currentPlaylist.length) return;
+        const currentItem = currentPlaylist[currentPieceIdx];
+        if (!currentItem) return;
+
+        let pIdx = activePaintings.findIndex((p) => p.subId === currentItem.subId);
+        if (pIdx === -1 && currentItem.ref) {
+          activePaintings.push({
+            subId: currentItem.subId,
+            movementTitle: currentItem.movementTitle,
+            subTitle: currentItem.subTitle,
+            versionLabel: currentItem.versionDisplayName,
+            tag: `${currentItem.movementTitle} (${currentItem.subTitle}) · ${currentItem.versionDisplayName}`,
+            ...currentItem.ref,
+          });
+          pIdx = activePaintings.length - 1;
+        }
+
+        if (pIdx !== -1) {
+          openLightbox(pIdx, nowPlayingArtworkBtn);
+        }
+      });
+    }
+
+    if (nowPlayingPrevBtn) {
+      nowPlayingPrevBtn.addEventListener('click', () => {
+        if (!ytPlayer || currentPieceIdx <= 0) return;
+        try {
+          if (typeof ytPlayer.previousVideo === 'function') {
+            ytPlayer.previousVideo();
+          }
+        } catch (e) {}
+      });
+    }
+
+    if (nowPlayingNextBtn) {
+      nowPlayingNextBtn.addEventListener('click', () => {
+        if (!ytPlayer || currentPieceIdx >= currentPlaylist.length - 1) return;
+        try {
+          if (typeof ytPlayer.nextVideo === 'function') {
+            ytPlayer.nextVideo();
+          }
+        } catch (e) {}
+      });
+    }
+
+    if (playerContinueBtn) {
+      playerContinueBtn.addEventListener('click', () => {
+        if (playerContinueWrap) playerContinueWrap.style.display = 'none';
+        if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+          ytPlayer.playVideo();
+        }
+      });
+    }
+
+    if (playerReplayBtn) {
+      playerReplayBtn.addEventListener('click', () => {
+        startPlayback(0);
+      });
+    }
 
     // Clear Selection Handler
     if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        const confirmed = window.confirm(
-          "Are you sure you want to clear your entire selection?",
-        );
+      clearBtn.addEventListener('click', () => {
+        const confirmed = window.confirm('Are you sure you want to clear your entire selection?');
         if (confirmed) {
+          closeNowPlayingPanel();
           clearStoredSelection();
           renderSelection();
         }
@@ -769,9 +1309,21 @@ const totalSubsections = movementsCatalog.reduce(
     }
 
     // Sync across tabs
-    window.addEventListener("storage", (e) => {
+    window.addEventListener('storage', (e) => {
       if (e.key === STORAGE_KEY) {
         renderSelection();
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (lightboxDialog && lightboxDialog.open) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          showPrev();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          showNext();
+        }
       }
     });
 
@@ -964,13 +1516,7 @@ const totalSubsections = movementsCatalog.reduce(
   .selection-part {
     display: flex;
     flex-direction: column;
-    gap: var(--space-xl);
-  }
-
-  .selection-part--paintings {
-    margin-top: clamp(3.5rem, 6vw, 6rem);
-    padding-top: clamp(2.5rem, 5vw, 4.5rem);
-    border-top: 1px solid rgba(26, 23, 20, 0.1);
+    gap: var(--space-lg);
   }
 
   .part-header {
@@ -1004,6 +1550,541 @@ const totalSubsections = movementsCatalog.reduce(
     color: var(--color-ink-soft);
     max-width: var(--measure);
     margin: 0;
+  }
+
+  /* ══════════════════ PLAYBACK TRIGGER BAR ══════════════════ */
+  .playback-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .play-version-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--color-ink);
+    color: var(--color-cream);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.15);
+    transition: background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+  }
+
+  .play-version-btn:hover:not(:disabled) {
+    background: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .play-version-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  .play-version-btn:disabled,
+  .play-version-btn.is-disabled {
+    background: rgba(26, 23, 20, 0.12);
+    color: var(--color-ink-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .play-version-btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent-light);
+  }
+
+  .play-version-btn:disabled .play-version-btn__icon {
+    color: var(--color-ink-muted);
+  }
+
+  /* ══════════════════ NOW PLAYING PANEL ══════════════════ */
+  .now-playing-panel {
+    background: #14120e;
+    color: var(--color-cream);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+    animation: fadeInPanel 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeInPanel {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .now-playing-panel__container {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .now-playing-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .now-playing-status-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .now-playing-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 10px #34d399;
+    animation: pulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulseRing {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.45;
+      transform: scale(1.3);
+    }
+  }
+
+  .now-playing-status-text {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+  }
+
+  .now-playing-close-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245, 240, 232, 0.75);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .now-playing-close-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-white);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .now-playing-panel__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: stretch;
+  }
+
+  /* Left Column: Player */
+  .now-playing-media-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .now-playing-player-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .now-playing-iframe-slot {
+    width: 100%;
+    height: 100%;
+  }
+
+  .now-playing-iframe-slot iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* Overlay states: Continue prompt & End of Version */
+  .player-continue-wrap,
+  .player-ended-wrap {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 12, 8, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    z-index: 5;
+  }
+
+  .player-continue-msg {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-cream);
+    margin-bottom: 1rem;
+  }
+
+  .player-continue-btn,
+  .player-replay-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-accent);
+    color: var(--color-cream);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 1.4rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+
+  .player-continue-btn:hover,
+  .player-replay-btn:hover {
+    background: var(--color-accent-light);
+    color: var(--color-ink);
+  }
+
+  .player-ended-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 320px;
+  }
+
+  .player-ended-badge {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .player-ended-heading {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--color-cream);
+    margin: 0;
+  }
+
+  .player-ended-desc {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: rgba(245, 240, 232, 0.7);
+    margin: 0;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  /* Right Column: Info & Artwork */
+  .now-playing-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .now-playing-meta-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .now-playing-movement {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+  }
+
+  .now-playing-piece {
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    font-weight: 400;
+    color: var(--color-cream);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .now-playing-version-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
+  }
+
+  .now-playing-version-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(245, 240, 232, 0.85);
+  }
+
+  .now-playing-version-label.is-harpsichord {
+    color: var(--type-harpsichord);
+    font-weight: 600;
+  }
+
+  /* Artwork Preview */
+  .now-playing-artwork {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .now-playing-artwork:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(212, 160, 23, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .now-playing-artwork:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .now-playing-artwork__frame {
+    position: relative;
+    width: 68px;
+    height: 88px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #000;
+  }
+
+  .now-playing-artwork__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-base);
+  }
+
+  .now-playing-artwork:hover .now-playing-artwork__img {
+    transform: scale(1.05);
+  }
+
+  .now-playing-artwork__zoom-icon {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(15, 12, 8, 0.7);
+    color: var(--color-cream);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity var(--transition-fast), background var(--transition-fast);
+  }
+
+  .now-playing-artwork:hover .now-playing-artwork__zoom-icon {
+    opacity: 1;
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  .now-playing-artwork__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .now-playing-artwork__title {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-style: italic;
+    color: var(--color-cream);
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .now-playing-artwork__author {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: rgba(245, 240, 232, 0.6);
+  }
+
+  .now-playing-artwork__hint {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    color: var(--color-accent-light);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 0.15rem;
+    opacity: 0.85;
+    transition: opacity var(--transition-fast);
+  }
+
+  .now-playing-artwork:hover .now-playing-artwork__hint {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  /* Controls & Progress bar */
+  .now-playing-controls-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .now-playing-progress-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .now-playing-progress-label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245, 240, 232, 0.6);
+  }
+
+  .now-playing-counter {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-cream);
+  }
+
+  .now-playing-progress-line {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .now-playing-progress-fill {
+    height: 100%;
+    background: var(--color-accent-light);
+    border-radius: 999px;
+    transition: width 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .now-playing-nav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .now-playing-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.8rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-cream);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .now-playing-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-accent-light);
+    color: var(--color-white);
+  }
+
+  .now-playing-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .now-playing-error-notice {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.65rem;
+    margin-top: 0.25rem;
+  }
+
+  /* ══════════════════ ACTIVE NOW PLAYING HIGHLIGHTS ══════════════════ */
+  .subsection-row.is-now-playing {
+    border-left: 4px solid var(--color-accent) !important;
+    background: rgba(184, 134, 11, 0.1) !important;
+  }
+
+  .painting-card.is-now-playing .painting-card__frame {
+    box-shadow: 0 0 0 2px var(--color-accent), 0 8px 28px rgba(184, 134, 11, 0.3) !important;
   }
 
   /* ══════════════════ PART 1: MOVEMENTS GRID ══════════════════ */
@@ -1119,6 +2200,7 @@ const totalSubsections = movementsCatalog.reduce(
   .subsection-row.is-chosen {
     background: var(--color-cream);
     border-left: 3px solid var(--color-accent);
+    cursor: pointer;
   }
 
   .subsection-row.is-unchosen {
@@ -1172,9 +2254,7 @@ const totalSubsections = movementsCatalog.reduce(
     align-items: center;
     gap: 0.25rem;
     align-self: flex-start;
-    transition:
-      color var(--transition-fast),
-      transform var(--transition-fast);
+    transition: color var(--transition-fast), transform var(--transition-fast);
   }
 
   .subsection-row__link:hover {
@@ -1220,6 +2300,12 @@ const totalSubsections = movementsCatalog.reduce(
   }
 
   /* ══════════════════ PART 2: PAINTINGS PICTURE WALL ══════════════════ */
+  .selection-part--paintings {
+    margin-top: clamp(3.5rem, 6vw, 6rem);
+    padding-top: clamp(2.5rem, 5vw, 4.5rem);
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+  }
+
   .paintings-wall {
     column-count: 4;
     column-gap: 1.5rem;
@@ -1255,10 +2341,9 @@ const totalSubsections = movementsCatalog.reduce(
     opacity: 0;
     clip-path: inset(100% 0 0 0);
     transform: translateY(16px);
-    transition:
-      clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 700ms ease;
+    transition: clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 700ms ease;
     will-change: clip-path, transform, opacity;
   }
 
@@ -1294,9 +2379,7 @@ const totalSubsections = movementsCatalog.reduce(
     border-radius: var(--radius-sm);
     background: var(--color-cream-dark);
     box-shadow: 0 4px 18px rgba(15, 12, 8, 0.08);
-    transition:
-      box-shadow var(--transition-base),
-      transform var(--transition-base);
+    transition: box-shadow var(--transition-base), transform var(--transition-base);
   }
 
   .painting-card:hover .painting-card__frame {
@@ -1328,9 +2411,7 @@ const totalSubsections = movementsCatalog.reduce(
     );
     opacity: 0;
     transform: translateY(6px);
-    transition:
-      opacity 300ms ease,
-      transform 300ms ease;
+    transition: opacity 300ms ease, transform 300ms ease;
     pointer-events: none;
     display: flex;
     align-items: flex-end;
@@ -1434,9 +2515,7 @@ const totalSubsections = movementsCatalog.reduce(
     border-radius: 50%;
     color: var(--color-ink);
     cursor: pointer;
-    transition:
-      background var(--transition-fast),
-      transform var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast);
   }
 
   .library-lightbox__close-btn:hover {
@@ -1483,9 +2562,7 @@ const totalSubsections = movementsCatalog.reduce(
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition:
-      background var(--transition-fast),
-      transform var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast);
   }
 
   .library-lightbox__nav:hover {
@@ -1558,6 +2635,11 @@ const totalSubsections = movementsCatalog.reduce(
 
   /* ══════════════════ RESPONSIVE ══════════════════ */
   @media (max-width: 900px) {
+    .now-playing-panel__body {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
     .library-lightbox__body {
       grid-template-columns: 1fr;
       overflow-y: auto;
@@ -1588,6 +2670,14 @@ const totalSubsections = movementsCatalog.reduce(
       flex-direction: column;
       align-items: flex-start;
       gap: 0.5rem;
+    }
+
+    .now-playing-panel__container {
+      padding: 1rem;
+    }
+
+    .now-playing-artwork {
+      flex-direction: row;
     }
   }
 </style>

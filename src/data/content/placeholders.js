@@ -79,7 +79,7 @@ export function generatePlaceholderExperiments(
       type,
       badge,
       title: override.title || defaultTitle,
-      description: override.description !== undefined ? override.description : defaultDescription,
+      // description: override.description !== undefined ? override.description : defaultDescription,
       images,
     };
   });
