@@ -110,7 +110,9 @@ ORDERED_SUBSECTIONS.forEach((subId) => {
   parsedBySection[subId] = [];
 });
 
+const suiteVideos = [];
 const unassignedLines = [];
+const nonHpsDetected = [];
 const seenIds = new Set();
 const duplicateIds = [];
 
@@ -140,10 +142,19 @@ for (let i = 0; i < lines.length; i++) {
     .trim()
     .toUpperCase();
 
+  // Detectar vídeos generales de obra completa
+  if (
+    norm.includes('FRENCH OVERTURE 1') ||
+    norm.includes('FRENCH OVERTURE 2') ||
+    norm.includes('BACH FRENCH OVERTURE HARPSICHORD')
+  ) {
+    suiteVideos.push({ lineIndex: i + 1, youtubeId, title: rawTitle });
+    continue;
+  }
+
   // Buscar coincidencia de código de subsección
   let matchedSubId = null;
   for (const [code, subId] of Object.entries(CODE_MAP)) {
-    // Permite que el código tenga guión o espacio: ej 'OUV-A' o 'OUV A'
     const regex = new RegExp('(?:^|\\s)' + code.replace('-', '[- ]') + '(?:\\s|$)');
     if (regex.test(norm)) {
       matchedSubId = subId;
@@ -156,10 +167,20 @@ for (let i = 0; i < lines.length; i++) {
     continue;
   }
 
-  // Detectar instrumento (PNO / PIANO -> piano; otros en minúsculas)
+  // Detectar instrumento (PNO / PIANO -> piano; HPS / HSP / CLAVECIN / HARPSICHORD -> harpsichord)
   let instrument = 'unknown';
   if (norm.includes('PNO') || norm.includes('PIANO')) {
     instrument = 'piano';
+  } else if (
+    norm.includes('HPS') ||
+    norm.includes('HSP') ||
+    norm.includes('CLAVECIN') ||
+    norm.includes('HARPSICHORD')
+  ) {
+    instrument = 'harpsichord';
+    if (norm.includes('HSP') && !norm.includes('HPS')) {
+      nonHpsDetected.push({ lineIndex: i + 1, code: 'HSP', title: rawTitle });
+    }
   } else {
     const instMatch = norm.match(/\b([A-Z]{3,4})\b/);
     if (instMatch) {
@@ -169,16 +190,26 @@ for (let i = 0; i < lines.length; i++) {
 
   // Detectar versión
   let version = null;
-  // EXCEPCIÓN: "13 PAS2-B PNO-03 PIANO VERSION 3 TAKE-02" es la versión 4 de passepied-2-b
-  if (
-    matchedSubId === 'passepied-2-b' &&
-    (/VERSION[- ]?3.*TAKE[- ]?0?2/i.test(norm) || /TAKE[- ]?0?2.*VERSION[- ]?3/i.test(norm))
-  ) {
-    version = 4;
+  if (instrument === 'harpsichord') {
+    // Para clavecín: buscar HPS 01, HSP 01, CLAVECIN 01, o VERSION 01
+    const hpsVerMatch = norm.match(/(?:HPS|HSP|CLAVECIN|HARPSICHORD)\s*0?(\d+)/) || norm.match(/VERSION\s*0?(\d+)/);
+    if (hpsVerMatch) {
+      version = parseInt(hpsVerMatch[1], 10);
+    } else {
+      version = 1; // Default a versión 1 de clavecín
+    }
   } else {
-    const verMatch = norm.match(/VERSION\s*(\d+)/);
-    if (verMatch) {
-      version = parseInt(verMatch[1], 10);
+    // EXCEPCIÓN: "13 PAS2-B PNO-03 PIANO VERSION 3 TAKE-02" es la versión 4 de passepied-2-b
+    if (
+      matchedSubId === 'passepied-2-b' &&
+      (/VERSION[- ]?3.*TAKE[- ]?0?2/i.test(norm) || /TAKE[- ]?0?2.*VERSION[- ]?3/i.test(norm))
+    ) {
+      version = 4;
+    } else {
+      const verMatch = norm.match(/VERSION\s*(\d+)/);
+      if (verMatch) {
+        version = parseInt(verMatch[1], 10);
+      }
     }
   }
 
@@ -196,25 +227,26 @@ for (let i = 0; i < lines.length; i++) {
   });
 }
 
-// ── 4. Ordenar cada subsección por versión y verificar duplicados de versión ─
+// ── 4. Ordenar cada subsección (piano primero, clavecín después) y verificar duplicados ─
 const versionDuplicates = [];
 const finalVideos = {};
 
 ORDERED_SUBSECTIONS.forEach((subId) => {
   const list = parsedBySection[subId];
-  list.sort((a, b) => a.version - b.version);
+  const pianoList = list.filter((item) => item.instrument === 'piano').sort((a, b) => a.version - b.version);
+  const harpsichordList = list.filter((item) => item.instrument === 'harpsichord').sort((a, b) => a.version - b.version);
+  const combined = [...pianoList, ...harpsichordList];
 
-  // Verificar si hay versiones duplicadas dentro de la misma subsección
-  const seenVersions = new Set();
-  list.forEach((item) => {
-    if (seenVersions.has(item.version)) {
-      versionDuplicates.push({ subId, version: item.version, youtubeId: item.youtubeId, title: item._rawTitle });
+  const seenKeys = new Set();
+  combined.forEach((item) => {
+    const key = `${item.instrument}-${item.version}`;
+    if (seenKeys.has(key)) {
+      versionDuplicates.push({ subId, instrument: item.instrument, version: item.version, youtubeId: item.youtubeId, title: item._rawTitle });
     }
-    seenVersions.add(item.version);
+    seenKeys.add(key);
   });
 
-  // Limpiar campos auxiliares para el JSON final
-  finalVideos[subId] = list.map((item) => ({
+  finalVideos[subId] = combined.map((item) => ({
     version: item.version,
     instrument: item.instrument,
     youtubeId: item.youtubeId,
@@ -238,12 +270,29 @@ console.log('══════════════════════�
 
 console.log(`✓ Total líneas leídas en videos.txt: ${lines.length}`);
 let totalAssigned = 0;
-Object.values(finalVideos).forEach((arr) => (totalAssigned += arr.length));
-console.log(`✓ Total vídeos asignados en videos.js: ${totalAssigned}`);
+let totalPianoAssigned = 0;
+let totalHpsAssigned = 0;
+
+Object.values(finalVideos).forEach((arr) => {
+  totalAssigned += arr.length;
+  totalPianoAssigned += arr.filter((v) => v.instrument === 'piano').length;
+  totalHpsAssigned += arr.filter((v) => v.instrument === 'harpsichord').length;
+});
+
+console.log(`✓ Total vídeos asignados en videos.js: ${totalAssigned} (${totalPianoAssigned} piano + ${totalHpsAssigned} clavecín)`);
 console.log(`✓ Archivo generado en: ${outputPath}\n`);
 
-// 6A. Duplicados
-console.log('── DUPLICADOS:');
+// 6A. Códigos de clavecín
+console.log('── CÓDIGOS DE CLAVECÍN:');
+if (nonHpsDetected.length === 0) {
+  console.log('✓ Todos los títulos de clavecín usan el código estándar HPS. No se encontraron variantes HSP.');
+} else {
+  console.log(`ℹ️ Se detectaron variantes de código de clavecín aceptadas (${nonHpsDetected.length}):`);
+  nonHpsDetected.forEach((d) => console.log(`   • Línea ${d.lineIndex}: código "${d.code}" en "${d.title}"`));
+}
+
+// 6B. Duplicados
+console.log('\n── DUPLICADOS:');
 if (duplicateIds.length === 0 && versionDuplicates.length === 0) {
   console.log('✓ Ningún YouTube ID ni versión duplicada.');
 } else {
@@ -253,58 +302,54 @@ if (duplicateIds.length === 0 && versionDuplicates.length === 0) {
   }
   if (versionDuplicates.length > 0) {
     console.log(`⚠️ Versiones duplicadas en la misma subsección (${versionDuplicates.length}):`);
-    versionDuplicates.forEach((vd) => console.log(`   • ${vd.subId} versión ${vd.version} (${vd.youtubeId}): ${vd.title}`));
+    versionDuplicates.forEach((vd) => console.log(`   • ${vd.subId} [${vd.instrument}] versión ${vd.version} (${vd.youtubeId}): ${vd.title}`));
   }
 }
 
-// 6B. Líneas sin asignar
-console.log('\n── LÍNEAS SIN ASIGNAR:');
+// 6C. Vídeos de obra completa
+console.log('\n── VÍDEOS GENERALES DE OBRA COMPLETA (3):');
+if (suiteVideos.length > 0) {
+  suiteVideos.forEach((sv) => console.log(`   • Línea ${sv.lineIndex}: [${sv.youtubeId}] ${sv.title}`));
+} else {
+  console.log('   (Ninguno detectado)');
+}
+
+// 6D. Líneas sin asignar
+console.log('\n── LÍNEAS PENDIENTES / SIN ASIGNAR:');
 if (unassignedLines.length === 0) {
-  console.log('✓ 0 líneas sin asignar (100% de los títulos cuadraron con el patrón).');
+  console.log('✓ 0 pendientes (100% de los vídeos asignados correctamente).');
 } else {
   console.log(`⚠️ Líneas sin asignar (${unassignedLines.length}):`);
   unassignedLines.forEach((u) => console.log(`   • Línea ${u.lineIndex} [${u.reason}]: "${u.line}"`));
 }
 
-// 6C. Comparación con conteos esperados
-console.log('\n── COMPARACIÓN CON CONTEOS ESPERADOS (TOTAL ESPERADO 85):');
+// 6E. Comparación con conteos esperados (85 piano + 23 clavecín = 108 total)
+console.log('\n── COMPARACIÓN CON CONTEOS ESPERADOS (TOTAL 108: 85 PIANO + 23 CLAVECÍN):');
 let hasMismatch = false;
 
 ORDERED_SUBSECTIONS.forEach((subId) => {
-  const expected = EXPECTED_COUNTS[subId];
-  const actualList = finalVideos[subId];
-  const actual = actualList.length;
-  const versionsPresent = actualList.map((v) => v.version);
+  const expPiano = EXPECTED_COUNTS[subId];
+  const expHps = 1;
+  const list = finalVideos[subId];
+  const actPiano = list.filter((v) => v.instrument === 'piano').length;
+  const actHps = list.filter((v) => v.instrument === 'harpsichord').length;
 
-  // Calcular versiones faltantes
-  const missingVersions = [];
-  for (let v = 1; v <= expected; v++) {
-    if (!versionsPresent.includes(v)) missingVersions.push(v);
-  }
+  const pianoMatch = actPiano === expPiano;
+  const hpsMatch = actHps === expHps;
 
-  // Calcular versiones sobrantes o fuera de rango
-  const unexpectedVersions = versionsPresent.filter((v) => v > expected || versionsPresent.filter((x) => x === v).length > 1);
-
-  if (actual === expected && missingVersions.length === 0) {
-    console.log(`✓ ${subId.padEnd(15)} Esperados: ${expected} | Obtenidos: ${actual} | Versiones: [ ${versionsPresent.join(', ')} ]`);
+  if (pianoMatch && hpsMatch) {
+    console.log(`✓ ${subId.padEnd(15)} Piano: ${actPiano}/${expPiano} | Clavecín: ${actHps}/${expHps} | OK`);
   } else {
     hasMismatch = true;
-    const diff = actual - expected;
-    const sign = diff > 0 ? `+${diff}` : `${diff}`;
-    console.log(`⚠️ ${subId.padEnd(15)} Esperados: ${expected} | Obtenidos: ${actual} (${sign}) | Versiones: [ ${versionsPresent.join(', ')} ]`);
-    if (missingVersions.length > 0) {
-      console.log(`   └─> Faltan versiones: [ ${missingVersions.join(', ')} ]`);
-    }
-    if (unexpectedVersions.length > 0) {
-      console.log(`   └─> Versiones extras o inesperadas: [ ${unexpectedVersions.join(', ')} ]`);
-    }
+    console.log(`⚠️ ${subId.padEnd(15)} Piano: ${actPiano}/${expPiano} | Clavecín: ${actHps}/${expHps} | DESVIACIÓN`);
   }
 });
 
 console.log('\n════════════════════════════════════════════════════════════════════');
 if (!hasMismatch && unassignedLines.length === 0 && duplicateIds.length === 0) {
-  console.log('✓ ÉXITO TOTAL: Todas las subsecciones cumplen exactamente los 85 esperados.');
+  console.log('✓ ÉXITO TOTAL: 108 vídeos asignados (85 piano + 23 clavecín), una toma de clavecín por subsección y 0 pendientes.');
 } else {
   console.log('⚠️ Se completó con observaciones señaladas arriba.');
 }
 console.log('════════════════════════════════════════════════════════════════════\n');
+

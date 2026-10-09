@@ -20,7 +20,10 @@ export function generatePlaceholderExperiments(
     const rawInst = v.instrument || 'piano';
     const instCap = rawInst.charAt(0).toUpperCase() + rawInst.slice(1);
 
-    const override = experimentOverrides[v.version] || {};
+    const override =
+      (rawInst === 'piano'
+        ? experimentOverrides[v.version]
+        : experimentOverrides[`harpsichord-${v.version}`] || experimentOverrides.harpsichord) || {};
 
     // 1. Tipo y Badge
     let defaultType = null;
@@ -42,15 +45,21 @@ export function generatePlaceholderExperiments(
       }
     } else if (rawInst === 'harpsichord') {
       defaultType = 'harpsichord';
-      defaultBadge = `${numStr} — Harpsichord / Version ${v.version}`;
+      defaultBadge = 'Change of instrument — Harpsichord';
     }
 
     const type = override.type !== undefined ? override.type : defaultType;
     const badge = override.badge || defaultBadge;
 
     // 2. Título y descripción
-    const defaultTitle = `${sectionTitle} — ${instCap} / Version ${v.version}`;
-    const defaultDescription = `Interpretive experiment ${v.version} exploring touch, tempo and character in ${movementTitle} (${sectionTitle}).`;
+    const defaultTitle =
+      rawInst === 'harpsichord'
+        ? 'Change of instrument — Harpsichord'
+        : `${sectionTitle} — ${instCap} / Version ${v.version}`;
+    const defaultDescription =
+      rawInst === 'harpsichord'
+        ? `Performance on harpsichord exploring historical registration, articulation, and tempo in ${movementTitle} (${sectionTitle}).`
+        : `Interpretive experiment ${v.version} exploring touch, tempo and character in ${movementTitle} (${sectionTitle}).`;
 
     // 3. Imágenes de referencia
     let refImg = null;

@@ -142,7 +142,10 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
                       const dotClass = exp.type ? `type-dot--${exp.type}` : 'type-dot--neutral';
 
                       return (
-                        <article class="experiment-card" aria-labelledby={`exp-title-${sub.id}-${expIdx}`}>
+                        <article
+                          class={`experiment-card ${rawInst === 'harpsichord' ? 'experiment-card--harpsichord' : ''}`}
+                          aria-labelledby={`exp-title-${sub.id}-${expIdx}`}
+                        >
                           <header class="experiment-header">
                             <div class="experiment-badge">
                               <span class={`type-dot ${dotClass}`} aria-hidden="true"></span>
@@ -1005,6 +1008,55 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
 
   .experiment-card:hover {
     box-shadow: 0 8px 30px rgba(26, 23, 20, 0.08);
+  }
+
+  /* ── Harpsichord Distinct Container ─────────────────────── */
+  .experiment-card--harpsichord {
+    background: color-mix(in srgb, var(--type-harpsichord) 16%, #1c1916);
+    border: 1px solid color-mix(in srgb, var(--type-harpsichord) 35%, rgba(255, 255, 255, 0.08));
+    border-left: 5px solid var(--type-harpsichord);
+    box-shadow: 0 10px 30px rgba(15, 12, 8, 0.16);
+  }
+
+  .experiment-card--harpsichord:hover {
+    box-shadow: 0 16px 40px rgba(15, 12, 8, 0.24);
+  }
+
+  .experiment-card--harpsichord .experiment-title {
+    color: var(--color-cream);
+  }
+
+  .experiment-card--harpsichord .experiment-badge {
+    background: rgba(78, 112, 88, 0.18);
+    border: 1px solid rgba(78, 112, 88, 0.35);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    align-self: flex-start;
+  }
+
+  .experiment-card--harpsichord .type-label {
+    color: color-mix(in srgb, var(--type-harpsichord) 75%, var(--color-cream));
+    font-weight: 600;
+    letter-spacing: 0.14em;
+  }
+
+  .experiment-card--harpsichord .type-dot--harpsichord {
+    background-color: var(--type-harpsichord);
+    box-shadow: 0 0 10px rgba(78, 112, 88, 0.8);
+  }
+
+  .experiment-card--harpsichord .experiment-description {
+    color: rgba(245, 240, 232, 0.85);
+  }
+
+  .experiment-card--harpsichord .carousel-placeholder {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(245, 240, 232, 0.2);
+    color: rgba(245, 240, 232, 0.6);
+  }
+
+  .experiment-card--harpsichord .carousel__counter {
+    color: rgba(245, 240, 232, 0.75);
   }
 
   .experiment-header {

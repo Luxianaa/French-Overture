@@ -17,6 +17,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "YqjCFkDK_q4"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "D5uoI3rIAdc"
     }
   ],
   "fugue": [
@@ -34,6 +39,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "duoooZ2Yd9E"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "LyUWn2-HYE4"
     }
   ],
   "ouverture-b": [
@@ -56,6 +66,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "tzgfULuBxkg"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "KdTMZEsF0oE"
     }
   ],
   "courante-a": [
@@ -73,6 +88,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "wIEF4KhZhUI"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "M3Zo_pwNsU4"
     }
   ],
   "courante-b": [
@@ -90,6 +110,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "67_8XiALHu4"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "ytvrropAJK0"
     }
   ],
   "gavotte-1-a": [
@@ -112,6 +137,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "MObvynleX6M"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "3Tas14q23x8"
     }
   ],
   "gavotte-1-b": [
@@ -134,6 +164,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "Xlfm5S9cQKU"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "ONQjUI_t-eQ"
     }
   ],
   "gavotte-2-a": [
@@ -151,6 +186,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "Afejt5eiE9o"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "MFNLCrdTVv8"
     }
   ],
   "gavotte-2-b": [
@@ -168,6 +208,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "sI-VvY_CZjg"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "qfi25fQKNQU"
     }
   ],
   "passepied-1-a": [
@@ -185,6 +230,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "TLjPLFMtFrs"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "MlaO5b9mpy4"
     }
   ],
   "passepied-1-b": [
@@ -207,6 +257,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "Dc_NjBSZSNY"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "ljDhYlXBR8o"
     }
   ],
   "passepied-2-a": [
@@ -229,6 +284,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "7X5NVe7vFZg"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "CziY2ZmqO7Y"
     }
   ],
   "passepied-2-b": [
@@ -266,6 +326,11 @@ export const videos = {
       "version": 7,
       "instrument": "piano",
       "youtubeId": "87aGgcdNCLM"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "cnX388aL5U4"
     }
   ],
   "sarabande-a": [
@@ -283,6 +348,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "JPXZDVhl54s"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "4I27hU4posc"
     }
   ],
   "sarabande-b": [
@@ -300,6 +370,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "SGYqxLecklk"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "CWplwlBRDAo"
     }
   ],
   "bourree-1-a": [
@@ -322,6 +397,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "PiM3zA4V5g8"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "tk5QfRUJp-U"
     }
   ],
   "bourree-1-b": [
@@ -349,6 +429,11 @@ export const videos = {
       "version": 5,
       "instrument": "piano",
       "youtubeId": "O8gk5Eednls"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "qNe4VqmAPUI"
     }
   ],
   "bourree-2-a": [
@@ -371,6 +456,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "5AbOAAZuKNw"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "CCvgIzOOE58"
     }
   ],
   "bourree-2-b": [
@@ -398,6 +488,11 @@ export const videos = {
       "version": 5,
       "instrument": "piano",
       "youtubeId": "3_q5FPtMA7g"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "upJTVs7iDvs"
     }
   ],
   "gigue-a": [
@@ -420,6 +515,11 @@ export const videos = {
       "version": 4,
       "instrument": "piano",
       "youtubeId": "c0AHCLjiDbU"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "FKug-pauW9M"
     }
   ],
   "gigue-b": [
@@ -437,6 +537,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "sPnvbZ_xYAM"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "SADlkZi_FQc"
     }
   ],
   "echo-a": [
@@ -454,6 +559,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "MMSFPXLoZZw"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "SBiJmh-t--Y"
     }
   ],
   "echo-b": [
@@ -471,6 +581,11 @@ export const videos = {
       "version": 3,
       "instrument": "piano",
       "youtubeId": "ezw4MdeGNwo"
+    },
+    {
+      "version": 1,
+      "instrument": "harpsichord",
+      "youtubeId": "Vy-LqkVnujs"
     }
   ]
 };
