@@ -10,7 +10,7 @@ export const content = {
   introduction: `A rapid, agile dance in 3/8 meter originating in Brittany, the Passepied possesses
     the vitality of a fast minuet but with a swifter syncopated current. Precision of touch
     must convey speed without mechanical haste.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/passepied-1-a/piano-1.jpg',
 
   subsections: [
     {

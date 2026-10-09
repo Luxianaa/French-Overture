@@ -10,7 +10,7 @@ export const content = {
   introduction: `Written in French gigue style with dotted rhythms in 6/8 meter rather than Italian
     triplet figuration, this dance balances sparkling virtuosity with strict fugal imitation
     in the inverted subject of the second section.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/gigue-a/piano-1.jpg',
 
   subsections: [
     {

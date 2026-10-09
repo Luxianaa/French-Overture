@@ -249,7 +249,7 @@ export const content = {
     invites constant questions about weight, speed, and the nature of French grandeur.
     Is the dotted rhythm a rhetorical gesture or a metric fact?
     Does the fugue breathe or march? These experiments do not answer; they multiply the doubt.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/ouverture-a/piano-1.jpg',
 
   subsections: [
     {

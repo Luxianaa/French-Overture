@@ -10,7 +10,7 @@ export const content = {
   introduction: `The dramatic climax and conclusion of BWV 831. Exploiting the two manuals of the
     French harpsichord (forte on the lower manual, piano on the upper), Bach constructs a
     theatrical dialogue of spatial distance, repetition, and acoustic illusion.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/echo-a/piano-1.jpg',
 
   subsections: [
     {

@@ -10,7 +10,7 @@ export const content = {
   introduction: `Built on a half-measure upbeat in duple meter, the Gavotte embodies aristocratic
     buoyancy. Its clear binary symmetry hides complex phrase groupings that challenge the
     performer to balance pastoral lightness with contrapuntal rigor.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/gavotte-1-a/piano-1.jpg',
 
   subsections: [
     {

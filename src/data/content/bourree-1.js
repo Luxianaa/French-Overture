@@ -10,7 +10,7 @@ export const content = {
   introduction: `A brisk, energetic duple dance characterized by a quarter-note upbeat and decisive
     dactylic pulses. Bourrée I pulses with rhythmic propulsion and athletic clarity across
     both manuals of the instrument.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/bourree-1-a/piano-1.jpg',
 
   subsections: [
     {

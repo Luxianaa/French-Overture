@@ -10,7 +10,7 @@ export const content = {
   introduction: `The French Courante is a dance of rhythmic ambiguity and suspended gravity.
     Notated in 3/2 with frequent hemiolas slipping into 6/4, its pulse is never settled
     and its elegance lives precisely in this perpetual hesitation.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/courante-a/piano-1.jpg',
 
   subsections: [
     {

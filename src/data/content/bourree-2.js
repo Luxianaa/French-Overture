@@ -10,7 +10,7 @@ export const content = {
   introduction: `Providing a gentler, more intimate interlude between the outer statements of
     Bourrée I, this second dance trades percussive thrust for canonic counterpoint and
     refined harmonic suspensions.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/bourree-2-a/piano-1.jpg',
 
   subsections: [
     {

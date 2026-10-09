@@ -10,7 +10,7 @@ export const content = {
   introduction: `Serving as an alternative trio to Gavotte I, Gavotte II introduces a more rustic,
     musette-like texture with persistent pedal points and cascading quavers that shift the
     character from ceremonial court to pastoral reverie.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/gavotte-2-a/piano-1.jpg',
 
   subsections: [
     {

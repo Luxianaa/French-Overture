@@ -21,8 +21,11 @@ const { slug } = Astro.params;
 const contentModules = import.meta.glob('../data/content/*.js', { eager: true });
 const contentFilePath = `../data/content/${slug}.js`;
 const movementContent = contentModules[contentFilePath]?.content || null;
-
-const heroImage = movementContent?.heroImage || defaultHeroImg.src;
+const heroImage =
+  movement.image ||
+  (movementContent?.heroImage && movementContent.heroImage !== defaultHeroImg.src
+    ? movementContent.heroImage
+    : defaultHeroImg.src);
 const heroTitle = `${movement.number}. ${movementContent?.title || movement.title}`;
 const pageTitle = `${movement.title} — French Overture`;
 const pageDescription = movementContent?.introduction

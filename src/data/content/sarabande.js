@@ -10,7 +10,7 @@ export const content = {
   introduction: `The expressive core of the French Overture suite. A slow triple meter with marked
     emphasis on the second beat, the Sarabande demands profound rhetorical gravity, luxurious
     ornamentation, and a sustained balance between contemplation and forward motion.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/sarabande-a/piano-1.jpg',
 
   subsections: [
     {

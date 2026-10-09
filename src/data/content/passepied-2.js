@@ -10,7 +10,7 @@ export const content = {
   introduction: `Complementing the first Passepied in major-minor contrast, Passepied II features
     a darker, more flowing texture with continuous quaver movement that glides effortlessly
     before the mandatory Da Capo back to Passepied I.`,
-  heroImage: heroImg.src,
+  heroImage: '/references/passepied-2-a/piano-1.jpg',
 
   subsections: [
     {
