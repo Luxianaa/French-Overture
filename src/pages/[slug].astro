@@ -183,81 +183,88 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
                               </button>
                             </div>
 
-                            {/* Columna derecha: Carrusel de imágenes del experimento */}
-                            <div
-                              class="carousel"
-                              aria-roledescription="carousel"
-                              aria-label={`Images for ${exp.title}`}
-                            >
+                            {/* Columna derecha: Carrusel de imágenes del experimento o recuadro de reserva */}
+                            {exp.images && exp.images.length > 0 ? (
                               <div
-                                class="carousel__track"
-                                tabindex="0"
-                                role="region"
-                                aria-label={`Image gallery for ${exp.title}`}
+                                class="carousel"
+                                aria-roledescription="carousel"
+                                aria-label={`Images for ${exp.title}`}
                               >
-                                {exp.images?.map((img, imgIdx) => (
-                                  <div
-                                    class="carousel__slide"
-                                    role="group"
-                                    aria-roledescription="slide"
-                                    aria-label={`${imgIdx + 1} of ${exp.images.length}`}
-                                  >
+                                <div
+                                  class="carousel__track"
+                                  tabindex="0"
+                                  role="region"
+                                  aria-label={`Image gallery for ${exp.title}`}
+                                >
+                                  {exp.images.map((img, imgIdx) => (
+                                    <div
+                                      class="carousel__slide"
+                                      role="group"
+                                      aria-roledescription="slide"
+                                      aria-label={`${imgIdx + 1} of ${exp.images.length}`}
+                                    >
+                                      <button
+                                        type="button"
+                                        class="carousel__image-btn"
+                                        aria-label={`View ${img.caption || img.alt || `image ${imgIdx + 1}`}`}
+                                        data-src={img.src}
+                                        data-alt={img.alt}
+                                        data-caption={img.caption}
+                                        data-explanation={img.explanation}
+                                        data-credit={img.credit || ''}
+                                      >
+                                        <img
+                                          src={img.src}
+                                          alt={img.alt}
+                                          loading="lazy"
+                                          class="carousel__img"
+                                        />
+                                        <span class="carousel__zoom-hint" aria-hidden="true">
+                                          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <circle cx="11" cy="11" r="7"/>
+                                            <line x1="16.5" y1="16.5" x2="21" y2="21"/>
+                                            <line x1="11" y1="8" x2="11" y2="14"/>
+                                            <line x1="8" y1="11" x2="14" y2="11"/>
+                                          </svg>
+                                        </span>
+                                      </button>
+                                      {img.caption && (
+                                        <div class="carousel__caption-bar" aria-hidden="true">
+                                          <span class="carousel__caption-text">{img.caption}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Controles de navegación y contador "1 / 2" */}
+                                {exp.images.length > 1 && (
+                                  <div class="carousel__controls" aria-label="Carousel navigation">
                                     <button
                                       type="button"
-                                      class="carousel__image-btn"
-                                      aria-label={`View ${img.caption || img.alt || `image ${imgIdx + 1}`}`}
-                                      data-src={img.src}
-                                      data-alt={img.alt}
-                                      data-caption={img.caption}
-                                      data-explanation={img.explanation}
+                                      class="carousel__nav-btn carousel__nav-btn--prev"
+                                      aria-label="Previous image"
                                     >
-                                      <img
-                                        src={img.src}
-                                        alt={img.alt}
-                                        loading="lazy"
-                                        class="carousel__img"
-                                      />
-                                      <span class="carousel__zoom-hint" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
-                                          <circle cx="11" cy="11" r="7"/>
-                                          <line x1="16.5" y1="16.5" x2="21" y2="21"/>
-                                          <line x1="11" y1="8" x2="11" y2="14"/>
-                                          <line x1="8" y1="11" x2="14" y2="11"/>
-                                        </svg>
-                                      </span>
+                                      ←
                                     </button>
-                                    {img.caption && (
-                                      <div class="carousel__caption-bar" aria-hidden="true">
-                                        <span class="carousel__caption-text">{img.caption}</span>
-                                      </div>
-                                    )}
+                                    <span class="carousel__counter" aria-live="polite" aria-atomic="true">
+                                      1 / {exp.images.length}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      class="carousel__nav-btn carousel__nav-btn--next"
+                                      aria-label="Next image"
+                                    >
+                                      →
+                                    </button>
                                   </div>
-                                ))}
+                                )}
                               </div>
-
-                              {/* Controles de navegación y contador "1 / 2" */}
-                              {exp.images?.length > 1 && (
-                                <div class="carousel__controls" aria-label="Carousel navigation">
-                                  <button
-                                    type="button"
-                                    class="carousel__nav-btn carousel__nav-btn--prev"
-                                    aria-label="Previous image"
-                                  >
-                                    ←
-                                  </button>
-                                  <span class="carousel__counter" aria-live="polite" aria-atomic="true">
-                                    1 / {exp.images.length}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    class="carousel__nav-btn carousel__nav-btn--next"
-                                    aria-label="Next image"
-                                  >
-                                    →
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            ) : (
+                              <div class="carousel-placeholder" aria-label="Reference image to be added">
+                                <span class="carousel-placeholder__text">Reference image to be added</span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Si hay description, va debajo de la fila */}
@@ -310,14 +317,43 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
       </button>
 
       <div class="lightbox__body">
-        {/* Imagen agrandada a la izquierda */}
+        {/* Imagen agrandada a la izquierda con controles de navegación */}
         <div class="lightbox__media">
+          <button
+            type="button"
+            id="lightbox-prev-btn"
+            class="lightbox__nav-btn lightbox__nav-btn--prev"
+            aria-label="Previous image"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
           <img
             id="lightbox-img"
             src=""
             alt=""
             class="lightbox__img"
           />
+
+          <button
+            type="button"
+            id="lightbox-next-btn"
+            class="lightbox__nav-btn lightbox__nav-btn--next"
+            aria-label="Next image"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+
+          <span
+            id="lightbox-counter"
+            class="lightbox__counter"
+            aria-live="polite"
+            aria-atomic="true"
+          ></span>
         </div>
 
         {/* Caption y Explanation a la derecha */}
@@ -325,6 +361,9 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
           <span class="lightbox__tag">Visual Analysis</span>
           <h2 id="lightbox-caption" class="lightbox__caption"></h2>
           <p id="lightbox-explanation" class="lightbox__explanation"></p>
+          <div id="lightbox-meta" class="lightbox__meta" style="display: none;">
+            <span id="lightbox-credit" class="lightbox__credit"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -551,39 +590,160 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     if (!dialog) return;
 
     const closeBtn = document.getElementById('lightbox-close-btn');
+    const mediaContainer = dialog.querySelector('.lightbox__media');
     const lightboxImg = document.getElementById('lightbox-img');
+    const prevBtn = document.getElementById('lightbox-prev-btn');
+    const nextBtn = document.getElementById('lightbox-next-btn');
+    const counterEl = document.getElementById('lightbox-counter');
     const lightboxCaption = document.getElementById('lightbox-caption');
     const lightboxExplanation = document.getElementById('lightbox-explanation');
+    const lightboxMeta = document.getElementById('lightbox-meta');
+    const lightboxCredit = document.getElementById('lightbox-credit');
 
     let triggerElement = null;
+    let activeCarousel = null;
+    let activeButtons = [];
+    let currentIndex = 0;
+
+    function preloadImage(src) {
+      if (!src) return;
+      const img = new Image();
+      img.src = src;
+    }
+
+    function updateLightbox(index) {
+      if (!activeButtons.length || index < 0 || index >= activeButtons.length) return;
+      currentIndex = index;
+
+      const btn = activeButtons[currentIndex];
+      const src = btn.getAttribute('data-src') || '';
+      const alt = btn.getAttribute('data-alt') || '';
+      const caption = btn.getAttribute('data-caption') || '';
+      const explanation = btn.getAttribute('data-explanation') || '';
+      const credit = btn.getAttribute('data-credit') || '';
+      const total = activeButtons.length;
+
+      if (lightboxImg) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || caption || 'Enlarged image';
+      }
+      if (lightboxCaption) {
+        lightboxCaption.textContent = caption;
+        lightboxCaption.style.display = caption ? '' : 'none';
+      }
+      if (lightboxExplanation) {
+        lightboxExplanation.textContent = explanation;
+        lightboxExplanation.style.display = explanation ? '' : 'none';
+      }
+
+      // Meta: credit only
+      if (lightboxMeta) {
+        if (credit) {
+          lightboxMeta.style.display = 'block';
+          if (lightboxCredit) lightboxCredit.textContent = credit;
+        } else {
+          lightboxMeta.style.display = 'none';
+        }
+      }
+
+      if (total <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counterEl) counterEl.style.display = 'none';
+      } else {
+        if (prevBtn) prevBtn.style.display = currentIndex > 0 ? '' : 'none';
+        if (nextBtn) nextBtn.style.display = currentIndex < total - 1 ? '' : 'none';
+        if (counterEl) {
+          counterEl.style.display = '';
+          counterEl.textContent = `${currentIndex + 1} / ${total}`;
+        }
+      }
+
+      // Preload previous and next image
+      if (currentIndex > 0) {
+        preloadImage(activeButtons[currentIndex - 1].getAttribute('data-src'));
+      }
+      if (currentIndex < total - 1) {
+        preloadImage(activeButtons[currentIndex + 1].getAttribute('data-src'));
+      }
+    }
+
+    function showPrev() {
+      if (currentIndex > 0) {
+        updateLightbox(currentIndex - 1);
+      }
+    }
+
+    function showNext() {
+      if (currentIndex < activeButtons.length - 1) {
+        updateLightbox(currentIndex + 1);
+      }
+    }
 
     // Attach click listener to all image buttons in carousels
     const imageButtons = document.querySelectorAll('.carousel__image-btn');
     imageButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         triggerElement = btn;
+        activeCarousel = btn.closest('.carousel');
+        activeButtons = activeCarousel
+          ? Array.from(activeCarousel.querySelectorAll('.carousel__image-btn'))
+          : [btn];
 
-        const src = btn.getAttribute('data-src') || '';
-        const alt = btn.getAttribute('data-alt') || '';
-        const caption = btn.getAttribute('data-caption') || '';
-        const explanation = btn.getAttribute('data-explanation') || '';
-
-        if (lightboxImg) {
-          lightboxImg.src = src;
-          lightboxImg.alt = alt || caption || 'Enlarged image';
-        }
-        if (lightboxCaption) {
-          lightboxCaption.textContent = caption;
-          lightboxCaption.style.display = caption ? '' : 'none';
-        }
-        if (lightboxExplanation) {
-          lightboxExplanation.textContent = explanation;
-          lightboxExplanation.style.display = explanation ? '' : 'none';
-        }
+        const initialIdx = activeButtons.indexOf(btn);
+        updateLightbox(initialIdx >= 0 ? initialIdx : 0);
 
         dialog.showModal();
       });
     });
+
+    // Navigation buttons
+    prevBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showPrev();
+    });
+
+    nextBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showNext();
+    });
+
+    // Keyboard navigation within dialog: Left / Right arrows
+    dialog.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        showPrev();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        showNext();
+      }
+    });
+
+    // Touch swipe navigation on media container
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    mediaContainer?.addEventListener('touchstart', (e) => {
+      if (e.changedTouches.length === 1) {
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      }
+    }, { passive: true });
+
+    mediaContainer?.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+          if (deltaX < 0) {
+            showNext();
+          } else {
+            showPrev();
+          }
+        }
+      }
+    }, { passive: true });
 
     // Close button
     closeBtn?.addEventListener('click', () => {
@@ -597,12 +757,30 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
       }
     });
 
-    // Restore focus to trigger element when closed (by Esc, button, or backdrop click)
+    // Sync carousel and restore focus on close
     dialog.addEventListener('close', () => {
+      if (activeCarousel && activeButtons.length > 1) {
+        const track = activeCarousel.querySelector('.carousel__track');
+        const carouselCounter = activeCarousel.querySelector('.carousel__counter');
+        if (track) {
+          const slideWidth = track.clientWidth || 1;
+          const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          track.scrollTo({
+            left: currentIndex * slideWidth,
+            behavior: prefersReduced ? 'auto' : 'smooth',
+          });
+          if (carouselCounter) {
+            carouselCounter.textContent = `${currentIndex + 1} / ${activeButtons.length}`;
+          }
+        }
+      }
+
       if (triggerElement) {
         triggerElement.focus();
         triggerElement = null;
       }
+      activeCarousel = null;
+      activeButtons = [];
     });
   }
 
@@ -1307,6 +1485,7 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
 
   /* Left column: enlarged image */
   .lightbox__media {
+    position: relative;
     background: #0d0b09;
     display: flex;
     align-items: center;
@@ -1321,6 +1500,91 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     max-height: 85vh;
     object-fit: contain;
     display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .lightbox__nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 12, 8, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(245, 240, 232, 0.25);
+    color: var(--color-cream);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+    z-index: 5;
+  }
+
+  .lightbox__nav-btn:hover {
+    background: rgba(245, 240, 232, 0.95);
+    color: var(--color-ink);
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  .lightbox__nav-btn:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .lightbox__nav-btn--prev {
+    left: 1rem;
+  }
+
+  .lightbox__nav-btn--next {
+    right: 1rem;
+  }
+
+  .lightbox__counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 12, 8, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(245, 240, 232, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(245, 240, 232, 0.95);
+    user-select: none;
+    z-index: 5;
+  }
+
+  /* ── Carousel Placeholder (versiones sin imágenes de referencia) ── */
+  .carousel-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--color-cream-dark);
+    border: 1px dashed rgba(26, 23, 20, 0.18);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.04);
+  }
+
+  .carousel-placeholder__text {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    text-align: center;
   }
 
   /* Right column: caption & explanation */
@@ -1328,9 +1592,10 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     padding: var(--space-2xl) var(--space-xl);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     gap: var(--space-md);
     overflow-y: auto;
+    max-height: 88vh;
     background: var(--color-cream);
   }
 
@@ -1360,6 +1625,18 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     padding-top: var(--space-md);
   }
 
+  .lightbox__meta {
+    margin-top: auto;
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(26, 23, 20, 0.08);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+
+
+
   /* Mobile: image on top, text underneath */
   @media (max-width: 768px) {
     .lightbox {
@@ -1385,6 +1662,25 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
       max-height: 40vh;
     }
 
+    .lightbox__nav-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .lightbox__nav-btn--prev {
+      left: 0.5rem;
+    }
+
+    .lightbox__nav-btn--next {
+      right: 0.5rem;
+    }
+
+    .lightbox__counter {
+      bottom: 0.5rem;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+
     .lightbox__info {
       padding: var(--space-lg);
       gap: var(--space-sm);
@@ -1397,6 +1693,21 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     .lightbox__explanation {
       font-size: 0.9375rem;
       padding-top: var(--space-sm);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox__close-btn,
+    .lightbox__nav-btn {
+      transition: none !important;
+    }
+
+    .lightbox__close-btn:hover {
+      transform: none !important;
+    }
+
+    .lightbox__nav-btn:hover {
+      transform: translateY(-50%) !important;
     }
   }
 </style>
