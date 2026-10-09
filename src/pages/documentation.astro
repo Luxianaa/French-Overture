@@ -1,0 +1,1213 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroImg from "../assets/chantilly.jpg";
+import { documents } from "../data/content/documentation.js";
+
+// Candidate aliases for document files in public/
+const fileAliases = {
+  essay: [
+    "/documents/essay.pdf",
+    "/documents/Daniel Porcel Chalup - A Laboratory of Doubt Against Automatic Bach MMus Project.pdf",
+  ],
+  score: [
+    "/documents/score.pdf",
+    "/documents/Scores.pdf",
+  ],
+  "score-annotated": [
+    "/documents/score-annotated.pdf",
+    "/documents/My scores.pdf",
+  ],
+};
+
+// Check file availability in public/ at build/request time
+const docsWithStatus = documents.map((doc) => {
+  const candidates = [
+    doc.file,
+    ...(fileAliases[doc.id] || []),
+  ].filter(Boolean);
+
+  let resolvedFile = doc.file;
+  let isAvailable = false;
+
+  for (const candidate of candidates) {
+    const relPath = candidate.replace(/^\//, "");
+    const absPath = path.join(process.cwd(), "public", relPath);
+    try {
+      if (fs.existsSync(absPath)) {
+        resolvedFile = candidate;
+        isAvailable = true;
+        break;
+      }
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  return {
+    ...doc,
+    file: resolvedFile,
+    isAvailable,
+  };
+});
+---
+
+<BaseLayout
+  title="Documentation — French Ouverture"
+  description="Written dissertation and performance scores for Bach's French Ouverture BWV 831."
+>
+  <!-- ── 1. HERO ────────────────────────────────────────────── -->
+  <Hero
+    image={heroImg.src}
+    title="Documentation"
+    subtitle="Written dissertation and performance scores"
+  />
+
+  <!-- ── 2. DOCUMENTS STACK ──────────────────────────────────── -->
+  <section
+    id="documents"
+    class="section container docs-container"
+    aria-label="Project documents and scores"
+  >
+    <header class="docs-section-header">
+      <p class="docs-section-lead">
+        The written dissertation framing this artistic research alongside the clean Urtext score and Daniel Porcel Chalup’s annotated working score from the laboratory.
+      </p>
+    </header>
+
+    <div class="docs-stack">
+      {
+        docsWithStatus.map((doc, index) => (
+          <>
+            {/* Separator grouping the two scores */}
+            {index === 1 && (
+              <div
+                class="docs-scores-divider"
+                role="separator"
+                aria-label="The score section"
+              >
+                <span class="docs-scores-divider__line" aria-hidden="true" />
+                <span class="docs-scores-divider__label">The score</span>
+                <span class="docs-scores-divider__line" aria-hidden="true" />
+              </div>
+            )}
+
+            <article
+              class={`doc-card doc-card--${doc.id} ${!doc.isAvailable ? "doc-card--unavailable" : ""}`}
+              id={`card-${doc.id}`}
+              aria-labelledby={`title-${doc.id}`}
+            >
+              <div class="doc-card__body">
+                {/* ── Left Column: Typographic Cover ── */}
+                <div class="doc-card__cover-col">
+                  <div
+                    class={`doc-cover doc-cover--${doc.id}`}
+                    aria-label={`Cover for ${doc.title}`}
+                  >
+                    {/* ESSAY COVER — Classical Monograph */}
+                    {doc.id === "essay" && (
+                      <div class="doc-cover__paper doc-cover__paper--essay">
+                        <div class="doc-cover__frame">
+                          <header class="doc-cover__header">
+                            <span class="doc-cover__institution">Royal Academy of Music</span>
+                            <span class="doc-cover__affiliation">University of London</span>
+                          </header>
+
+                          <div class="doc-cover__center">
+                            <h4 class="doc-cover__monograph-title">
+                              A Laboratory<br />
+                              of Doubt Against<br />
+                              Automatic Bach
+                            </h4>
+                            <div class="doc-cover__hairline" aria-hidden="true" />
+                            <p class="doc-cover__monograph-sub">
+                              Relearning the French Overture<br />at the Piano
+                            </p>
+                          </div>
+
+                          <footer class="doc-cover__footer">
+                            <span class="doc-cover__author">Daniel Porcel Chalup</span>
+                            <span class="doc-cover__degree">Master of Music</span>
+                          </footer>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CLEAN SCORE COVER — Urtext Edition */}
+                    {doc.id === "score" && (
+                      <div class="doc-cover__paper doc-cover__paper--score">
+                        <div class="doc-cover__frame doc-cover__frame--double">
+                          <header class="doc-cover__score-header">
+                            <span class="doc-cover__composer">Johann Sebastian Bach</span>
+                          </header>
+
+                          <div class="doc-cover__score-titles">
+                            <h4 class="doc-cover__score-work">Ouverture</h4>
+                            <p class="doc-cover__score-french">nach Französischer Art</p>
+                            <p class="doc-cover__score-bwv">BWV 831 · h-Moll</p>
+                          </div>
+
+                          {/* Authentic music engraving excerpt */}
+                          <div class="doc-cover__music-box">
+                            <svg
+                              class="doc-cover__music-svg"
+                              viewBox="0 0 200 96"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              {/* Staff 1 */}
+                              <line x1="8" y1="16" x2="192" y2="16" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="22" x2="192" y2="22" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="28" x2="192" y2="28" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="34" x2="192" y2="34" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="40" x2="192" y2="40" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+
+                              {/* Staff 2 */}
+                              <line x1="8" y1="58" x2="192" y2="58" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="64" x2="192" y2="64" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="70" x2="192" y2="70" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="76" x2="192" y2="76" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="82" x2="192" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+
+                              {/* Measure bar lines */}
+                              <line x1="8" y1="16" x2="8" y2="82" stroke="currentColor" stroke-width="1.2" opacity="0.4" />
+                              <line x1="106" y1="16" x2="106" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.3" />
+                              <line x1="192" y1="16" x2="192" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.3" />
+
+                              {/* Clef & key signature hints */}
+                              <path d="M 16 34 C 16 20, 24 20, 22 31 C 20 40, 14 38, 16 31 C 18 26, 20 14, 19 9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity="0.35" fill="none" />
+                              <path d="M 28 14 L 28 26 M 31 12 L 31 24 M 26 18 L 33 16 M 26 22 L 33 20" stroke="currentColor" stroke-width="0.7" opacity="0.35" />
+                              <path d="M 36 20 L 36 32 M 39 18 L 39 30 M 34 24 L 41 22 M 34 28 L 41 26" stroke="currentColor" stroke-width="0.7" opacity="0.35" />
+
+                              {/* French Ouverture opening dotted rhythm */}
+                              <ellipse cx="54" cy="28" rx="3.6" ry="2.5" transform="rotate(-15 54 28)" fill="currentColor" opacity="0.4" />
+                              <line x1="57.5" y1="28" x2="57.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <circle cx="61.5" cy="28" r="1.1" fill="currentColor" opacity="0.4" />
+
+                              <ellipse cx="72" cy="25" rx="3.4" ry="2.3" transform="rotate(-15 72 25)" fill="currentColor" opacity="0.4" />
+                              <line x1="75.5" y1="25" x2="75.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <path d="M 75.5 10 Q 80 12, 79 16" stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.4" />
+
+                              <ellipse cx="89" cy="22" rx="3.6" ry="2.5" transform="rotate(-15 89 22)" fill="currentColor" opacity="0.4" />
+                              <line x1="92.5" y1="22" x2="92.5" y2="8" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              {/* Measure 2 notes */}
+                              <ellipse cx="122" cy="19" rx="3.6" ry="2.5" transform="rotate(-15 122 19)" fill="currentColor" opacity="0.4" />
+                              <line x1="125.5" y1="19" x2="125.5" y2="6" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <circle cx="129.5" cy="19" r="1.1" fill="currentColor" opacity="0.4" />
+
+                              <ellipse cx="140" cy="22" rx="3.4" ry="2.3" transform="rotate(-15 140 22)" fill="currentColor" opacity="0.4" />
+                              <line x1="143.5" y1="22" x2="143.5" y2="8" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="156" cy="25" rx="3.6" ry="2.5" transform="rotate(-15 156 25)" fill="currentColor" opacity="0.4" />
+                              <line x1="159.5" y1="25" x2="159.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="174" cy="28" rx="3.6" ry="2.5" transform="rotate(-15 174 28)" fill="currentColor" opacity="0.4" />
+                              <line x1="177.5" y1="28" x2="177.5" y2="12" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              {/* Bass notes */}
+                              <ellipse cx="54" cy="64" rx="3.6" ry="2.5" transform="rotate(-15 54 64)" fill="currentColor" opacity="0.4" />
+                              <line x1="57.5" y1="64" x2="57.5" y2="78" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="89" cy="70" rx="3.6" ry="2.5" transform="rotate(-15 89 70)" fill="currentColor" opacity="0.4" />
+                              <line x1="92.5" y1="70" x2="92.5" y2="84" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="122" cy="76" rx="3.6" ry="2.5" transform="rotate(-15 122 76)" fill="currentColor" opacity="0.4" />
+                              <line x1="125.5" y1="76" x2="125.5" y2="88" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="156" cy="70" rx="3.6" ry="2.5" transform="rotate(-15 156 70)" fill="currentColor" opacity="0.4" />
+                              <line x1="159.5" y1="70" x2="159.5" y2="84" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                            </svg>
+                          </div>
+
+                          <footer class="doc-cover__score-footer">
+                            <span>Urtext</span>
+                          </footer>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ANNOTATED SCORE COVER — Pianist Working Score */}
+                    {doc.id === "score-annotated" && (
+                      <div class="doc-cover__paper doc-cover__paper--score doc-cover__paper--annotated">
+                        <div class="doc-cover__frame doc-cover__frame--double">
+                          <header class="doc-cover__score-header">
+                            <span class="doc-cover__composer">Johann Sebastian Bach</span>
+                          </header>
+
+                          <div class="doc-cover__score-titles">
+                            <h4 class="doc-cover__score-work">Ouverture</h4>
+                            <p class="doc-cover__score-french">nach Französischer Art</p>
+                            <p class="doc-cover__score-bwv">BWV 831 · h-Moll</p>
+                          </div>
+
+                          {/* Authentic music engraving + hand annotations in accent color */}
+                          <div class="doc-cover__music-box">
+                            <svg
+                              class="doc-cover__music-svg"
+                              viewBox="0 0 200 96"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              {/* Staff 1 */}
+                              <line x1="8" y1="16" x2="192" y2="16" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="22" x2="192" y2="22" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="28" x2="192" y2="28" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="34" x2="192" y2="34" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="40" x2="192" y2="40" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+
+                              {/* Staff 2 */}
+                              <line x1="8" y1="58" x2="192" y2="58" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="64" x2="192" y2="64" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="70" x2="192" y2="70" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="76" x2="192" y2="76" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+                              <line x1="8" y1="82" x2="192" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.32" />
+
+                              {/* Measure bar lines */}
+                              <line x1="8" y1="16" x2="8" y2="82" stroke="currentColor" stroke-width="1.2" opacity="0.4" />
+                              <line x1="106" y1="16" x2="106" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.3" />
+                              <line x1="192" y1="16" x2="192" y2="82" stroke="currentColor" stroke-width="0.75" opacity="0.3" />
+
+                              {/* Clef & key signature hints */}
+                              <path d="M 16 34 C 16 20, 24 20, 22 31 C 20 40, 14 38, 16 31 C 18 26, 20 14, 19 9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" opacity="0.35" fill="none" />
+                              <path d="M 28 14 L 28 26 M 31 12 L 31 24 M 26 18 L 33 16 M 26 22 L 33 20" stroke="currentColor" stroke-width="0.7" opacity="0.35" />
+                              <path d="M 36 20 L 36 32 M 39 18 L 39 30 M 34 24 L 41 22 M 34 28 L 41 26" stroke="currentColor" stroke-width="0.7" opacity="0.35" />
+
+                              {/* French Ouverture opening notes */}
+                              <ellipse cx="54" cy="28" rx="3.6" ry="2.5" transform="rotate(-15 54 28)" fill="currentColor" opacity="0.4" />
+                              <line x1="57.5" y1="28" x2="57.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <circle cx="61.5" cy="28" r="1.1" fill="currentColor" opacity="0.4" />
+
+                              <ellipse cx="72" cy="25" rx="3.4" ry="2.3" transform="rotate(-15 72 25)" fill="currentColor" opacity="0.4" />
+                              <line x1="75.5" y1="25" x2="75.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <path d="M 75.5 10 Q 80 12, 79 16" stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.4" />
+
+                              <ellipse cx="89" cy="22" rx="3.6" ry="2.5" transform="rotate(-15 89 22)" fill="currentColor" opacity="0.4" />
+                              <line x1="92.5" y1="22" x2="92.5" y2="8" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="122" cy="19" rx="3.6" ry="2.5" transform="rotate(-15 122 19)" fill="currentColor" opacity="0.4" />
+                              <line x1="125.5" y1="19" x2="125.5" y2="6" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+                              <circle cx="129.5" cy="19" r="1.1" fill="currentColor" opacity="0.4" />
+
+                              <ellipse cx="140" cy="22" rx="3.4" ry="2.3" transform="rotate(-15 140 22)" fill="currentColor" opacity="0.4" />
+                              <line x1="143.5" y1="22" x2="143.5" y2="8" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="156" cy="25" rx="3.6" ry="2.5" transform="rotate(-15 156 25)" fill="currentColor" opacity="0.4" />
+                              <line x1="159.5" y1="25" x2="159.5" y2="10" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="174" cy="28" rx="3.6" ry="2.5" transform="rotate(-15 174 28)" fill="currentColor" opacity="0.4" />
+                              <line x1="177.5" y1="28" x2="177.5" y2="12" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              {/* Bass notes */}
+                              <ellipse cx="54" cy="64" rx="3.6" ry="2.5" transform="rotate(-15 54 64)" fill="currentColor" opacity="0.4" />
+                              <line x1="57.5" y1="64" x2="57.5" y2="78" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="89" cy="70" rx="3.6" ry="2.5" transform="rotate(-15 89 70)" fill="currentColor" opacity="0.4" />
+                              <line x1="92.5" y1="70" x2="92.5" y2="84" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="122" cy="76" rx="3.6" ry="2.5" transform="rotate(-15 122 76)" fill="currentColor" opacity="0.4" />
+                              <line x1="125.5" y1="76" x2="125.5" y2="88" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              <ellipse cx="156" cy="70" rx="3.6" ry="2.5" transform="rotate(-15 156 70)" fill="currentColor" opacity="0.4" />
+                              <line x1="159.5" y1="70" x2="159.5" y2="84" stroke="currentColor" stroke-width="0.9" opacity="0.4" />
+
+                              {/* ── Real Performance Markings in Accent Color ── */}
+                              {/* 1. Structural bracket grouping opening measure */}
+                              <path
+                                d="M 46 10 L 41 10 L 41 44 L 46 44"
+                                stroke="var(--color-accent)"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+
+                              {/* 2. Delicate oval circling the opening dotted rhythm */}
+                              <ellipse
+                                cx="64"
+                                cy="26"
+                                rx="18"
+                                ry="12"
+                                transform="rotate(-6 64 26)"
+                                stroke="var(--color-accent)"
+                                stroke-width="1.5"
+                                fill="rgba(139, 111, 71, 0.08)"
+                              />
+
+                              {/* 3. Hand-drawn wavy line indicating inequality / ornamentation */}
+                              <path
+                                d="M 83 7 Q 87 3, 91 7 T 99 7 T 107 7"
+                                stroke="var(--color-accent)"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                              />
+
+                              {/* 4. Second oval circling cadential bass movement */}
+                              <ellipse
+                                cx="138"
+                                cy="76"
+                                rx="22"
+                                ry="11"
+                                transform="rotate(4 138 76)"
+                                stroke="var(--color-accent)"
+                                stroke-width="1.5"
+                                fill="rgba(139, 111, 71, 0.08)"
+                              />
+
+                              {/* 5. Pianist's fingering and dynamic marks */}
+                              <text
+                                x="71"
+                                y="9"
+                                fill="var(--color-accent)"
+                                font-family="var(--font-sans)"
+                                font-size="7.5"
+                                font-weight="600"
+                              >
+                                4-5
+                              </text>
+                              <text
+                                x="53"
+                                y="50"
+                                fill="var(--color-accent)"
+                                font-family="var(--font-serif)"
+                                font-style="italic"
+                                font-size="8.5"
+                              >
+                                inégales
+                              </text>
+                              <text
+                                x="114"
+                                y="58"
+                                fill="var(--color-accent)"
+                                font-family="var(--font-serif)"
+                                font-style="italic"
+                                font-size="9"
+                                font-weight="600"
+                              >
+                                p
+                              </text>
+                            </svg>
+                          </div>
+
+                          <footer class="doc-cover__score-footer doc-cover__score-footer--annotated">
+                            <span>Annotated score</span>
+                          </footer>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── Right Column: Document Details ── */}
+                <div class="doc-card__info-col">
+                  <header class="doc-card__header">
+                    <span class="doc-card__label">{doc.label}</span>
+                    <h3 id={`title-${doc.id}`} class="doc-title">
+                      {doc.title}
+                    </h3>
+                    {doc.subtitle && (
+                      <p class="doc-subtitle">{doc.subtitle}</p>
+                    )}
+                  </header>
+
+                  <p class="doc-description">{doc.description}</p>
+
+                  {/* Understated Editorial Metadata */}
+                  <div class="doc-meta" aria-label="Document metadata">
+                    <span>PDF</span>
+                    {doc.language && (
+                      <>
+                        <span class="doc-meta__sep" aria-hidden="true">·</span>
+                        <span>{doc.language}</span>
+                      </>
+                    )}
+                    {doc.pages && (
+                      <>
+                        <span class="doc-meta__sep" aria-hidden="true">·</span>
+                        <span>{doc.pages} pages</span>
+                      </>
+                    )}
+                    {doc.year && (
+                      <>
+                        <span class="doc-meta__sep" aria-hidden="true">·</span>
+                        <span>{doc.year}</span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Editorial Actions */}
+                  <div class="doc-actions">
+                    {doc.isAvailable ? (
+                      <>
+                        <button
+                          type="button"
+                          class="doc-btn doc-btn--read doc-reader-toggle"
+                          data-doc-id={doc.id}
+                          aria-expanded="false"
+                          aria-controls={`reader-panel-${doc.id}`}
+                        >
+                          <span class="doc-reader-toggle-label">Read online</span>
+                        </button>
+
+                        <a
+                          href={doc.file}
+                          download
+                          class="doc-btn doc-btn--download"
+                          aria-label={`Download ${doc.title} as PDF`}
+                        >
+                          Download PDF
+                        </a>
+                      </>
+                    ) : (
+                      <span class="doc-unavailable-text">Coming soon</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Collapsible Inline Reader ── */}
+              {doc.isAvailable && (
+                <div
+                  id={`reader-panel-${doc.id}`}
+                  class="doc-reader-panel"
+                  hidden
+                  aria-label={`Online reader for ${doc.title}`}
+                >
+                  <div class="doc-reader-panel__bar">
+                    <div class="doc-reader-panel__info">
+                      <span class="doc-reader-panel__tag">{doc.label}</span>
+                      <span class="doc-reader-panel__title">{doc.title}</span>
+                    </div>
+
+                    <div class="doc-reader-panel__controls">
+                      <a
+                        href={doc.file}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="doc-reader-panel__link"
+                        aria-label={`Open ${doc.title} in new tab`}
+                      >
+                        Open in new tab ↗
+                      </a>
+
+                      <button
+                        type="button"
+                        class="doc-reader-panel__close"
+                        data-close-target={doc.id}
+                        aria-label={`Close reader for ${doc.title}`}
+                      >
+                        ✕ Close
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="doc-reader-panel__viewer">
+                    <iframe
+                      data-src={doc.file}
+                      title={`${doc.title} — PDF Viewer`}
+                      class="doc-reader-iframe"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              )}
+            </article>
+          </>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ── Section Container ───────────────────────────────────────── */
+  .docs-container {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+
+  /* ── Editorial Header ────────────────────────────────────────── */
+  .docs-section-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .docs-section-lead {
+    font-size: 1.125rem;
+    color: var(--color-ink-soft);
+    max-width: 64ch;
+    margin-inline: auto;
+    line-height: 1.7;
+    font-family: var(--font-serif);
+    font-style: italic;
+  }
+
+  /* ── Stack ───────────────────────────────────────────────────── */
+  .docs-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+  }
+
+  /* ── Scores Group Divider ────────────────────────────────────── */
+  .docs-scores-divider {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-block: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .docs-scores-divider__label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+  }
+
+  .docs-scores-divider__line {
+    flex: 1;
+    height: 1px;
+    background-color: rgba(26, 23, 20, 0.12);
+  }
+
+  /* ── Document Card ───────────────────────────────────────────── */
+  .doc-card {
+    background-color: #faf7f2;
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-sm);
+    padding: clamp(1.5rem, 3.2vw, 2.5rem);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .doc-card:hover {
+    border-color: rgba(139, 111, 71, 0.3);
+    box-shadow: 0 8px 24px rgba(26, 23, 20, 0.04);
+  }
+
+  .doc-card--unavailable {
+    opacity: 0.78;
+  }
+
+  .doc-card__body {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: clamp(1.75rem, 3.5vw, 3rem);
+    align-items: start;
+  }
+
+  /* ── Left Column: Typographic Cover ──────────────────────────── */
+  .doc-card__cover-col {
+    display: flex;
+    justify-content: center;
+  }
+
+  .doc-cover {
+    position: relative;
+    width: 220px;
+    height: 295px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.08);
+    user-select: none;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .doc-card:hover .doc-cover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(26, 23, 20, 0.12);
+  }
+
+  .doc-cover__paper {
+    width: 100%;
+    height: 100%;
+    background: #fbf9f4;
+    border: 1px solid rgba(26, 23, 20, 0.12);
+    box-sizing: border-box;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .doc-cover__paper--score {
+    background: #faf8f3;
+  }
+
+  .doc-cover__paper--annotated {
+    background: #faf7f0;
+  }
+
+  /* Classical Framing */
+  .doc-cover__frame {
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(26, 23, 20, 0.18);
+    box-sizing: border-box;
+    padding: 1.1rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .doc-cover__frame--double {
+    border: 1px solid rgba(26, 23, 20, 0.22);
+    outline: 1px solid rgba(26, 23, 20, 0.12);
+    outline-offset: -3px;
+  }
+
+  /* ── Essay Cover Elements ── */
+  .doc-cover__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .doc-cover__institution {
+    font-family: var(--font-sans);
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .doc-cover__affiliation {
+    font-family: var(--font-serif);
+    font-size: 0.625rem;
+    font-style: italic;
+    color: var(--color-ink-muted);
+  }
+
+  .doc-cover__center {
+    margin-block: auto;
+    padding-inline: 0.2rem;
+  }
+
+  .doc-cover__monograph-title {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.25;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .doc-cover__hairline {
+    width: 32px;
+    height: 1px;
+    background-color: var(--color-accent);
+    margin: 0.6rem auto;
+    opacity: 0.6;
+  }
+
+  .doc-cover__monograph-sub {
+    font-family: var(--font-sans);
+    font-size: 0.6rem;
+    line-height: 1.35;
+    color: var(--color-ink-muted);
+    letter-spacing: 0.02em;
+  }
+
+  .doc-cover__footer {
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .doc-cover__author {
+    font-family: var(--font-serif);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+  }
+
+  .doc-cover__degree {
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Score Cover Elements ── */
+  .doc-cover__score-header {
+    margin-top: 0.15rem;
+  }
+
+  .doc-cover__composer {
+    font-family: var(--font-sans);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .doc-cover__score-titles {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .doc-cover__score-work {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    line-height: 1.1;
+  }
+
+  .doc-cover__score-french {
+    font-family: var(--font-serif);
+    font-size: 0.72rem;
+    font-style: italic;
+    color: var(--color-ink-soft);
+    margin-top: 0.15rem;
+  }
+
+  .doc-cover__score-bwv {
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-top: 0.2rem;
+  }
+
+  .doc-cover__music-box {
+    width: 100%;
+    margin-block: auto;
+    padding-inline: 0.1rem;
+  }
+
+  .doc-cover__music-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    color: var(--color-ink);
+  }
+
+  .doc-cover__score-footer {
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+    padding-top: 0.45rem;
+    font-family: var(--font-sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .doc-cover__score-footer--annotated {
+    color: var(--color-accent);
+  }
+
+  /* ── Right Column: Info & Actions ────────────────────────────── */
+  .doc-card__info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    min-width: 0;
+  }
+
+  .doc-card__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .doc-card__label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .doc-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 2.7vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .doc-subtitle {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-style: italic;
+    color: var(--color-ink-soft);
+    margin: 0;
+  }
+
+  .doc-description {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--color-ink-soft);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  /* ── Editorial Metadata ─────────────────────────────────────── */
+  .doc-meta {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .doc-meta__sep {
+    opacity: 0.4;
+  }
+
+  /* ── Editorial Actions ──────────────────────────────────────── */
+  .doc-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+  }
+
+  .doc-btn {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.4rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    line-height: 1.4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .doc-btn--read {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    border: 1px solid var(--color-ink);
+  }
+
+  .doc-btn--read:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+  }
+
+  .doc-btn--read.is-active {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-white);
+  }
+
+  .doc-btn--download {
+    background-color: transparent;
+    color: var(--color-ink);
+    border: 1px solid rgba(26, 23, 20, 0.25);
+  }
+
+  .doc-btn--download:hover {
+    border-color: var(--color-ink);
+    background-color: rgba(26, 23, 20, 0.04);
+  }
+
+  .doc-unavailable-text {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--color-ink-muted);
+  }
+
+  /* ── Inline Reader Panel ─────────────────────────────────────── */
+  .doc-reader-panel {
+    margin-top: var(--space-lg);
+    border-top: 1px solid rgba(26, 23, 20, 0.1);
+    padding-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: readerFadeIn 280ms ease forwards;
+  }
+
+  .doc-reader-panel[hidden] {
+    display: none;
+  }
+
+  @keyframes readerFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .doc-reader-panel__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 1rem;
+    background-color: #f4ede1;
+    border: 1px solid rgba(26, 23, 20, 0.08);
+    border-radius: var(--radius-sm);
+    flex-wrap: wrap;
+  }
+
+  .doc-reader-panel__info {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+
+  .doc-reader-panel__tag {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .doc-reader-panel__title {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    color: var(--color-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .doc-reader-panel__controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .doc-reader-panel__link {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-muted);
+    transition: color var(--transition-fast);
+  }
+
+  .doc-reader-panel__link:hover {
+    color: var(--color-ink);
+  }
+
+  .doc-reader-panel__close {
+    background: transparent;
+    border: 1px solid rgba(26, 23, 20, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.65rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .doc-reader-panel__close:hover {
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  .doc-reader-panel__viewer {
+    width: 100%;
+    height: 720px;
+    background-color: #242220;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(26, 23, 20, 0.12);
+  }
+
+  .doc-reader-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #ffffff;
+  }
+
+  /* ── Responsive ──────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .doc-reader-panel__viewer {
+      height: 600px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .doc-card__body {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    .doc-card__cover-col {
+      justify-content: center;
+    }
+
+    .doc-cover {
+      width: 200px;
+      height: 270px;
+    }
+
+    .doc-reader-panel__viewer {
+      height: 500px;
+    }
+
+    .doc-reader-panel__bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .doc-reader-panel__controls {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .docs-container {
+      padding-top: var(--space-lg);
+    }
+
+    .doc-card {
+      padding: 1.25rem;
+    }
+
+    .doc-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .doc-btn {
+      width: 100%;
+    }
+
+    .doc-reader-panel__viewer {
+      height: 440px;
+    }
+  }
+</style>
+
+<script>
+  // Pure JavaScript document reader controller (single active reader at any time)
+  function initDocumentationReaders() {
+    const toggleButtons = document.querySelectorAll(".doc-reader-toggle");
+    const closeButtons = document.querySelectorAll("[data-close-target]");
+
+    function closeAllReaders(exceptId = null) {
+      toggleButtons.forEach((btn) => {
+        const docId = btn.getAttribute("data-doc-id");
+        if (docId !== exceptId) {
+          const panel = document.getElementById(`reader-panel-${docId}`);
+          if (panel) {
+            panel.hidden = true;
+          }
+          btn.setAttribute("aria-expanded", "false");
+          btn.classList.remove("is-active");
+          const label = btn.querySelector(".doc-reader-toggle-label");
+          if (label) {
+            label.textContent = "Read online";
+          }
+        }
+      });
+    }
+
+    toggleButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const docId = btn.getAttribute("data-doc-id");
+        const panel = document.getElementById(`reader-panel-${docId}`);
+        if (!panel) return;
+
+        const isCurrentlyOpen = !panel.hidden;
+
+        if (isCurrentlyOpen) {
+          // Close this reader
+          panel.hidden = true;
+          btn.setAttribute("aria-expanded", "false");
+          btn.classList.remove("is-active");
+          const label = btn.querySelector(".doc-reader-toggle-label");
+          if (label) {
+            label.textContent = "Read online";
+          }
+        } else {
+          // Close any other open reader first (single active reader constraint)
+          closeAllReaders(docId);
+
+          // Open this reader
+          panel.hidden = false;
+          btn.setAttribute("aria-expanded", "true");
+          btn.classList.add("is-active");
+          const label = btn.querySelector(".doc-reader-toggle-label");
+          if (label) {
+            label.textContent = "Close reader";
+          }
+
+          // Lazy load iframe source on first open
+          const iframe = panel.querySelector(".doc-reader-iframe");
+          if (iframe && !iframe.getAttribute("src")) {
+            const dataSrc = iframe.getAttribute("data-src");
+            if (dataSrc) {
+              iframe.setAttribute("src", dataSrc);
+            }
+          }
+
+          // Smooth scroll to reader bar if needed
+          panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      });
+    });
+
+    closeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-close-target");
+        if (targetId) {
+          closeAllReaders(null);
+          const toggleBtn = document.querySelector(`.doc-reader-toggle[data-doc-id="${targetId}"]`);
+          if (toggleBtn) {
+            toggleBtn.focus();
+          }
+        }
+      });
+    });
+
+    // Keyboard navigation: Escape key closes any active reader
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAllReaders(null);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDocumentationReaders);
+  } else {
+    initDocumentationReaders();
+  }
+</script>

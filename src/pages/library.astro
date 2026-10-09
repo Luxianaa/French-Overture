@@ -871,22 +871,20 @@ const totalSubsections = movementsCatalog.reduce(
           if (selection[sub.id]) chosenInMov++;
         });
 
-        const statusPill =
-          chosenInMov === m.subsections.length
-            ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
-            : chosenInMov > 0
-              ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
-              : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
+        const isComplete = chosenInMov === m.subsections.length;
+        const countDisplay = `${chosenInMov} / ${m.subsections.length}`;
 
         listHtml += `
-          <div class="movement-group">
-            <div class="movement-group__header">
+          <div class="movement-group ${isComplete ? "is-movement-complete" : ""}">
+            <header class="movement-group__header">
               <div class="movement-group__title-wrap">
                 <span class="movement-group__number">${escapeHtml(m.number)}</span>
                 <h4 class="movement-group__title">${escapeHtml(m.title)}</h4>
               </div>
-              ${statusPill}
-            </div>
+              <span class="movement-group__count ${isComplete ? "is-complete" : chosenInMov === 0 ? "is-empty" : ""}">
+                ${countDisplay}
+              </span>
+            </header>
             <ul class="subsections-list">
         `;
 
@@ -898,27 +896,31 @@ const totalSubsections = movementsCatalog.reduce(
                 e.instrument === chosen.instrument &&
                 Number(e.version) === Number(chosen.version),
             );
-            const dotType = exp?.type
-              ? `type-dot--${exp.type}`
-              : "type-dot--neutral";
-            const instName =
-              chosen.instrument === "harpsichord" ? "Harpsichord" : "Piano";
+            const isHarpsichord = chosen.instrument === "harpsichord";
+            const instName = isHarpsichord ? "Harpsichord" : "Piano";
             const versionLabel =
               exp?.versionLabel || `${instName} (Version ${chosen.version})`;
             const linkHref = `${m.slug}#${sub.id}:exp-${chosen.instrument}-${chosen.version}`;
 
             listHtml += `
               <li class="subsection-row is-chosen" data-sub-id="${escapeHtml(sub.id)}" data-instrument="${escapeHtml(chosen.instrument)}" data-version="${escapeHtml(chosen.version)}">
-                <div class="subsection-row__info">
-                  <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
-                  <div class="subsection-row__choice">
-                    <span class="type-dot ${dotType}" aria-hidden="true"></span>
-                    <span class="choice-label">${escapeHtml(versionLabel)}</span>
+                <div class="subsection-row__main">
+                  <div class="subsection-row__header-line">
+                    <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
+                    <span class="subsection-row__play-hint" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor">
+                        <polygon points="6 4 20 12 6 20 6 4" />
+                      </svg>
+                      Play
+                    </span>
+                  </div>
+                  <div class="subsection-row__meta">
+                    <span class="subsection-row__choice-text ${isHarpsichord ? "is-harpsichord" : ""}">${escapeHtml(versionLabel)}</span>
                   </div>
                 </div>
                 <div class="subsection-row__actions">
-                  <a href="${linkHref}" class="subsection-row__link" aria-label="Go to experiment for ${escapeHtml(sub.title)}">
-                    Go to experiment →
+                  <a href="${linkHref}" class="subsection-row__lab-link" title="Open in Laboratory" aria-label="Open ${escapeHtml(sub.title)} in Laboratory">
+                    Lab ↗
                   </a>
                 </div>
               </li>
@@ -938,13 +940,13 @@ const totalSubsections = movementsCatalog.reduce(
             const linkHref = `${m.slug}#${sub.id}`;
             listHtml += `
               <li class="subsection-row is-unchosen" data-sub-id="${escapeHtml(sub.id)}">
-                <div class="subsection-row__info">
-                  <span class="subsection-row__name">${escapeHtml(sub.title)}</span>
-                  <span class="unchosen-label">Not chosen yet</span>
+                <div class="subsection-row__main">
+                  <span class="subsection-row__name subsection-row__name--muted">${escapeHtml(sub.title)}</span>
+                  <span class="subsection-row__status-prompt">Not selected</span>
                 </div>
                 <div class="subsection-row__actions">
-                  <a href="${linkHref}" class="subsection-row__link subsection-row__link--dim" aria-label="Explore ${escapeHtml(sub.title)}">
-                    Explore section →
+                  <a href="${linkHref}" class="subsection-row__lab-link subsection-row__lab-link--prompt" aria-label="Explore ${escapeHtml(sub.title)} in Laboratory">
+                    Explore →
                   </a>
                 </div>
               </li>
@@ -1949,14 +1951,14 @@ const totalSubsections = movementsCatalog.reduce(
     gap: 0.6rem;
   }
 
-  .now-playing-pulse {
+  /* .now-playing-pulse {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: #34d399;
     box-shadow: 0 0 10px #34d399;
     animation: pulseRing 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+  } */
 
   @keyframes pulseRing {
     0%,
@@ -2382,8 +2384,19 @@ const totalSubsections = movementsCatalog.reduce(
 
   /* ══════════════════ ACTIVE NOW PLAYING HIGHLIGHTS ══════════════════ */
   .subsection-row.is-now-playing {
-    border-left: 4px solid var(--color-accent) !important;
-    background: rgba(184, 134, 11, 0.1) !important;
+    border-left: 3px solid var(--color-accent) !important;
+    background: rgba(139, 111, 71, 0.12) !important;
+  }
+
+  .subsection-row.is-now-playing .subsection-row__name {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .subsection-row.is-now-playing .subsection-row__play-hint {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--color-accent);
   }
 
   .painting-card.is-now-playing .painting-card__frame {
@@ -2395,38 +2408,42 @@ const totalSubsections = movementsCatalog.reduce(
   /* ══════════════════ PART 1: MOVEMENTS GRID ══════════════════ */
   .movements-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
     align-items: start;
   }
 
   @media (max-width: 768px) {
     .movements-list {
       grid-template-columns: 1fr;
+      gap: 1.25rem;
     }
   }
 
   .movement-group {
-    background: var(--color-cream-dark);
+    background: #faf7f2;
     border: 1px solid rgba(26, 23, 20, 0.08);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 2px 10px rgba(26, 23, 20, 0.02);
-    transition: box-shadow var(--transition-base);
+    box-shadow: 0 2px 12px rgba(26, 23, 20, 0.02);
+    transition:
+      border-color var(--transition-base),
+      box-shadow var(--transition-base);
   }
 
   .movement-group:hover {
-    box-shadow: 0 4px 16px rgba(26, 23, 20, 0.06);
+    border-color: rgba(139, 111, 71, 0.25);
+    box-shadow: 0 6px 20px rgba(26, 23, 20, 0.05);
   }
 
   .movement-group__header {
-    padding: 0.85rem 1.15rem;
-    background: rgba(26, 23, 20, 0.03);
-    border-bottom: 1px solid rgba(26, 23, 20, 0.06);
+    padding: 1rem 1.25rem 0.85rem;
+    background: transparent;
+    border-bottom: 1px solid rgba(26, 23, 20, 0.07);
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
     gap: 0.75rem;
   }
@@ -2434,51 +2451,48 @@ const totalSubsections = movementsCatalog.reduce(
   .movement-group__title-wrap {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: 0.65rem;
+    min-width: 0;
   }
 
   .movement-group__number {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
     color: var(--color-accent);
     text-transform: uppercase;
   }
 
   .movement-group__title {
     font-family: var(--font-serif);
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 400;
+    letter-spacing: 0.01em;
     color: var(--color-ink);
     margin: 0;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .movement-group__status {
+  .movement-group__count {
     font-family: var(--font-sans);
     font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    text-transform: uppercase;
-  }
-
-  .movement-group__status--complete {
-    background: rgba(78, 112, 88, 0.14);
-    color: var(--type-harpsichord);
-    border: 1px solid rgba(78, 112, 88, 0.25);
-  }
-
-  .movement-group__status--partial {
-    background: rgba(139, 111, 71, 0.12);
-    color: var(--color-accent);
-    border: 1px solid rgba(139, 111, 71, 0.2);
-  }
-
-  .movement-group__status--empty {
-    background: rgba(26, 23, 20, 0.05);
+    letter-spacing: 0.08em;
     color: var(--color-ink-muted);
+    white-space: nowrap;
+    padding-left: 0.5rem;
+  }
+
+  .movement-group__count.is-complete {
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+
+  .movement-group__count.is-empty {
+    opacity: 0.45;
   }
 
   .subsections-list {
@@ -2490,35 +2504,60 @@ const totalSubsections = movementsCatalog.reduce(
   }
 
   .subsection-row {
-    padding: 0.8rem 1.15rem;
-    border-bottom: 1px solid rgba(26, 23, 20, 0.05);
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid rgba(26, 23, 20, 0.04);
     display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    transition: background var(--transition-fast);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast);
+    position: relative;
   }
 
   .subsection-row:last-child {
     border-bottom: none;
   }
 
+  .subsection-row__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .subsection-row__header-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .subsection-row.is-chosen {
-    background: var(--color-cream);
-    border-left: 3px solid var(--color-accent);
+    background: transparent;
     cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+
+  .subsection-row.is-chosen:hover {
+    background: rgba(237, 229, 213, 0.4);
+    border-left-color: var(--color-accent);
+  }
+
+  .subsection-row.is-chosen:hover .subsection-row__play-hint {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .subsection-row.is-unchosen {
-    background: rgba(237, 229, 213, 0.35);
-    opacity: 0.8;
+    background: transparent;
+    opacity: 0.65;
   }
 
-  .subsection-row__info {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+  .subsection-row.is-unchosen:hover {
+    opacity: 0.9;
+    background: rgba(26, 23, 20, 0.02);
   }
 
   .subsection-row__name {
@@ -2526,55 +2565,80 @@ const totalSubsections = movementsCatalog.reduce(
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-ink);
+    letter-spacing: -0.01em;
   }
 
-  .subsection-row__choice {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  .choice-label {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: var(--color-ink-soft);
+  .subsection-row__name--muted {
     font-weight: 400;
+    color: var(--color-ink-soft);
   }
 
-  .unchosen-label {
+  .subsection-row__play-hint {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
-    color: var(--color-ink-muted);
-    font-style: italic;
-  }
-
-  .subsection-row__link {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     color: var(--color-accent);
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    align-self: flex-start;
+    opacity: 0;
+    transform: translateX(-3px);
     transition:
-      color var(--transition-fast),
+      opacity var(--transition-fast),
       transform var(--transition-fast);
   }
 
-  .subsection-row__link:hover {
-    color: var(--color-ink);
-    transform: translateX(2px);
-  }
-
-  .subsection-row__link--dim {
+  .subsection-row__choice-text {
+    font-family: var(--font-sans);
+    font-size: 0.78125rem;
     color: var(--color-ink-muted);
   }
 
-  .subsection-row__link--dim:hover {
+  .subsection-row__choice-text.is-harpsichord {
+    color: var(--type-harpsichord);
+    font-weight: 500;
+  }
+
+  .subsection-row__status-prompt {
+    font-family: var(--font-serif);
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--color-ink-muted);
+  }
+
+  .subsection-row__actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .subsection-row__lab-link {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    padding: 0.2rem 0.45rem;
+    border-radius: var(--radius-sm);
+    transition:
+      color var(--transition-fast),
+      background var(--transition-fast);
+  }
+
+  .subsection-row__lab-link:hover {
+    color: var(--color-ink);
+    background: rgba(26, 23, 20, 0.06);
+  }
+
+  .subsection-row__lab-link--prompt {
     color: var(--color-accent);
+  }
+
+  .subsection-row__lab-link--prompt:hover {
+    color: var(--color-ink);
   }
 
   /* Dot Types */

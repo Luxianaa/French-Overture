@@ -140,6 +140,14 @@ const currentPath = new URL(Astro.request.url).pathname;
 
           <li class="nav__item">
             <a
+              href="/documentation"
+              class={`nav__link ${currentPath === "/documentation" ? "nav__link--active" : ""}`}
+              >Documentation</a
+            >
+          </li>
+
+          <li class="nav__item">
+            <a
               href="/about"
               class={`nav__link ${currentPath === "/about" ? "nav__link--active" : ""}`}
               >About me</a

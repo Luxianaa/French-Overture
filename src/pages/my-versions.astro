@@ -28,13 +28,13 @@ import { versions } from "../data/content/my-versions.js";
             aria-labelledby={`exp-title-${ver.id}`}
           >
             <header class="experiment-header">
-              <div class="experiment-badge">
+              {/* <div class="experiment-badge">
                 <span
                   class={`type-dot ${ver.instrument === "harpsichord" ? "type-dot--harpsichord" : "type-dot--piano"}`}
                   aria-hidden="true"
                 />
                 <span class="type-label">{ver.label}</span>
-              </div>
+              </div> */}
               <h2 id={`exp-title-${ver.id}`} class="experiment-title">
                 {ver.title}
               </h2>
