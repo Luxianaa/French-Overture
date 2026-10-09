@@ -1,40 +1,470 @@
-﻿---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import heroImg from '../assets/hero-home.jpg';
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroImg from "../assets/About me.png";
+import bioImg from "../assets/Biografia.jpg";
 ---
 
-<BaseLayout title="About Me — French Overture" description="About the author of French Overture — A Laboratory of Doubt Against Automatic Bach.">
+<BaseLayout
+  title="About Me — French Overture"
+  description="Biography and artistic research of Daniel Porcel — Pianist and researcher exploring Bach's French Overture BWV 831."
+>
+  <!-- ── 1. HERO ────────────────────────────────────────────── -->
   <Hero
     image={heroImg.src}
     title="About Me"
-    subtitle="French Overture — A Laboratory of Doubt Against Automatic Bach"
+    subtitle="Daniel Porcel Chalup  · Pianist & Artistic Researcher"
+    buttonText="Biography"
+    buttonHref="#biography"
   />
 
-  <section class="section container stub-content">
-    <h2 class="stub-heading">About Me</h2>
-    <p class="stub-body">
-      This page is a placeholder. Content will be added in a future version of this site.
-    </p>
+  <!-- ── 2. BIOGRAPHY + SOCIAL LINKS ────────────────────────── -->
+  <section
+    id="biography"
+    class="section bio-section"
+    aria-labelledby="bio-heading"
+  >
+    <div class="bio-section__inner">
+      <!-- Left column: Portrait Photo (~42%) -->
+      <div class="bio-section__media">
+        <div class="bio-section__frame">
+          <figure class="bio-section__figure">
+            <img
+              src={bioImg.src}
+              alt="Daniel Porcel"
+              class="bio-section__img"
+              loading="lazy"
+              decoding="async"
+              width="600"
+              height="750"
+            />
+          </figure>
+        </div>
+      </div>
+
+      <!-- Right column: Bio Text & Social Links (~58%) -->
+      <div class="bio-section__content">
+        <span class="bio-section__label">Pianist & Researcher</span>
+        <h2 id="bio-heading" class="bio-section__name">Daniel Porcel Chalup</h2>
+
+        <div class="bio-section__text">
+          <p class="bio-section__lede">
+            Described as a passionate pianist with great sensitivity, Daniel Porcel Chalup is one of Bolivia’s most promising emerging talents. A graduate and Master of Music candidate at the Royal Academy of Music in London under Mei-Ting Sun, he is the recipient of the Thompson Family Charitable Trust Award in recognition of artistic excellence.
+          </p>
+          <p>
+            His concert career encompasses recitals across the United Kingdom and Bolivia, from London’s St James’s Church and Bolívar Hall to historic national venues including Sucre’s Teatro Gran Mariscal, Cochabamba’s Palacio Portales, and the Casa de la Libertad. A frequent collaborator in the Royal Academy’s flagship festivals — performing works by Brahms, Schumann, and contemporary premieres — Daniel also deepens his structural understanding through orchestral conducting and historical performance on harpsichord and fortepiano under Steven Devine and Jane Chapman.
+          </p>
+          <p>
+            With an interpretative approach uniting refined technique, depth of sound, and genuine communicative power, he is actively committed to teaching, cultural outreach, and creating unforgettable musical experiences for new audiences.
+          </p>
+        </div>
+
+        <!-- Social Channels -->
+        <div class="bio-section__socials">
+          <h3 class="bio-section__socials-heading">Channels & Social Media</h3>
+          <p class="bio-section__socials-sub">
+            Follow and explore further recordings :
+          </p>
+
+          <ul class="bio-social-list" role="list">
+            <li>
+              <a
+                href="https://www.youtube.com/@DanielPorcelChalup"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bio-social-link bio-social-link--youtube"
+                aria-label="Visit YouTube channel"
+              >
+                <span class="bio-social-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+                    ></path>
+                  </svg>
+                </span>
+                <span class="bio-social-text">
+                  <span class="bio-social-platform">YouTube</span>
+                  <span class="bio-social-action"
+                    >Watch performances & lectures</span
+                  >
+                </span>
+                <span class="bio-social-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://www.instagram.com/daniel.porcelch/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bio-social-link bio-social-link--instagram"
+                aria-label="Visit Instagram profile"
+              >
+                <span class="bio-social-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                    ></path>
+                  </svg>
+                </span>
+                <span class="bio-social-text">
+                  <span class="bio-social-platform">Instagram</span>
+                  <span class="bio-social-action"
+                    >Updates, behind-the-scenes & reflections</span
+                  >
+                </span>
+                <span class="bio-social-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://www.facebook.com/daniel.porcelchalup/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bio-social-link bio-social-link--facebook"
+                aria-label="Visit Facebook page"
+              >
+                <span class="bio-social-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                    ></path>
+                  </svg>
+                </span>
+                <span class="bio-social-text">
+                  <span class="bio-social-platform">Facebook</span>
+                  <span class="bio-social-action">News, events & articles</span>
+                </span>
+                <span class="bio-social-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </section>
 </BaseLayout>
 
 <style>
-  .stub-content {
-    padding-block: var(--space-2xl);
+  /* ── Biography Section ───────────────────────────────────── */
+  .bio-section {
+    background: var(--color-cream);
+    padding-top: clamp(4.5rem, 7vw, 7rem);
+    padding-bottom: clamp(5rem, 8vw, 8rem);
+  }
+
+  .bio-section__inner {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+    display: grid;
+    grid-template-columns: 42fr 58fr;
+    gap: clamp(4rem, 5vw, 5rem);
+    align-items: start;
+  }
+
+  /* ── Media / Photo (Sticky, 4px radius, soft shadow, offset frame) ── */
+  .bio-section__media {
+    position: sticky;
+    top: 6rem;
+    width: 100%;
+    animation: photoEntrance 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes photoEntrance {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .bio-section__frame {
+    position: relative;
+    padding-right: 14px;
+    padding-bottom: 14px;
+  }
+
+  /* Marco desplazado detrás (14px abajo y a la derecha) */
+  .bio-section__frame::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 0;
+    bottom: 0;
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .bio-section__figure {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.35);
+    background: var(--color-cream-dark);
+  }
+
+  .bio-section__img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: left center;
+    transform: scale(1.08);
+    transform-origin: left center;
+    display: block;
+    filter: contrast(1.08) brightness(0.91) saturate(1.04);
+  }
+
+  /* ── Content Column ──────────────────────────────────────── */
+  .bio-section__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    max-width: 62ch;
+  }
+
+  /* Etiqueta "PIANIST & RESEARCHER" */
+  .bio-section__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+
+  .bio-section__label::before {
+    content: "";
+    display: inline-block;
+    width: 2.5rem;
+    height: 1px;
+    background-color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  /* Nombre "Daniel Porcel" */
+  .bio-section__name {
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 6vw, 5.25rem);
+    font-weight: 500;
+    line-height: 1.02;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  /* Párrafos biográficos */
+  .bio-section__text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 62ch;
+  }
+
+  .bio-section__text p {
+    margin: 0;
+    color: var(--color-ink);
+  }
+
+  .bio-section__lede {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    line-height: 1.55;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .bio-section__text p:not(.bio-section__lede) {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    line-height: 1.75;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .bio-section__text em {
+    font-style: italic;
+  }
+
+  /* ── Social Channels ─────────────────────────────────────── */
+  .bio-section__socials {
+    margin-top: var(--space-md);
+    padding-top: var(--space-xl);
+    border-top: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
   }
-  .stub-heading {
+
+  .bio-section__socials-heading {
     font-family: var(--font-serif);
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 300;
+    font-size: 1.9rem;
+    font-weight: 500;
+    line-height: 1.2;
     color: var(--color-ink);
+    margin: 0;
   }
-  .stub-body {
-    max-width: 55ch;
-    color: var(--color-ink-soft);
-    font-size: 1.0625rem;
+
+  .bio-section__socials-sub {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+    margin: 0;
+  }
+
+  .bio-social-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bio-social-link {
+    display: flex;
+    align-items: center;
+    gap: 1.15rem;
+    padding: 0.95rem 1.25rem;
+    background: var(--color-cream-dark);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+    border-radius: 4px;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast),
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .bio-social-link:hover {
+    background: var(--color-cream);
+    border-color: var(--color-accent);
+    transform: translateX(4px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-ink) 6%, transparent);
+  }
+
+  .bio-social-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .bio-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+    color: var(--color-ink);
+    flex-shrink: 0;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+  .bio-social-link:hover .bio-social-icon {
+    background: var(--color-accent);
+    color: var(--color-white);
+    border-color: var(--color-accent);
+  }
+
+  .bio-social-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+  }
+
+  .bio-social-platform {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    letter-spacing: 0.01em;
+  }
+
+  .bio-social-action {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+  }
+
+  .bio-social-arrow {
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    color: var(--color-ink-muted);
+    transition:
+      transform var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .bio-social-link:hover .bio-social-arrow {
+    transform: translate(2px, -2px);
+    color: var(--color-accent);
+  }
+
+  /* ── Responsive ─────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .bio-section__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xl);
+    }
+
+    .bio-section__media {
+      position: static;
+      max-width: 420px;
+      margin-inline: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bio-section__media {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .bio-social-link,
+    .bio-social-arrow,
+    .bio-social-icon {
+      transition: none !important;
+    }
+
+    .bio-social-link:hover {
+      transform: none !important;
+    }
   }
 </style>

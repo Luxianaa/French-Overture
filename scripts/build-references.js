@@ -369,6 +369,12 @@ async function main() {
     const destFilePath = path.join(subseccionDir, destFileName);
     const webSrc = `/references/${idSubseccion}/${destFileName}`;
 
+    // Ruta de destino de la miniatura (thumb)
+    const thumbSubseccionDir = path.join(outputImagesDir, 'thumbs', idSubseccion);
+    fs.mkdirSync(thumbSubseccionDir, { recursive: true });
+    const thumbDestFilePath = path.join(thumbSubseccionDir, destFileName);
+    const webThumb = `/references/thumbs/${idSubseccion}/${destFileName}`;
+
     // Buscar archivo origen y redimensionar si aún no existe
     const sourceFilePath = findSourceImage(item.imagen);
     if (!sourceFilePath) {
@@ -394,6 +400,30 @@ async function main() {
       }
     } else {
       processedCount++;
+    }
+
+    // Obtener dimensiones reales de la imagen grande y generar thumbnail de 640px (calidad 75)
+    let imgWidth = 1800;
+    let imgHeight = 1200;
+    if (fs.existsSync(destFilePath)) {
+      try {
+        const meta = await sharp(destFilePath).metadata();
+        imgWidth = meta.width || 1800;
+        imgHeight = meta.height || 1200;
+
+        if (!fs.existsSync(thumbDestFilePath)) {
+          await sharp(destFilePath)
+            .resize({
+              width: 640,
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+            .jpeg({ quality: 75, progressive: true })
+            .toFile(thumbDestFilePath);
+        }
+      } catch (err) {
+        console.error(`Error generando miniatura o metadata para ${destFilePath}:`, err.message);
+      }
     }
 
     // Metadatos y crédito
@@ -455,6 +485,9 @@ async function main() {
     // Sin información de licencias, conforme a lo requerido
     references[idSubseccion][instrumento][versionNum] = {
       src: webSrc,
+      thumb: webThumb,
+      width: imgWidth,
+      height: imgHeight,
       alt: `${cleanCaptionText(item.titulo)} — ${cleanCaptionText(item.autor_obra)}`,
       caption: formatCaption(item.autor_obra, item.titulo, item.fecha_obra, item.museo),
       explanation: englishExplanation,

@@ -1,8 +1,11 @@
 ---
-import { movements } from '../data/movements.js';
-import '../styles/global.css';
+import { movements } from "../data/movements.js";
+import "../styles/global.css";
 
-const { title = 'French Overture', description = 'A Laboratory of Doubt Against Automatic Bach' } = Astro.props;
+const {
+  title = "French Overture",
+  description = "A Laboratory of Doubt Against Automatic Bach",
+} = Astro.props;
 
 // Highlight active nav link
 const currentPath = new URL(Astro.request.url).pathname;
@@ -32,10 +35,9 @@ const currentPath = new URL(Astro.request.url).pathname;
     <!-- ══════════════════ NAVBAR ══════════════════ -->
     <header id="site-header" class="site-header" role="banner">
       <nav class="nav container" aria-label="Main navigation">
-
         <!-- Logo / Site name -->
         <a href="/" class="nav__logo" aria-label="French Overture — Home">
-          French Overture
+          French Overture in B minor, BWV 831
         </a>
 
         <!-- Hamburger button (mobile) -->
@@ -56,24 +58,34 @@ const currentPath = new URL(Astro.request.url).pathname;
           <li class="nav__item">
             <a
               href="/"
-              class={`nav__link ${currentPath === '/' ? 'nav__link--active' : ''}`}
-            >Home</a>
+              class={`nav__link ${currentPath === "/" ? "nav__link--active" : ""}`}
+              >Home</a
+            >
           </li>
 
           <!-- Laboratory — dropdown -->
-          <li
-            class="nav__item nav__item--dropdown"
-            id="lab-item"
-          >
+          <li class="nav__item nav__item--dropdown" id="lab-item">
             <button
-              class={`nav__link nav__link--btn ${currentPath.startsWith('/ouverture') || currentPath.startsWith('/courante') || currentPath.startsWith('/gavotte') || currentPath.startsWith('/passepied') || currentPath.startsWith('/sarabande') || currentPath.startsWith('/bourree') || currentPath.startsWith('/gigue') || currentPath.startsWith('/echo') ? 'nav__link--active' : ''}`}
+              class={`nav__link nav__link--btn ${currentPath.startsWith("/ouverture") || currentPath.startsWith("/courante") || currentPath.startsWith("/gavotte") || currentPath.startsWith("/passepied") || currentPath.startsWith("/sarabande") || currentPath.startsWith("/bourree") || currentPath.startsWith("/gigue") || currentPath.startsWith("/echo") ? "nav__link--active" : ""}`}
               aria-haspopup="true"
               aria-expanded="false"
               id="lab-btn"
             >
               Laboratory
-              <svg class="nav__chevron" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true">
-                <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg
+                class="nav__chevron"
+                width="10"
+                height="6"
+                viewBox="0 0 10 6"
+                aria-hidden="true"
+              >
+                <path
+                  d="M1 1l4 4 4-4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
               </svg>
             </button>
 
@@ -86,39 +98,52 @@ const currentPath = new URL(Astro.request.url).pathname;
               role="list"
               aria-label="Laboratory movements"
             >
-              {movements.map((m) => (
-                <li>
-                  <a
-                    href={m.slug}
-                    class={`nav__dropdown-link ${currentPath === m.slug ? 'nav__dropdown-link--active' : ''}`}
-                  >
-                    <span class="nav__dropdown-num">{m.number}</span>
-                    {m.title}
-                  </a>
-                </li>
-              ))}
+              {
+                movements.map((m) => (
+                  <li>
+                    <a
+                      href={m.slug}
+                      class={`nav__dropdown-link ${currentPath === m.slug ? "nav__dropdown-link--active" : ""}`}
+                    >
+                      <span class="nav__dropdown-num">{m.number}</span>
+                      {m.title}
+                    </a>
+                  </li>
+                ))
+              }
             </ul>
           </li>
 
           <li class="nav__item">
             <a
+              href="/gallery"
+              class={`nav__link ${currentPath === "/gallery" ? "nav__link--active" : ""}`}
+              >Gallery</a
+            >
+          </li>
+
+          <li class="nav__item">
+            <a
               href="/my-versions"
-              class={`nav__link ${currentPath === '/my-versions' ? 'nav__link--active' : ''}`}
-            >My versions</a>
+              class={`nav__link ${currentPath === "/my-versions" ? "nav__link--active" : ""}`}
+              >My versions</a
+            >
           </li>
 
           <li class="nav__item">
             <a
               href="/library"
-              class={`nav__link ${currentPath === '/library' ? 'nav__link--active' : ''}`}
-            >Library</a>
+              class={`nav__link ${currentPath === "/library" ? "nav__link--active" : ""}`}
+              >Library</a
+            >
           </li>
 
           <li class="nav__item">
             <a
               href="/about"
-              class={`nav__link ${currentPath === '/about' ? 'nav__link--active' : ''}`}
-            >About me</a>
+              class={`nav__link ${currentPath === "/about" ? "nav__link--active" : ""}`}
+              >About me</a
+            >
           </li>
         </ul>
       </nav>
@@ -140,42 +165,41 @@ const currentPath = new URL(Astro.request.url).pathname;
         </p>
       </div>
     </footer>
-
   </body>
 </html>
 
 <!-- ══════════════════ SCRIPTS ══════════════════ -->
 <script>
   // ── Scroll: transparent → solid navbar ──────────────────────
-  const header = document.getElementById('site-header');
+  const header = document.getElementById("site-header");
 
   function updateNavOnScroll() {
     if (window.scrollY > 20) {
-      header.classList.add('is-solid');
+      header.classList.add("is-solid");
     } else {
-      header.classList.remove('is-solid');
+      header.classList.remove("is-solid");
     }
   }
 
-  window.addEventListener('scroll', updateNavOnScroll, { passive: true });
+  window.addEventListener("scroll", updateNavOnScroll, { passive: true });
   updateNavOnScroll(); // run once on load
 
   // ── Laboratory dropdown ──────────────────────────────────────
-  const labItem    = document.getElementById('lab-item');
-  const labBtn     = document.getElementById('lab-btn');
-  const labDropdown = document.getElementById('lab-dropdown');
+  const labItem = document.getElementById("lab-item");
+  const labBtn = document.getElementById("lab-btn");
+  const labDropdown = document.getElementById("lab-dropdown");
 
   let closeTimer = null;
 
   function openDropdown() {
     clearTimeout(closeTimer);
-    labBtn.setAttribute('aria-expanded', 'true');
-    labDropdown.classList.add('is-open');
+    labBtn.setAttribute("aria-expanded", "true");
+    labDropdown.classList.add("is-open");
   }
 
   function closeDropdown() {
-    labBtn.setAttribute('aria-expanded', 'false');
-    labDropdown.classList.remove('is-open');
+    labBtn.setAttribute("aria-expanded", "false");
+    labDropdown.classList.remove("is-open");
   }
 
   function scheduleClose() {
@@ -183,49 +207,52 @@ const currentPath = new URL(Astro.request.url).pathname;
   }
 
   // Hover (desktop)
-  labItem.addEventListener('mouseenter', openDropdown);
-  labItem.addEventListener('mouseleave', scheduleClose);
-  labDropdown.addEventListener('mouseenter', () => clearTimeout(closeTimer));
-  labDropdown.addEventListener('mouseleave', scheduleClose);
+  labItem.addEventListener("mouseenter", openDropdown);
+  labItem.addEventListener("mouseleave", scheduleClose);
+  labDropdown.addEventListener("mouseenter", () => clearTimeout(closeTimer));
+  labDropdown.addEventListener("mouseleave", scheduleClose);
 
   // Click / touch (mobile + keyboard)
-  labBtn.addEventListener('click', () => {
-    const isOpen = labBtn.getAttribute('aria-expanded') === 'true';
+  labBtn.addEventListener("click", () => {
+    const isOpen = labBtn.getAttribute("aria-expanded") === "true";
     isOpen ? closeDropdown() : openDropdown();
   });
 
   // Keyboard: Escape closes
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && labBtn.getAttribute('aria-expanded') === 'true') {
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && labBtn.getAttribute("aria-expanded") === "true") {
       closeDropdown();
       labBtn.focus();
     }
   });
 
   // Close when focus leaves the dropdown entirely
-  labItem.addEventListener('focusout', (e) => {
+  labItem.addEventListener("focusout", (e) => {
     if (!labItem.contains(e.relatedTarget)) {
       closeDropdown();
     }
   });
 
   // ── Hamburger (mobile) ───────────────────────────────────────
-  const hamburger = document.getElementById('hamburger');
-  const navMenu   = document.getElementById('nav-menu');
+  const hamburger = document.getElementById("hamburger");
+  const navMenu = document.getElementById("nav-menu");
 
-  hamburger.addEventListener('click', () => {
-    const isOpen = navMenu.classList.toggle('is-open');
-    hamburger.setAttribute('aria-expanded', String(isOpen));
-    hamburger.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
-    hamburger.classList.toggle('is-active', isOpen);
+  hamburger.addEventListener("click", () => {
+    const isOpen = navMenu.classList.toggle("is-open");
+    hamburger.setAttribute("aria-expanded", String(isOpen));
+    hamburger.setAttribute(
+      "aria-label",
+      isOpen ? "Close navigation menu" : "Open navigation menu",
+    );
+    hamburger.classList.toggle("is-active", isOpen);
   });
 
   // Close mobile menu when a link is clicked
-  navMenu.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      navMenu.classList.remove('is-open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      hamburger.classList.remove('is-active');
+  navMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navMenu.classList.remove("is-open");
+      hamburger.setAttribute("aria-expanded", "false");
+      hamburger.classList.remove("is-active");
     });
   });
 </script>
@@ -242,7 +269,10 @@ const currentPath = new URL(Astro.request.url).pathname;
     z-index: 1000;
     height: var(--nav-height);
     background: var(--nav-bg-transparent);
-    transition: background var(--transition-slow), backdrop-filter var(--transition-slow), box-shadow var(--transition-slow);
+    transition:
+      background var(--transition-slow),
+      backdrop-filter var(--transition-slow),
+      box-shadow var(--transition-slow);
   }
 
   .site-header.is-solid {
@@ -307,7 +337,7 @@ const currentPath = new URL(Astro.request.url).pathname;
   }
 
   .nav__link::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
@@ -358,7 +388,7 @@ const currentPath = new URL(Astro.request.url).pathname;
   }
 
   .nav__link--btn::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
@@ -417,7 +447,9 @@ const currentPath = new URL(Astro.request.url).pathname;
     opacity: 0;
     pointer-events: none;
     transform: translateX(-50%) translateY(-6px);
-    transition: opacity var(--transition-base), transform var(--transition-base);
+    transition:
+      opacity var(--transition-base),
+      transform var(--transition-base);
   }
 
   .nav__dropdown.is-open {
@@ -435,7 +467,9 @@ const currentPath = new URL(Astro.request.url).pathname;
     font-size: 0.8125rem;
     color: var(--color-ink-soft);
     letter-spacing: 0.03em;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast);
   }
 
   .nav__dropdown-link:hover,
@@ -472,7 +506,10 @@ const currentPath = new URL(Astro.request.url).pathname;
     height: 1.5px;
     background: var(--color-white);
     border-radius: 2px;
-    transition: transform var(--transition-base), opacity var(--transition-base), background var(--transition-base);
+    transition:
+      transform var(--transition-base),
+      opacity var(--transition-base),
+      background var(--transition-base);
     transform-origin: center;
   }
 
