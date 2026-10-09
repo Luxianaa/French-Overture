@@ -1,5 +1,5 @@
-// Generated automatically by scripts/build-references.js from referencias/ASIGNACIONES_PARA_LA_PAGINA.json
-// Do not edit manually; update the source JSON and run: node scripts/build-references.js
+// Generated automatically by scripts/build-references.js
+// Do not edit manually; update source files and run: node scripts/build-references.js
 
 export const references = {
   "ouverture-a": {
@@ -147,6 +147,18 @@ export const references = {
         "credit": "Photo: Daniel Porcel",
         "needsReview": false,
         "sourceId": "IMG_2872"
+      },
+      "4": {
+        "src": "/references/ouverture-b/piano-4.jpg",
+        "thumb": "/references/thumbs/ouverture-b/piano-4.jpg",
+        "width": 1344,
+        "height": 1800,
+        "alt": "François I Brandishing a Sword — Alexandre-Evariste Fragonard (French, 1781–1850)",
+        "caption": "Alexandre-Evariste Fragonard (French, 1781–1850). François I Brandishing a Sword. c. 1815–30. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "King Francis I, the raised sword, grand staircase, and royal cortege project solemn authority and courtly magnificence.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "74614"
       }
     },
     "harpsichord": {
@@ -309,6 +321,18 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_117774"
+      },
+      "4": {
+        "src": "/references/gavotte-1-a/piano-4.jpg",
+        "thumb": "/references/thumbs/gavotte-1-a/piano-4.jpg",
+        "width": 1365,
+        "height": 1800,
+        "alt": "The Romancer — Charles-Nicolas Cochin (French, 1715–1790); Jean-Antoine Watteau (French, 1684–1721) (after)",
+        "caption": "Charles-Nicolas Cochin (French, 1715–1790); Jean-Antoine Watteau (French, 1684–1721) (after). The Romancer. 1727. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The gathering around the musician and the answering gestures evoke courtly sociability and choreographed dance phrasing.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "111068"
       }
     },
     "harpsichord": {
@@ -363,6 +387,18 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_107798"
+      },
+      "4": {
+        "src": "/references/gavotte-1-b/piano-4.jpg",
+        "thumb": "/references/thumbs/gavotte-1-b/piano-4.jpg",
+        "width": 1199,
+        "height": 1800,
+        "alt": "The Troubadour — Honoré Daumier (French, 1808–1879)",
+        "caption": "Honoré Daumier (French, 1808–1879). The Troubadour. 1868–73. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The troubadour with his instrument connects physical poise with musical phrasing; an evocative musical association rather than depicted dance.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "135214"
       }
     },
     "harpsichord": {
@@ -579,6 +615,18 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_125943"
+      },
+      "4": {
+        "src": "/references/passepied-1-b/piano-4.jpg",
+        "thumb": "/references/thumbs/passepied-1-b/piano-4.jpg",
+        "width": 1800,
+        "height": 1117,
+        "alt": "The Happy Shepherd, Arabesque — Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after)",
+        "caption": "Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after). The Happy Shepherd, Arabesque. c. 1729. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Pastoral music, delicate figures, and buoyant arabesques accompany the nimble, concise steps of the passepied.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "109164"
       }
     },
     "harpsichord": {
@@ -633,6 +681,18 @@ export const references = {
         "credit": "Wikimedia Commons",
         "needsReview": false,
         "sourceId": "WEB_45"
+      },
+      "4": {
+        "src": "/references/passepied-2-a/piano-4.jpg",
+        "thumb": "/references/thumbs/passepied-2-a/piano-4.jpg",
+        "width": 1347,
+        "height": 1800,
+        "alt": "Spring — Jean-Baptiste Pater (French, 1695–1736)",
+        "caption": "Jean-Baptiste Pater (French, 1695–1736). Spring. c. 1720–36. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Figures arranged among trees unite graceful lightness, rural sociability, and an airy outdoor expanse.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "128877"
       }
     },
     "harpsichord": {
@@ -687,6 +747,54 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_108081"
+      },
+      "4": {
+        "src": "/references/passepied-2-b/piano-4.jpg",
+        "thumb": "/references/thumbs/passepied-2-b/piano-4.jpg",
+        "width": 1510,
+        "height": 1800,
+        "alt": "Summer — Jean-Baptiste Pater (French, 1695–1736)",
+        "caption": "Jean-Baptiste Pater (French, 1695–1736). Summer. c. 1720–36. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The country gathering and expansive landscape establish a buoyant midsummer atmosphere in the open air.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "130161"
+      },
+      "5": {
+        "src": "/references/passepied-2-b/piano-5.jpg",
+        "thumb": "/references/thumbs/passepied-2-b/piano-5.jpg",
+        "width": 1800,
+        "height": 1214,
+        "alt": "The Little Park — Jean-Honoré Fragonard (French, 1732–1806)",
+        "caption": "Jean-Honoré Fragonard (French, 1732–1806). The Little Park. c. 1763. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Diminutive figures nestled amidst garden greenery suggest gentle motion and spatial freedom in the open air.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "170657"
+      },
+      "6": {
+        "src": "/references/passepied-2-b/piano-6.jpg",
+        "thumb": "/references/thumbs/passepied-2-b/piano-6.jpg",
+        "width": 1279,
+        "height": 1800,
+        "alt": "On the Beach at Berneval — Pierre-Auguste Renoir (French, 1841–1919)",
+        "caption": "Pierre-Auguste Renoir (French, 1841–1919). On the Beach at Berneval. c. 1892. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Figures by the seashore with buoyant gestures in an open expanse; an outdoor atmosphere rather than depicted dance.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "136781"
+      },
+      "7": {
+        "src": "/references/passepied-2-b/piano-7.jpg",
+        "thumb": "/references/thumbs/passepied-2-b/piano-7.jpg",
+        "width": 1480,
+        "height": 1800,
+        "alt": "The Apple Seller — Pierre-Auguste Renoir (French, 1841–1919)",
+        "caption": "Pierre-Auguste Renoir (French, 1841–1919). The Apple Seller. c. 1890. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The intimate exchange among figures, the child, and lush foliage evoke gentle conversation and pastoral lightness.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "135480"
       }
     },
     "harpsichord": {
@@ -849,6 +957,18 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_142292"
+      },
+      "4": {
+        "src": "/references/bourree-1-a/piano-4.jpg",
+        "thumb": "/references/thumbs/bourree-1-a/piano-4.jpg",
+        "width": 1800,
+        "height": 1283,
+        "alt": "Bacchanales: Nymph Astride a Satyr — Jean-Honoré Fragonard (French, 1732–1806)",
+        "caption": "Jean-Honoré Fragonard (French, 1732–1806). Bacchanales: Nymph Astride a Satyr. 1763. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The figure elevated above the satyr and the diagonal lines convey momentum, physical suspension, and bodily accent.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "170458"
       }
     },
     "harpsichord": {
@@ -903,6 +1023,30 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_103508"
+      },
+      "4": {
+        "src": "/references/bourree-1-b/piano-4.jpg",
+        "thumb": "/references/thumbs/bourree-1-b/piano-4.jpg",
+        "width": 1800,
+        "height": 1004,
+        "alt": "Music and Dance — François Boucher (French, 1703–1770)",
+        "caption": "François Boucher (French, 1703–1770). Music and Dance. 1740s. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Figures in suspension and the lively dialogue between music and movement lend buoyancy, physical momentum, and rhythmic continuity.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "125949"
+      },
+      "5": {
+        "src": "/references/bourree-1-b/piano-5.jpg",
+        "thumb": "/references/thumbs/bourree-1-b/piano-5.jpg",
+        "width": 1230,
+        "height": 1800,
+        "alt": "A l'Olympia — Eugène Delâtre (French, 1864–1938)",
+        "caption": "Eugène Delâtre (French, 1864–1938). A l'Olympia. c. 1895. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The variety stage performance presents theatrical gesture and audience responsiveness, evoking stage vitality.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "696082"
       }
     },
     "harpsichord": {
@@ -957,6 +1101,18 @@ export const references = {
         "credit": "The Cleveland Museum of Art, Open Access",
         "needsReview": false,
         "sourceId": "CMA_146096"
+      },
+      "4": {
+        "src": "/references/bourree-2-a/piano-4.jpg",
+        "thumb": "/references/thumbs/bourree-2-a/piano-4.jpg",
+        "width": 948,
+        "height": 1800,
+        "alt": "Harlequin, Arabesque — Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after)",
+        "caption": "Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after). Harlequin, Arabesque. early 1700s. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Harlequin's poised gesture and the surrounding arabesques create theatrical lightness and visual accents.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "109166"
       }
     },
     "harpsichord": {
@@ -1011,6 +1167,30 @@ export const references = {
         "credit": "Dallas Museum of Art",
         "needsReview": false,
         "sourceId": "COM_08"
+      },
+      "4": {
+        "src": "/references/bourree-2-b/piano-4.jpg",
+        "thumb": "/references/thumbs/bourree-2-b/piano-4.jpg",
+        "width": 966,
+        "height": 1800,
+        "alt": "Pierrot, Arabesque — Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after)",
+        "caption": "Louis Crépy (French); Jean-Antoine Watteau (French, 1684–1721) (after). Pierrot, Arabesque. early 1700s. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "Pierrot and the playful disposition of gestures offer an inventive theatrical dialogue of comic lightness.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "109167"
+      },
+      "5": {
+        "src": "/references/bourree-2-b/piano-5.jpg",
+        "thumb": "/references/thumbs/bourree-2-b/piano-5.jpg",
+        "width": 1800,
+        "height": 1249,
+        "alt": "The Folies-Bergère — Jean Louis Forain (French, 1852–1931)",
+        "caption": "Jean Louis Forain (French, 1852–1931). The Folies-Bergère. c. 1880–86. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The stage spectacle, audience, and animated figures suggest vibrant energy and lively theatrical motion.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "167963"
       }
     },
     "harpsichord": {
@@ -1065,6 +1245,18 @@ export const references = {
         "credit": "Francesco Bini (Sailko) / Wikimedia Commons",
         "needsReview": false,
         "sourceId": "WEB_28"
+      },
+      "4": {
+        "src": "/references/gigue-a/piano-4.jpg",
+        "thumb": "/references/thumbs/gigue-a/piano-4.jpg",
+        "width": 1229,
+        "height": 1800,
+        "alt": "Viviane — Jules Chéret (French, 1836–1932)",
+        "caption": "Jules Chéret (French, 1836–1932). Viviane. 1886. The Cleveland Museum of Art, Cleveland.",
+        "explanation": "The theatrical poster presents figures in dynamic action, sweeping diagonals, and soaring gestures: momentum and vivid exuberance.",
+        "credit": "The Cleveland Museum of Art, Open Access",
+        "needsReview": false,
+        "sourceId": "146361"
       }
     },
     "harpsichord": {

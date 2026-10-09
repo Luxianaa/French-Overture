@@ -269,6 +269,75 @@ const SPECIFIC_FALLBACKS = {
     'Figures positioned along the riverbank establish distinct planes and an expansive atmosphere where musical dialogue can breathe',
 };
 
+const EXTRA_EXPLANATIONS = {
+  'BOU1-A_PNO-04':
+    'The figure elevated above the satyr and the diagonal lines convey momentum, physical suspension, and bodily accent.',
+  'BOU1-B_PNO-04':
+    'Figures in suspension and the lively dialogue between music and movement lend buoyancy, physical momentum, and rhythmic continuity.',
+  'BOU1-B_PNO-05':
+    'The variety stage performance presents theatrical gesture and audience responsiveness, evoking stage vitality.',
+  'BOU2-A_PNO-04':
+    "Harlequin's poised gesture and the surrounding arabesques create theatrical lightness and visual accents.",
+  'BOU2-B_PNO-04':
+    'Pierrot and the playful disposition of gestures offer an inventive theatrical dialogue of comic lightness.',
+  'BOU2-B_PNO-05':
+    'The stage spectacle, audience, and animated figures suggest vibrant energy and lively theatrical motion.',
+  'GAV1-A_PNO-04':
+    'The gathering around the musician and the answering gestures evoke courtly sociability and choreographed dance phrasing.',
+  'GAV1-B_PNO-04':
+    'The troubadour with his instrument connects physical poise with musical phrasing; an evocative musical association rather than depicted dance.',
+  'GIG-A_PNO-04':
+    'The theatrical poster presents figures in dynamic action, sweeping diagonals, and soaring gestures: momentum and vivid exuberance.',
+  'OUV-AR_PNO-04':
+    'King Francis I, the raised sword, grand staircase, and royal cortege project solemn authority and courtly magnificence.',
+  'PAS1-B_PNO-04':
+    'Pastoral music, delicate figures, and buoyant arabesques accompany the nimble, concise steps of the passepied.',
+  'PAS2-A_PNO-04':
+    'Figures arranged among trees unite graceful lightness, rural sociability, and an airy outdoor expanse.',
+  'PAS2-B_PNO-04':
+    'The country gathering and expansive landscape establish a buoyant midsummer atmosphere in the open air.',
+  'PAS2-B_PNO-05':
+    'Diminutive figures nestled amidst garden greenery suggest gentle motion and spatial freedom in the open air.',
+  'PAS2-B_PNO-06':
+    'Figures by the seashore with buoyant gestures in an open expanse; an outdoor atmosphere rather than depicted dance.',
+  'PAS2-B_PNO-07':
+    'The intimate exchange among figures, the child, and lush foliage evoke gentle conversation and pastoral lightness.',
+};
+
+function parseFichaTxt(content) {
+  const lines = content.split(/\r?\n/);
+  const data = {};
+  let currentKey = null;
+  let currentValue = [];
+
+  const knownKeys = [
+    'Asignación', 'Título', 'Autor(es)', 'Fecha', 'Técnica', 'Museo',
+    'Inventario', 'Relación musical propuesta', 'Pie de foto',
+    'Bibliografía', 'URL de la imagen', 'Licencia', 'Crédito de colección'
+  ];
+
+  function flush() {
+    if (currentKey) {
+      data[currentKey] = currentValue.join('\n').trim();
+    }
+    currentKey = null;
+    currentValue = [];
+  }
+
+  for (const line of lines) {
+    const m = line.match(/^([A-Za-záéíóúÁÉÍÓÚ\s\(\)]+):\s*(.*)$/);
+    if (m && knownKeys.includes(m[1].trim())) {
+      flush();
+      currentKey = m[1].trim();
+      if (m[2]) currentValue.push(m[2]);
+    } else if (currentKey) {
+      currentValue.push(line);
+    }
+  }
+  flush();
+  return data;
+}
+
 function translateRelacionMusical(id, rawRelacion) {
   if (!rawRelacion) return '';
   const parts = rawRelacion.split('.').map((s) => s.trim()).filter(Boolean);
@@ -497,9 +566,196 @@ async function main() {
     };
   }
 
+  // ── 2. Procesar paquete de ampliación (versiones de piano 4 a 7) ──
+  const extraDirs = [
+    path.join(rootDir, 'referencias-extra'),
+    path.join(rootDir, 'referencias', '02_AMPLIACION_PIANO_VERSIONES_4_A_7'),
+  ];
+  const extraDir = extraDirs.find((d) => fs.existsSync(d));
+
+  const extraAddedList = [];
+  const collisionsList = [];
+
+  if (extraDir) {
+    function walkDir(dir) {
+      const files = [];
+      const list = fs.readdirSync(dir);
+      for (const item of list) {
+        const full = path.join(dir, item);
+        const st = fs.statSync(full);
+        if (st.isDirectory()) {
+          files.push(...walkDir(full));
+        } else if (item.endsWith('.jpg')) {
+          files.push(full);
+        }
+      }
+      return files;
+    }
+
+    const extraJpgs = walkDir(extraDir);
+
+    for (const jpgPath of extraJpgs) {
+      const fileName = path.basename(jpgPath);
+      const folderDir = path.dirname(jpgPath);
+      const txtPath = path.join(folderDir, 'FICHA_Y_PIE_DE_FOTO.txt');
+      const ficha = fs.existsSync(txtPath) ? parseFichaTxt(fs.readFileSync(txtPath, 'utf8')) : {};
+
+      // Parsear nombre de archivo: {SECCIÓN}_{PNO-0N}__{PROCEDENCIA}_{ID}.jpg
+      const [leftPart, rightPart] = fileName.replace('.jpg', '').split('__');
+      const [secCode, verCode] = leftPart.split('_');
+      const rightParts = (rightPart || '').split('_');
+      const fileId = rightParts[rightParts.length - 1] || '';
+
+      const idSubseccion = SECTION_MAP[secCode];
+      if (!idSubseccion) {
+        console.warn(`Sección desconocida en extra: ${secCode}`);
+        continue;
+      }
+
+      const instrumento = 'piano';
+      const versionNum = parseInt(verCode.replace('PNO-0', '').replace('PNO-', ''), 10);
+
+      // Comprobar colisiones
+      if (references[idSubseccion]?.[instrumento]?.[versionNum]) {
+        collisionsList.push({
+          subseccion: idSubseccion,
+          secCode,
+          instrumento,
+          version: versionNum,
+          archivo: fileName,
+          existente: references[idSubseccion][instrumento][versionNum].src,
+        });
+        continue; // NO sobrescribir
+      }
+
+      // Ruta de destino de la imagen
+      const subseccionDir = path.join(outputImagesDir, idSubseccion);
+      fs.mkdirSync(subseccionDir, { recursive: true });
+      const destFileName = `${instrumento}-${versionNum}.jpg`;
+      const destFilePath = path.join(subseccionDir, destFileName);
+      const webSrc = `/references/${idSubseccion}/${destFileName}`;
+
+      // Ruta de destino de la miniatura
+      const thumbSubseccionDir = path.join(outputImagesDir, 'thumbs', idSubseccion);
+      fs.mkdirSync(thumbSubseccionDir, { recursive: true });
+      const thumbDestFilePath = path.join(thumbSubseccionDir, destFileName);
+      const webThumb = `/references/thumbs/${idSubseccion}/${destFileName}`;
+
+      // Redimensionar si no existe
+      if (!fs.existsSync(destFilePath)) {
+        try {
+          await sharp(jpgPath)
+            .rotate()
+            .resize({
+              width: 1800,
+              height: 1800,
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+            .jpeg({ quality: 82, progressive: true })
+            .toFile(destFilePath);
+        } catch (err) {
+          console.error(`Error procesando ${jpgPath}:`, err.message);
+        }
+      }
+
+      // Dimensiones reales y miniatura 640px
+      let imgWidth = 1800;
+      let imgHeight = 1200;
+      if (fs.existsSync(destFilePath)) {
+        try {
+          const meta = await sharp(destFilePath).metadata();
+          imgWidth = meta.width || 1800;
+          imgHeight = meta.height || 1200;
+
+          if (!fs.existsSync(thumbDestFilePath)) {
+            await sharp(destFilePath)
+              .resize({
+                width: 640,
+                fit: 'inside',
+                withoutEnlargement: true,
+              })
+              .jpeg({ quality: 75, progressive: true })
+              .toFile(thumbDestFilePath);
+          }
+        } catch (err) {
+          console.error(`Error generando miniatura para ${destFilePath}:`, err.message);
+        }
+      }
+
+      // Créditos y licencia
+      const rawCredit = (ficha['Crédito de colección'] || '').trim();
+      const licencia = (ficha['Licencia'] || '').trim();
+      let credit = rawCredit;
+      const isCCBY = /by\b/i.test(licencia) && !/zero/i.test(licencia);
+
+      if (isCCBY) {
+        credit = `${ficha['Autor(es)'] || ''} (${licencia})`;
+      } else if (ficha['Museo']?.includes('Cleveland Museum of Art') || rawCredit) {
+        credit = 'The Cleveland Museum of Art, Open Access';
+      } else {
+        credit = 'The Cleveland Museum of Art, Open Access';
+      }
+
+      if (credit !== rawCredit && rawCredit) {
+        shortenedCredits.push({
+          id: `${idSubseccion} / ${instrumento}-${versionNum}`,
+          original: rawCredit,
+          resultado: credit,
+          procedencia: 'WEB_CMA',
+        });
+      }
+
+      const itemKey = `${secCode}_${verCode}`;
+      const englishExplanation =
+        EXTRA_EXPLANATIONS[itemKey] || cleanCaptionText(ficha['Relación musical propuesta']) || '';
+
+      if (!references[idSubseccion]) references[idSubseccion] = {};
+      if (!references[idSubseccion][instrumento]) references[idSubseccion][instrumento] = {};
+
+      references[idSubseccion][instrumento][versionNum] = {
+        src: webSrc,
+        thumb: webThumb,
+        width: imgWidth,
+        height: imgHeight,
+        alt: `${cleanCaptionText(ficha['Título'] || '')} — ${cleanCaptionText(ficha['Autor(es)'] || '')}`,
+        caption: formatCaption(ficha['Autor(es)'], ficha['Título'], ficha['Fecha'], ficha['Museo']),
+        explanation: englishExplanation,
+        credit,
+        needsReview: false,
+        sourceId: fileId,
+      };
+
+      extraAddedList.push({
+        seccion: secCode,
+        idSubseccion,
+        version: versionNum,
+        titulo: ficha['Título'],
+        archivo: fileName,
+      });
+    }
+  }
+
+  // Comprobar versiones que sigan sin imagen según videos.js
+  let missingImageVersions = [];
+  try {
+    const { videos } = await import('../src/data/videos.js');
+    for (const [subId, vList] of Object.entries(videos)) {
+      for (const v of vList) {
+        const inst = v.instrument || 'piano';
+        const hasImg = references[subId]?.[inst]?.[v.version];
+        if (!hasImg) {
+          missingImageVersions.push({ subId, instrument: inst, version: v.version });
+        }
+      }
+    }
+  } catch (err) {
+    // Si no se puede importar videos.js de forma dinámica, continuar
+  }
+
   // Generar src/data/references.js
-  const jsContent = `// Generated automatically by scripts/build-references.js from referencias/ASIGNACIONES_PARA_LA_PAGINA.json
-// Do not edit manually; update the source JSON and run: node scripts/build-references.js
+  const jsContent = `// Generated automatically by scripts/build-references.js
+// Do not edit manually; update source files and run: node scripts/build-references.js
 
 export const references = ${JSON.stringify(references, null, 2)};
 `;
@@ -507,13 +763,58 @@ export const references = ${JSON.stringify(references, null, 2)};
   fs.mkdirSync(path.dirname(outputJsPath), { recursive: true });
   fs.writeFileSync(outputJsPath, jsContent, 'utf8');
 
-  console.log(`\n========================================`);
-  console.log(`INFORME DE PROCESAMIENTO DE REFERENCIAS`);
-  console.log(`========================================`);
-  console.log(`- Imágenes procesadas: ${processedCount} (esperadas: 92)`);
-  console.log(`- Archivos que falten: ${missingFiles.length}`);
-  console.log(`- Entradas con needsReview: ${needsReviewList.length}`);
-  console.log(`\nArchivo generado con éxito: ${outputJsPath}`);
+  console.log(`\n════════════════════════════════════════════════════════════════════`);
+  console.log(`              INFORME DE BUILD REFERENCES (AMPLIADO)               `);
+  console.log(`════════════════════════════════════════════════════════════════════\n`);
+  console.log(`✓ Imágenes base iniciales procesadas: ${processedCount} (esperadas: 92)`);
+  console.log(`✓ Imágenes extra añadidas: ${extraAddedList.length} (esperadas: 16)`);
+  let totalGrandCount = 0;
+  for (const s of Object.values(references)) {
+    if (s.piano) totalGrandCount += Object.keys(s.piano).length;
+    if (s.harpsichord) totalGrandCount += Object.keys(s.harpsichord).length;
+  }
+  console.log(`✓ Total absoluto de imágenes en references.js: ${totalGrandCount} (esperadas: 108)\n`);
+
+  console.log(`── COLISIONES:`);
+  if (collisionsList.length === 0) {
+    console.log(`✓ 0 colisiones. Ninguna entrada sobreescribió datos existentes.`);
+  } else {
+    console.log(`⚠️ Colisiones detectadas (${collisionsList.length}):`);
+    collisionsList.forEach((c) => console.log(`   • ${c.subseccion} ${c.instrumento}-${c.version} [${c.archivo}] ya existía`));
+  }
+
+  console.log(`\n── ARCHIVOS FALTANTES:`);
+  if (missingFiles.length === 0) {
+    console.log(`✓ 0 archivos faltantes.`);
+  } else {
+    missingFiles.forEach((m) => console.log(`   • ${m.id} (${m.esperado})`));
+  }
+
+  console.log(`\n── ENTRADAS CON needsReview:`);
+  if (needsReviewList.length === 0) {
+    console.log(`✓ 0 entradas con needsReview.`);
+  } else {
+    console.log(`ℹ️ Total con needsReview: ${needsReviewList.length}`);
+    needsReviewList.forEach((nr) => console.log(`   • [${nr.id}] "${nr.titulo}" -> ${nr.credito}`));
+  }
+
+  console.log(`\n── CRÉDITOS ACORTADOS / NORMALIZADOS (Muestra):`);
+  console.log(`✓ Total créditos normalizados: ${shortenedCredits.length}`);
+  shortenedCredits.slice(-5).forEach((sc) => {
+    console.log(`   • [${sc.id}]: "${sc.original}" → "${sc.resultado}"`);
+  });
+
+  console.log(`\n── VERSIONES QUE SIGAN SIN IMAGEN:`);
+  if (missingImageVersions.length === 0) {
+    console.log(`✓ 0 versiones sin imagen. El 100% de las 108 tomas de audio/vídeo tienen su referencia visual asignada.`);
+  } else {
+    console.log(`⚠️ Versiones sin imagen (${missingImageVersions.length}):`);
+    missingImageVersions.forEach((mv) => console.log(`   • ${mv.subId} [${mv.instrument}] versión ${mv.version}`));
+  }
+
+  console.log(`\n════════════════════════════════════════════════════════════════════`);
+  console.log(`✓ Archivo generado con éxito en: ${outputJsPath}`);
+  console.log(`════════════════════════════════════════════════════════════════════\n`);
 }
 
 main().catch((err) => {

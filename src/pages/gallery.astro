@@ -45,7 +45,7 @@ const galleryItems = [];
 for (const sectionId of Object.keys(references)) {
   const sec = references[sectionId];
   if (sec.piano) {
-    for (const v of [1, 2, 3]) {
+    for (const v of Object.keys(sec.piano).map(Number).sort((a, b) => a - b)) {
       if (sec.piano[v]) {
         const item = sec.piano[v];
         const movementName = sectionLabels[sectionId] || sectionId;
