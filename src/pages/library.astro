@@ -1,66 +1,74 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import heroImg from '../assets/libraryhero.jpg';
-import { movements } from '../data/movements.js';
-import { references } from '../data/references.js';
-import { videos } from '../data/videos.js';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import heroImg from "../assets/libraryhero.jpg";
+import { movements } from "../data/movements.js";
+import { references } from "../data/references.js";
+import { videos } from "../data/videos.js";
 
 // Load all movement content modules dynamically
-const contentModules = import.meta.glob('../data/content/*.js', { eager: true });
+const contentModules = import.meta.glob("../data/content/*.js", {
+  eager: true,
+});
 
 function parseArtworkDetails(item) {
-  if (!item) return { title: 'Visual Reference', authorYear: '' };
+  if (!item) return { title: "Visual Reference", authorYear: "" };
 
-  let title = '';
-  let authorYear = '';
+  let title = "";
+  let authorYear = "";
 
   if (item.caption) {
-    const parts = item.caption.split('.').map((p) => p.trim()).filter(Boolean);
+    const parts = item.caption
+      .split(".")
+      .map((p) => p.trim())
+      .filter(Boolean);
     if (parts.length >= 2) {
       const author = parts[0];
       title = parts[1];
-      const year = parts[2] || '';
-      authorYear = [author, year].filter(Boolean).join(' · ');
+      const year = parts[2] || "";
+      authorYear = [author, year].filter(Boolean).join(" · ");
     } else if (parts.length === 1) {
       title = parts[0];
     }
   }
 
   if (!title && item.alt) {
-    if (item.alt.includes('—')) {
-      const altParts = item.alt.split('—').map((p) => p.trim());
+    if (item.alt.includes("—")) {
+      const altParts = item.alt.split("—").map((p) => p.trim());
       title = altParts[0];
-      authorYear = altParts[1] || '';
+      authorYear = altParts[1] || "";
     } else {
       title = item.alt;
     }
   }
 
   return {
-    title: title || 'Artwork',
+    title: title || "Artwork",
     authorYear,
   };
 }
 
 // Build the catalog of 11 movements and 23 subsections in musical order
 const movementsCatalog = movements.map((m) => {
-  const slugKey = m.slug.replace(/^\//, '');
-  const movContent = contentModules[`../data/content/${slugKey}.js`]?.content || null;
+  const slugKey = m.slug.replace(/^\//, "");
+  const movContent =
+    contentModules[`../data/content/${slugKey}.js`]?.content || null;
   const subs = (movContent?.subsections || []).map((sub) => {
     const exps = (sub.experiments || []).map((exp) => {
-      const rawInst = exp.instrument || 'piano';
+      const rawInst = exp.instrument || "piano";
       const ver = exp.version;
       const refItem = references[sub.id]?.[rawInst]?.[ver] || null;
       const { title: artTitle, authorYear } = parseArtworkDetails(refItem);
 
       // Match youtubeId from videos.js
       const secVideos = videos[sub.id] || [];
-      const vMatch = secVideos.find((v) => v.instrument === rawInst && Number(v.version) === Number(ver));
+      const vMatch = secVideos.find(
+        (v) => v.instrument === rawInst && Number(v.version) === Number(ver),
+      );
       const youtubeId = vMatch?.youtubeId || exp.youtubeId || null;
 
-      let versionLabel = '';
-      if (rawInst === 'harpsichord') {
+      let versionLabel = "";
+      if (rawInst === "harpsichord") {
         versionLabel = `Harpsichord (Version ${ver})`;
       } else {
         versionLabel = `Piano (Version ${ver})`;
@@ -71,7 +79,7 @@ const movementsCatalog = movements.map((m) => {
         instrument: rawInst,
         version: ver,
         youtubeId,
-        type: exp.type || (rawInst === 'harpsichord' ? 'harpsichord' : null),
+        type: exp.type || (rawInst === "harpsichord" ? "harpsichord" : null),
         title: exp.title,
         versionLabel,
         ref: refItem
@@ -80,10 +88,10 @@ const movementsCatalog = movements.map((m) => {
               thumb: refItem.thumb || refItem.src,
               width: refItem.width || 1350,
               height: refItem.height || 1800,
-              alt: refItem.alt || '',
-              caption: refItem.caption || '',
-              explanation: refItem.explanation || '',
-              credit: refItem.credit || '',
+              alt: refItem.alt || "",
+              caption: refItem.caption || "",
+              explanation: refItem.explanation || "",
+              credit: refItem.credit || "",
               artTitle,
               authorYear,
             }
@@ -109,30 +117,45 @@ const movementsCatalog = movements.map((m) => {
   };
 });
 
-const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections.length, 0);
+const totalSubsections = movementsCatalog.reduce(
+  (acc, m) => acc + m.subsections.length,
+  0,
+);
 ---
 
 <BaseLayout
-  title="Library — French Overture"
-  description="Your final selection of interpretations and visual works across Bach's French Overture BWV 831."
+  title="Library — French Ouverture"
+  description="Your final selection of interpretations and visual works across Bach's French Ouverture BWV 831."
 >
   <Hero
     image={heroImg.src}
-    title="Library"
-    subtitle="French Overture — A Laboratory of Doubt Against Automatic Bach"
+    title="My Library"
+    subtitle="French Ouverture — A Laboratory of Doubt Against Automatic Bach"
   />
 
-  <section class="selection-page container" id="final-selection" aria-labelledby="selection-heading">
+  <section
+    class="selection-page container"
+    id="final-selection"
+    aria-labelledby="selection-heading"
+  >
     <!-- Header of the Final Selection view -->
     <header class="selection-header">
       <div class="selection-header__main">
         <span class="selection-header__eyebrow">Personal Laboratory</span>
-        <h2 id="selection-heading" class="selection-header__title">Your final selection</h2>
-        <p class="selection-header__notice">Your selection is saved only in this browser.</p>
+        <h2 id="selection-heading" class="selection-header__title">
+          Your final selection
+        </h2>
+        <p class="selection-header__notice">
+          Your selection is saved only in this browser.
+        </p>
       </div>
 
       <div class="selection-header__actions">
-        <span id="selection-counter" class="selection-counter" aria-live="polite">0 / {totalSubsections} chosen</span>
+        <span
+          id="selection-counter"
+          class="selection-counter"
+          aria-live="polite">0 / {totalSubsections} chosen</span
+        >
         <button
           type="button"
           id="clear-selection-btn"
@@ -148,28 +171,51 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     <div id="selection-empty" class="selection-empty" style="display: none;">
       <div class="selection-empty__card">
         <div class="selection-empty__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.4">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          <svg
+            viewBox="0 0 24 24"
+            width="36"
+            height="36"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            ></polygon>
           </svg>
         </div>
-        <h3 class="selection-empty__title">Your final selection will appear here.</h3>
+        <h3 class="selection-empty__title">
+          Your final selection will appear here.
+        </h3>
         <p class="selection-empty__text">
-          Explore the movements in the Laboratory and star your favourite version of each section to construct your personal reading of the French Overture.
+          Explore the movements in the Laboratory and star your favourite
+          version of each section to construct your personal reading of the
+          French Ouverture.
         </p>
         <a href="/ouverture" class="selection-empty__cta">
-          Start with the Overture →
+          Start with the Ouverture →
         </a>
       </div>
     </div>
 
     <!-- Active state (>= 1 chosen) -->
-    <div id="selection-content" class="selection-content" style="display: none;">
+    <div
+      id="selection-content"
+      class="selection-content"
+      style="display: none;"
+    >
       <!-- PART 1: The version, in order (Grid Layout) -->
-      <section class="selection-part selection-part--order" aria-labelledby="part1-heading">
+      <section
+        class="selection-part selection-part--order"
+        aria-labelledby="part1-heading"
+      >
         <header class="part-header">
           <span class="part-tag">Part 1</span>
           <h3 id="part1-heading" class="part-title">The version, in order</h3>
-          <p class="part-subtitle">The suite assembled from your individual choices across the eleven movements.</p>
+          <p class="part-subtitle">
+            The suite assembled from your individual choices across the eleven
+            movements.
+          </p>
         </header>
 
         <!-- Play My Version Trigger Bar -->
@@ -182,11 +228,18 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
             aria-label="Play my version"
           >
             <span class="play-version-btn__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <polygon points="6 4 20 12 6 20 6 4" />
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="currentColor"
+              >
+                <polygon points="6 4 20 12 6 20 6 4"></polygon>
               </svg>
             </span>
-            <span id="play-version-btn-label">Choose at least one version in the Laboratory</span>
+            <span id="play-version-btn-label"
+              >Choose at least one version in the Laboratory</span
+            >
           </button>
         </div>
 
@@ -204,7 +257,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
               <div class="now-playing-status-wrap">
                 <span class="now-playing-pulse" aria-hidden="true"></span>
                 <span class="now-playing-status-text">Now playing</span>
-                <span id="now-playing-announcement" class="sr-only" aria-live="polite"></span>
+                <span
+                  id="now-playing-announcement"
+                  class="sr-only"
+                  aria-live="polite"></span>
               </div>
               <button
                 type="button"
@@ -213,9 +269,17 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
                 aria-label="Close player"
                 title="Close player"
               >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
             </div>
@@ -225,26 +289,57 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
               <!-- Left Column: Video Player -->
               <div class="now-playing-media-col">
                 <div class="now-playing-player-box">
-                  <div id="yt-player-container" class="now-playing-iframe-slot"></div>
+                  <div id="yt-player-container" class="now-playing-iframe-slot">
+                  </div>
 
                   <!-- Autoplay blocker / Mobile continuation notice -->
-                  <div id="player-continue-wrap" class="player-continue-wrap" style="display: none;">
-                    <p id="player-status-message" class="player-continue-msg">Autoplay paused by browser.</p>
-                    <button type="button" id="player-continue-btn" class="player-continue-btn">
+                  <div
+                    id="player-continue-wrap"
+                    class="player-continue-wrap"
+                    style="display: none;"
+                  >
+                    <p id="player-status-message" class="player-continue-msg">
+                      Autoplay paused by browser.
+                    </p>
+                    <button
+                      type="button"
+                      id="player-continue-btn"
+                      class="player-continue-btn"
+                    >
                       Continue
                     </button>
                   </div>
 
                   <!-- End of Your Version overlay -->
-                  <div id="player-ended-wrap" class="player-ended-wrap" style="display: none;">
+                  <div
+                    id="player-ended-wrap"
+                    class="player-ended-wrap"
+                    style="display: none;"
+                  >
                     <div class="player-ended-content">
                       <span class="player-ended-badge">Complete</span>
                       <h4 class="player-ended-heading">End of your version</h4>
-                      <p class="player-ended-desc">You have listened through all selected pieces in musical order.</p>
-                      <button type="button" id="player-replay-btn" class="player-replay-btn">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 4v6h6M23 20v-6h-6" />
-                          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                      <p class="player-ended-desc">
+                        You have listened through all selected pieces in musical
+                        order.
+                      </p>
+                      <button
+                        type="button"
+                        id="player-replay-btn"
+                        class="player-replay-btn"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path d="M1 4v6h6M23 20v-6h-6"></path>
+                          <path
+                            d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"
+                          ></path>
                         </svg>
                         Play again
                       </button>
@@ -256,11 +351,21 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
               <!-- Right Column: Artwork & Info -->
               <div class="now-playing-info-col">
                 <div class="now-playing-meta-header">
-                  <span id="now-playing-movement" class="now-playing-movement">Ouverture</span>
-                  <h4 id="now-playing-piece" class="now-playing-piece">Ouverture A</h4>
+                  <span id="now-playing-movement" class="now-playing-movement"
+                    >Ouverture</span
+                  >
+                  <h4 id="now-playing-piece" class="now-playing-piece">
+                    Ouverture A
+                  </h4>
                   <div class="now-playing-version-row">
-                    <span id="now-playing-dot" class="type-dot" aria-hidden="true"></span>
-                    <span id="now-playing-version-label" class="now-playing-version-label">Version 1</span>
+                    <span
+                      id="now-playing-dot"
+                      class="type-dot"
+                      aria-hidden="true"></span>
+                    <span
+                      id="now-playing-version-label"
+                      class="now-playing-version-label">Version 1</span
+                    >
                   </div>
                 </div>
 
@@ -273,20 +378,41 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
                   title="Click to view artwork details"
                 >
                   <div class="now-playing-artwork__frame">
-                    <img id="now-playing-artwork-img" src="" alt="" class="now-playing-artwork__img" />
-                    <div class="now-playing-artwork__zoom-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="7" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        <line x1="11" y1="8" x2="11" y2="14" />
-                        <line x1="8" y1="11" x2="14" y2="11" />
+                    <img
+                      id="now-playing-artwork-img"
+                      src=""
+                      alt=""
+                      class="now-playing-artwork__img"
+                    />
+                    <div
+                      class="now-playing-artwork__zoom-icon"
+                      aria-hidden="true"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
                       </svg>
                     </div>
                   </div>
                   <div class="now-playing-artwork__details">
-                    <span id="now-playing-art-title" class="now-playing-artwork__title"></span>
-                    <span id="now-playing-art-author" class="now-playing-artwork__author"></span>
-                    <span class="now-playing-artwork__hint">Click to enlarge</span>
+                    <span
+                      id="now-playing-art-title"
+                      class="now-playing-artwork__title"></span>
+                    <span
+                      id="now-playing-art-author"
+                      class="now-playing-artwork__author"></span>
+                    <span class="now-playing-artwork__hint"
+                      >Click to enlarge</span
+                    >
                   </div>
                 </button>
 
@@ -294,7 +420,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
                 <div class="now-playing-controls-bar">
                   <div class="now-playing-progress-meta">
                     <span class="now-playing-progress-label">Piece</span>
-                    <span id="now-playing-counter" class="now-playing-counter">1 / 12</span>
+                    <span id="now-playing-counter" class="now-playing-counter"
+                      >1 / 12</span
+                    >
                   </div>
                   <div
                     class="now-playing-progress-line"
@@ -304,27 +432,66 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
                     aria-valuemax="12"
                     aria-valuenow="1"
                   >
-                    <div id="now-playing-progress-fill" class="now-playing-progress-fill" style="width: 8%;"></div>
+                    <div
+                      id="now-playing-progress-fill"
+                      class="now-playing-progress-fill"
+                      style="width: 8%;"
+                    >
+                    </div>
                   </div>
 
                   <div class="now-playing-nav-actions">
-                    <button type="button" id="now-playing-prev-btn" class="now-playing-btn" aria-label="Previous piece">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6" />
+                    <button
+                      type="button"
+                      id="now-playing-prev-btn"
+                      class="now-playing-btn"
+                      aria-label="Previous piece"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="15 18 9 12 15 6"></polyline>
                       </svg>
                       <span>Previous</span>
                     </button>
-                    <button type="button" id="now-playing-next-btn" class="now-playing-btn" aria-label="Next piece">
+                    <button
+                      type="button"
+                      id="now-playing-next-btn"
+                      class="now-playing-btn"
+                      aria-label="Next piece"
+                    >
                       <span>Next</span>
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6" />
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
                     </button>
                   </div>
                 </div>
 
                 <!-- Discreet notice for pieces that could not be played -->
-                <div id="now-playing-error-notice" class="now-playing-error-notice" style="display: none;" role="status"></div>
+                <div
+                  id="now-playing-error-notice"
+                  class="now-playing-error-notice"
+                  style="display: none;"
+                  role="status"
+                >
+                </div>
               </div>
             </div>
           </div>
@@ -336,11 +503,19 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       </section>
 
       <!-- PART 2: The paintings of your version -->
-      <section class="selection-part selection-part--paintings" aria-labelledby="part2-heading">
+      <section
+        class="selection-part selection-part--paintings"
+        aria-labelledby="part2-heading"
+      >
         <header class="part-header">
           <span class="part-tag">Part 2</span>
-          <h3 id="part2-heading" class="part-title">The paintings of your version</h3>
-          <p class="part-subtitle">The visual works that accompany your selected interpretations, presented in the musical order of the suite.</p>
+          <h3 id="part2-heading" class="part-title">
+            The paintings of your version
+          </h3>
+          <p class="part-subtitle">
+            The visual works that accompany your selected interpretations,
+            presented in the musical order of the suite.
+          </p>
         </header>
 
         <div class="paintings-wall" id="paintings-wall">
@@ -364,9 +539,17 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
         class="library-lightbox__close-btn"
         aria-label="Close dialog"
       >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
+        <svg
+          viewBox="0 0 24 24"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
 
@@ -379,8 +562,18 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
             class="library-lightbox__nav library-lightbox__nav--prev"
             aria-label="Previous artwork"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="15 18 9 12 15 6" />
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
 
@@ -397,8 +590,18 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
             class="library-lightbox__nav library-lightbox__nav--next"
             aria-label="Next artwork"
           >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6" />
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
 
@@ -406,17 +609,22 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
             id="library-lightbox-counter"
             class="library-lightbox__counter"
             aria-live="polite"
-            aria-atomic="true"
-          ></span>
+            aria-atomic="true"></span>
         </div>
 
         <!-- Right: Text details -->
         <div class="library-lightbox__info">
           <span id="library-lightbox-tag" class="library-lightbox__tag"></span>
-          <h2 id="library-lightbox-caption" class="library-lightbox__caption"></h2>
-          <p id="library-lightbox-explanation" class="library-lightbox__explanation"></p>
+          <h2 id="library-lightbox-caption" class="library-lightbox__caption">
+          </h2>
+          <p
+            id="library-lightbox-explanation"
+            class="library-lightbox__explanation"
+          >
+          </p>
           <div id="library-lightbox-meta" class="library-lightbox__meta">
-            <span id="library-lightbox-credit" class="library-lightbox__credit"></span>
+            <span id="library-lightbox-credit" class="library-lightbox__credit"
+            ></span>
           </div>
         </div>
       </div>
@@ -424,12 +632,16 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
   </dialog>
 
   <!-- Embed JSON Catalog for Client-side hydration -->
-  <script type="application/json" id="library-catalog-data" set:html={JSON.stringify(movementsCatalog)}></script>
+  <script
+    type="application/json"
+    id="library-catalog-data"
+    set:html={JSON.stringify(movementsCatalog)}
+  />
 </BaseLayout>
 
 <script is:inline>
   (function () {
-    const STORAGE_KEY = 'bach.finalSelection.v1';
+    const STORAGE_KEY = "bach.finalSelection.v1";
     let memorySelection = null;
 
     function getStoredSelection() {
@@ -449,62 +661,80 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       memorySelection = {};
     }
 
-    const dataEl = document.getElementById('library-catalog-data');
+    const dataEl = document.getElementById("library-catalog-data");
     if (!dataEl) return;
 
     let catalog = [];
     try {
-      catalog = JSON.parse(dataEl.textContent || '[]');
+      catalog = JSON.parse(dataEl.textContent || "[]");
     } catch (e) {
-      console.error('Failed to parse catalog data', e);
+      console.error("Failed to parse catalog data", e);
       return;
     }
 
     // DOM references
-    const counterEl = document.getElementById('selection-counter');
-    const clearBtn = document.getElementById('clear-selection-btn');
-    const emptyContainer = document.getElementById('selection-empty');
-    const contentContainer = document.getElementById('selection-content');
-    const movementsListEl = document.getElementById('movements-list');
-    const paintingsWallEl = document.getElementById('paintings-wall');
+    const counterEl = document.getElementById("selection-counter");
+    const clearBtn = document.getElementById("clear-selection-btn");
+    const emptyContainer = document.getElementById("selection-empty");
+    const contentContainer = document.getElementById("selection-content");
+    const movementsListEl = document.getElementById("movements-list");
+    const paintingsWallEl = document.getElementById("paintings-wall");
 
     // Play My Version Elements
-    const playVersionBtn = document.getElementById('play-version-btn');
-    const playVersionBtnLabel = document.getElementById('play-version-btn-label');
-    const nowPlayingPanel = document.getElementById('now-playing-panel');
-    const nowPlayingCloseBtn = document.getElementById('now-playing-close-btn');
-    const nowPlayingAnnouncement = document.getElementById('now-playing-announcement');
-    const nowPlayingMovement = document.getElementById('now-playing-movement');
-    const nowPlayingPiece = document.getElementById('now-playing-piece');
-    const nowPlayingDot = document.getElementById('now-playing-dot');
-    const nowPlayingVersionLabel = document.getElementById('now-playing-version-label');
-    const nowPlayingArtworkBtn = document.getElementById('now-playing-artwork');
-    const nowPlayingArtImg = document.getElementById('now-playing-artwork-img');
-    const nowPlayingArtTitle = document.getElementById('now-playing-art-title');
-    const nowPlayingArtAuthor = document.getElementById('now-playing-art-author');
-    const nowPlayingCounter = document.getElementById('now-playing-counter');
-    const nowPlayingProgressBar = document.getElementById('now-playing-progress-bar');
-    const nowPlayingProgressFill = document.getElementById('now-playing-progress-fill');
-    const nowPlayingPrevBtn = document.getElementById('now-playing-prev-btn');
-    const nowPlayingNextBtn = document.getElementById('now-playing-next-btn');
-    const nowPlayingErrorNotice = document.getElementById('now-playing-error-notice');
-    const playerContinueWrap = document.getElementById('player-continue-wrap');
-    const playerStatusMessage = document.getElementById('player-status-message');
-    const playerContinueBtn = document.getElementById('player-continue-btn');
-    const playerEndedWrap = document.getElementById('player-ended-wrap');
-    const playerReplayBtn = document.getElementById('player-replay-btn');
+    const playVersionBtn = document.getElementById("play-version-btn");
+    const playVersionBtnLabel = document.getElementById(
+      "play-version-btn-label",
+    );
+    const nowPlayingPanel = document.getElementById("now-playing-panel");
+    const nowPlayingCloseBtn = document.getElementById("now-playing-close-btn");
+    const nowPlayingAnnouncement = document.getElementById(
+      "now-playing-announcement",
+    );
+    const nowPlayingMovement = document.getElementById("now-playing-movement");
+    const nowPlayingPiece = document.getElementById("now-playing-piece");
+    const nowPlayingDot = document.getElementById("now-playing-dot");
+    const nowPlayingVersionLabel = document.getElementById(
+      "now-playing-version-label",
+    );
+    const nowPlayingArtworkBtn = document.getElementById("now-playing-artwork");
+    const nowPlayingArtImg = document.getElementById("now-playing-artwork-img");
+    const nowPlayingArtTitle = document.getElementById("now-playing-art-title");
+    const nowPlayingArtAuthor = document.getElementById(
+      "now-playing-art-author",
+    );
+    const nowPlayingCounter = document.getElementById("now-playing-counter");
+    const nowPlayingProgressBar = document.getElementById(
+      "now-playing-progress-bar",
+    );
+    const nowPlayingProgressFill = document.getElementById(
+      "now-playing-progress-fill",
+    );
+    const nowPlayingPrevBtn = document.getElementById("now-playing-prev-btn");
+    const nowPlayingNextBtn = document.getElementById("now-playing-next-btn");
+    const nowPlayingErrorNotice = document.getElementById(
+      "now-playing-error-notice",
+    );
+    const playerContinueWrap = document.getElementById("player-continue-wrap");
+    const playerStatusMessage = document.getElementById(
+      "player-status-message",
+    );
+    const playerContinueBtn = document.getElementById("player-continue-btn");
+    const playerEndedWrap = document.getElementById("player-ended-wrap");
+    const playerReplayBtn = document.getElementById("player-replay-btn");
 
     // Lightbox Elements
-    const lightboxDialog = document.getElementById('library-lightbox');
-    const lightboxClose = document.getElementById('library-lightbox-close');
-    const lightboxPrev = document.getElementById('library-lightbox-prev');
-    const lightboxNext = document.getElementById('library-lightbox-next');
-    const lightboxImg = document.getElementById('library-lightbox-img');
-    const lightboxCounter = document.getElementById('library-lightbox-counter');
-    const lightboxTag = document.getElementById('library-lightbox-tag');
-    const lightboxCaption = document.getElementById('library-lightbox-caption');
-    const lightboxExplanation = document.getElementById('library-lightbox-explanation');
-    const lightboxCredit = document.getElementById('library-lightbox-credit');
+    const lightboxDialog = document.getElementById("library-lightbox");
+    const lightboxClose = document.getElementById("library-lightbox-close");
+    const lightboxPrev = document.getElementById("library-lightbox-prev");
+    const lightboxNext = document.getElementById("library-lightbox-next");
+    const lightboxImg = document.getElementById("library-lightbox-img");
+    const lightboxCounter = document.getElementById("library-lightbox-counter");
+    const lightboxTag = document.getElementById("library-lightbox-tag");
+    const lightboxCaption = document.getElementById("library-lightbox-caption");
+    const lightboxExplanation = document.getElementById(
+      "library-lightbox-explanation",
+    );
+    const lightboxCredit = document.getElementById("library-lightbox-credit");
 
     let activePaintings = [];
     let currentLightboxIdx = 0;
@@ -518,26 +748,28 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     let isPanelOpen = false;
 
     function escapeHtml(str) {
-      if (!str) return '';
+      if (!str) return "";
       return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     // Helper: Scroll into view only if not visible
     function scrollIntoViewIfNeeded(el) {
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      const inView = rect.top >= 80 && rect.bottom <= (window.innerHeight - 80);
+      const inView = rect.top >= 80 && rect.bottom <= window.innerHeight - 80;
       if (!inView) {
         el.scrollIntoView({
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
-          block: 'nearest'
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "nearest",
         });
       }
     }
@@ -550,13 +782,15 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
           const chosen = selection[sub.id];
           if (chosen) {
             const exp = sub.experiments.find(
-              (e) => e.instrument === chosen.instrument && Number(e.version) === Number(chosen.version)
+              (e) =>
+                e.instrument === chosen.instrument &&
+                Number(e.version) === Number(chosen.version),
             );
             if (exp && exp.youtubeId) {
               const rawInst = chosen.instrument;
-              let versionDisplayName = '';
-              if (rawInst === 'harpsichord') {
-                versionDisplayName = 'Harpsichord';
+              let versionDisplayName = "";
+              if (rawInst === "harpsichord") {
+                versionDisplayName = "Harpsichord";
               } else {
                 versionDisplayName = `Version ${chosen.version}`;
               }
@@ -602,45 +836,47 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       }
 
       if (chosenCount === 0) {
-        if (emptyContainer) emptyContainer.style.display = 'block';
-        if (contentContainer) contentContainer.style.display = 'none';
-        if (clearBtn) clearBtn.style.display = 'none';
+        if (emptyContainer) emptyContainer.style.display = "block";
+        if (contentContainer) contentContainer.style.display = "none";
+        if (clearBtn) clearBtn.style.display = "none";
         if (isPanelOpen) closeNowPlayingPanel();
         return;
       }
 
-      if (emptyContainer) emptyContainer.style.display = 'none';
-      if (contentContainer) contentContainer.style.display = 'flex';
-      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      if (emptyContainer) emptyContainer.style.display = "none";
+      if (contentContainer) contentContainer.style.display = "flex";
+      if (clearBtn) clearBtn.style.display = "inline-flex";
 
       // Update Play My Version button state
       const playableItems = buildPlayablePlaylist(selection);
       if (playVersionBtn && playVersionBtnLabel) {
         if (playableItems.length === 0) {
           playVersionBtn.disabled = true;
-          playVersionBtn.classList.add('is-disabled');
-          playVersionBtnLabel.textContent = 'Choose at least one version in the Laboratory';
+          playVersionBtn.classList.add("is-disabled");
+          playVersionBtnLabel.textContent =
+            "Choose at least one version in the Laboratory";
         } else {
           playVersionBtn.disabled = false;
-          playVersionBtn.classList.remove('is-disabled');
-          const countStr = `${playableItems.length} piece${playableItems.length === 1 ? '' : 's'}`;
+          playVersionBtn.classList.remove("is-disabled");
+          const countStr = `${playableItems.length} piece${playableItems.length === 1 ? "" : "s"}`;
           playVersionBtnLabel.textContent = `Play my version (${countStr})`;
         }
       }
 
       // ── PART 1: The version, in order (GRID) ────
-      let listHtml = '';
+      let listHtml = "";
       catalog.forEach((m) => {
         let chosenInMov = 0;
         m.subsections.forEach((sub) => {
           if (selection[sub.id]) chosenInMov++;
         });
 
-        const statusPill = chosenInMov === m.subsections.length
-          ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
-          : chosenInMov > 0
-            ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
-            : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
+        const statusPill =
+          chosenInMov === m.subsections.length
+            ? `<span class="movement-group__status movement-group__status--complete">Complete</span>`
+            : chosenInMov > 0
+              ? `<span class="movement-group__status movement-group__status--partial">${chosenInMov}/${m.subsections.length}</span>`
+              : `<span class="movement-group__status movement-group__status--empty">0/${m.subsections.length}</span>`;
 
         listHtml += `
           <div class="movement-group">
@@ -658,11 +894,17 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
           const chosen = selection[sub.id];
           if (chosen) {
             const exp = sub.experiments.find(
-              (e) => e.instrument === chosen.instrument && Number(e.version) === Number(chosen.version)
+              (e) =>
+                e.instrument === chosen.instrument &&
+                Number(e.version) === Number(chosen.version),
             );
-            const dotType = exp?.type ? `type-dot--${exp.type}` : 'type-dot--neutral';
-            const instName = chosen.instrument === 'harpsichord' ? 'Harpsichord' : 'Piano';
-            const versionLabel = exp?.versionLabel || `${instName} (Version ${chosen.version})`;
+            const dotType = exp?.type
+              ? `type-dot--${exp.type}`
+              : "type-dot--neutral";
+            const instName =
+              chosen.instrument === "harpsichord" ? "Harpsichord" : "Piano";
+            const versionLabel =
+              exp?.versionLabel || `${instName} (Version ${chosen.version})`;
             const linkHref = `${m.slug}#${sub.id}:exp-${chosen.instrument}-${chosen.version}`;
 
             listHtml += `
@@ -730,7 +972,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
             </div>
           `;
         } else {
-          let wallHtml = '';
+          let wallHtml = "";
           activePaintings.forEach((item, pIdx) => {
             wallHtml += `
               <div class="painting-item" data-index="${pIdx}" data-sub-id="${escapeHtml(item.subId)}">
@@ -757,7 +999,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
                   <div class="painting-card__info">
                     <span class="painting-card__tag">${escapeHtml(item.tag)}</span>
                     <h4 class="painting-card__title">${escapeHtml(item.artTitle)}</h4>
-                    ${item.authorYear ? `<p class="painting-card__artist">${escapeHtml(item.authorYear)}</p>` : ''}
+                    ${item.authorYear ? `<p class="painting-card__artist">${escapeHtml(item.authorYear)}</p>` : ""}
                   </div>
                 </button>
               </div>
@@ -777,20 +1019,24 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     // ── Setup List Row Clicks (jump to piece in player) ────
     function setupListRowClicks() {
       if (!movementsListEl) return;
-      const chosenRows = movementsListEl.querySelectorAll('.subsection-row.is-chosen');
+      const chosenRows = movementsListEl.querySelectorAll(
+        ".subsection-row.is-chosen",
+      );
       chosenRows.forEach((row) => {
-        row.addEventListener('click', (e) => {
+        row.addEventListener("click", (e) => {
           // If clicked the "Go to experiment" link, let normal navigation occur
-          if (e.target.closest('a')) return;
+          if (e.target.closest("a")) return;
 
-          const subId = row.getAttribute('data-sub-id');
+          const subId = row.getAttribute("data-sub-id");
           if (!subId) return;
 
           // If player is open and playlist contains this piece, jump to it
           if (isPanelOpen && ytPlayer && currentPlaylist.length > 0) {
-            const targetIdx = currentPlaylist.findIndex((item) => item.subId === subId);
+            const targetIdx = currentPlaylist.findIndex(
+              (item) => item.subId === subId,
+            );
             if (targetIdx !== -1) {
-              if (typeof ytPlayer.playVideoAt === 'function') {
+              if (typeof ytPlayer.playVideoAt === "function") {
                 ytPlayer.playVideoAt(targetIdx);
               }
               return;
@@ -811,92 +1057,100 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     // ── Setup Lightbox and Entrance Animations ───────────
     function setupPaintingsWall() {
       if (!paintingsWallEl) return;
-      const cards = paintingsWallEl.querySelectorAll('.painting-card');
-      const items = paintingsWallEl.querySelectorAll('.painting-item');
+      const cards = paintingsWallEl.querySelectorAll(".painting-card");
+      const items = paintingsWallEl.querySelectorAll(".painting-item");
 
       // Scroll entrance animation
-      if ('IntersectionObserver' in window && !prefersReducedMotion) {
-        paintingsWallEl.classList.add('has-animation');
+      if ("IntersectionObserver" in window && !prefersReducedMotion) {
+        paintingsWallEl.classList.add("has-animation");
         let batchCounter = 0;
         let batchResetTimer = null;
 
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const el = entry.target;
-              observer.unobserve(el);
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const el = entry.target;
+                observer.unobserve(el);
 
-              const delay = (batchCounter % 6) * 60;
-              el.style.transitionDelay = delay + 'ms';
-              el.classList.add('is-revealed');
+                const delay = (batchCounter % 6) * 60;
+                el.style.transitionDelay = delay + "ms";
+                el.classList.add("is-revealed");
 
-              batchCounter++;
-              clearTimeout(batchResetTimer);
-              batchResetTimer = setTimeout(() => {
-                batchCounter = 0;
-              }, 120);
-            }
-          });
-        }, {
-          rootMargin: '0px 0px 50px 0px',
-          threshold: 0.01
-        });
+                batchCounter++;
+                clearTimeout(batchResetTimer);
+                batchResetTimer = setTimeout(() => {
+                  batchCounter = 0;
+                }, 120);
+              }
+            });
+          },
+          {
+            rootMargin: "0px 0px 50px 0px",
+            threshold: 0.01,
+          },
+        );
 
         items.forEach((item) => observer.observe(item));
 
         setTimeout(() => {
           items.forEach((item) => {
-            if (!item.classList.contains('is-revealed')) {
-              item.classList.add('is-revealed');
+            if (!item.classList.contains("is-revealed")) {
+              item.classList.add("is-revealed");
             }
           });
         }, 1200);
       } else {
-        items.forEach((item) => item.classList.add('is-revealed'));
+        items.forEach((item) => item.classList.add("is-revealed"));
       }
 
       // Click card to open lightbox
       cards.forEach((card) => {
-        card.addEventListener('click', () => {
-          const idx = Number(card.getAttribute('data-index'));
+        card.addEventListener("click", () => {
+          const idx = Number(card.getAttribute("data-index"));
           openLightbox(idx, card);
         });
       });
     }
 
     function renderLightboxItem(index) {
-      if (!activePaintings.length || index < 0 || index >= activePaintings.length) return;
+      if (
+        !activePaintings.length ||
+        index < 0 ||
+        index >= activePaintings.length
+      )
+        return;
       currentLightboxIdx = index;
       const item = activePaintings[currentLightboxIdx];
 
       if (lightboxImg) {
         lightboxImg.src = item.src;
-        lightboxImg.alt = item.alt || item.artTitle || 'Artwork';
+        lightboxImg.alt = item.alt || item.artTitle || "Artwork";
       }
       if (lightboxTag) {
-        lightboxTag.textContent = item.tag || '';
+        lightboxTag.textContent = item.tag || "";
       }
       if (lightboxCaption) {
-        lightboxCaption.textContent = item.caption || item.artTitle || '';
+        lightboxCaption.textContent = item.caption || item.artTitle || "";
       }
       if (lightboxExplanation) {
-        lightboxExplanation.textContent = item.explanation || '';
-        lightboxExplanation.style.display = item.explanation ? '' : 'none';
+        lightboxExplanation.textContent = item.explanation || "";
+        lightboxExplanation.style.display = item.explanation ? "" : "none";
       }
       if (lightboxCredit) {
-        lightboxCredit.textContent = item.credit || '';
-        lightboxCredit.style.display = item.credit ? '' : 'none';
+        lightboxCredit.textContent = item.credit || "";
+        lightboxCredit.style.display = item.credit ? "" : "none";
       }
       if (lightboxCounter) {
         lightboxCounter.textContent = `${currentLightboxIdx + 1} / ${activePaintings.length}`;
       }
 
       if (activePaintings.length <= 1) {
-        if (lightboxPrev) lightboxPrev.style.display = 'none';
-        if (lightboxNext) lightboxNext.style.display = 'none';
+        if (lightboxPrev) lightboxPrev.style.display = "none";
+        if (lightboxNext) lightboxNext.style.display = "none";
       } else {
-        if (lightboxPrev) lightboxPrev.style.display = '';
-        if (lightboxNext) lightboxNext.style.display = '';
+        if (lightboxPrev) lightboxPrev.style.display = "";
+        if (lightboxNext) lightboxNext.style.display = "";
       }
     }
 
@@ -905,7 +1159,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       activeTriggerBtn = triggerBtn;
       renderLightboxItem(index);
 
-      if (typeof lightboxDialog.showModal === 'function') {
+      if (typeof lightboxDialog.showModal === "function") {
         lightboxDialog.showModal();
       }
     }
@@ -921,7 +1175,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
     function showPrev() {
       if (!activePaintings.length) return;
-      currentLightboxIdx = (currentLightboxIdx - 1 + activePaintings.length) % activePaintings.length;
+      currentLightboxIdx =
+        (currentLightboxIdx - 1 + activePaintings.length) %
+        activePaintings.length;
       renderLightboxItem(currentLightboxIdx);
     }
 
@@ -931,17 +1187,17 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       renderLightboxItem(currentLightboxIdx);
     }
 
-    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
-    if (lightboxPrev) lightboxPrev.addEventListener('click', showPrev);
-    if (lightboxNext) lightboxNext.addEventListener('click', showNext);
+    if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+    if (lightboxPrev) lightboxPrev.addEventListener("click", showPrev);
+    if (lightboxNext) lightboxNext.addEventListener("click", showNext);
 
     if (lightboxDialog) {
-      lightboxDialog.addEventListener('click', (e) => {
+      lightboxDialog.addEventListener("click", (e) => {
         if (e.target === lightboxDialog) {
           closeLightbox();
         }
       });
-      lightboxDialog.addEventListener('cancel', (e) => {
+      lightboxDialog.addEventListener("cancel", (e) => {
         e.preventDefault();
         closeLightbox();
       });
@@ -956,7 +1212,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
       const existingCallback = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = function () {
-        if (typeof existingCallback === 'function') {
+        if (typeof existingCallback === "function") {
           existingCallback();
         }
         callback();
@@ -964,8 +1220,8 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
       if (!ytApiRequested) {
         ytApiRequested = true;
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(tag);
       }
     }
@@ -977,16 +1233,19 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       if (!items.length) return;
 
       currentPlaylist = items;
-      currentPieceIdx = Math.max(0, Math.min(startIndex, currentPlaylist.length - 1));
+      currentPieceIdx = Math.max(
+        0,
+        Math.min(startIndex, currentPlaylist.length - 1),
+      );
       isPanelOpen = true;
 
       if (nowPlayingPanel) {
-        nowPlayingPanel.style.display = 'block';
+        nowPlayingPanel.style.display = "block";
         scrollIntoViewIfNeeded(nowPlayingPanel);
       }
-      if (playerEndedWrap) playerEndedWrap.style.display = 'none';
-      if (playerContinueWrap) playerContinueWrap.style.display = 'none';
-      if (nowPlayingErrorNotice) nowPlayingErrorNotice.style.display = 'none';
+      if (playerEndedWrap) playerEndedWrap.style.display = "none";
+      if (playerContinueWrap) playerContinueWrap.style.display = "none";
+      if (nowPlayingErrorNotice) nowPlayingErrorNotice.style.display = "none";
 
       updateNowPlayingUI(currentPieceIdx);
 
@@ -1000,8 +1259,8 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
       if (!ytPlayer) {
         // Create single player instance
-        ytPlayer = new window.YT.Player('yt-player-container', {
-          host: 'https://www.youtube-nocookie.com',
+        ytPlayer = new window.YT.Player("yt-player-container", {
+          host: "https://www.youtube-nocookie.com",
           playerVars: {
             rel: 0,
             playsinline: 1,
@@ -1013,7 +1272,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
               try {
                 event.target.loadPlaylist(playlistIds, startIndex);
               } catch (e) {
-                console.error('Error loading playlist', e);
+                console.error("Error loading playlist", e);
               }
             },
             onStateChange: handlePlayerStateChange,
@@ -1023,11 +1282,11 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       } else {
         // Player already exists: reload with playlist
         try {
-          if (typeof ytPlayer.loadPlaylist === 'function') {
+          if (typeof ytPlayer.loadPlaylist === "function") {
             ytPlayer.loadPlaylist(playlistIds, startIndex);
           }
         } catch (e) {
-          console.error('Error switching playlist', e);
+          console.error("Error switching playlist", e);
         }
       }
     }
@@ -1036,13 +1295,20 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       if (!isPanelOpen || !ytPlayer) return;
 
       const state = event.data;
-      if (state === window.YT.PlayerState.PLAYING || state === window.YT.PlayerState.BUFFERING) {
-        if (playerContinueWrap) playerContinueWrap.style.display = 'none';
-        if (playerEndedWrap) playerEndedWrap.style.display = 'none';
+      if (
+        state === window.YT.PlayerState.PLAYING ||
+        state === window.YT.PlayerState.BUFFERING
+      ) {
+        if (playerContinueWrap) playerContinueWrap.style.display = "none";
+        if (playerEndedWrap) playerEndedWrap.style.display = "none";
 
         try {
           const pIdx = ytPlayer.getPlaylistIndex();
-          if (typeof pIdx === 'number' && pIdx >= 0 && pIdx < currentPlaylist.length) {
+          if (
+            typeof pIdx === "number" &&
+            pIdx >= 0 &&
+            pIdx < currentPlaylist.length
+          ) {
             currentPieceIdx = pIdx;
             updateNowPlayingUI(currentPieceIdx);
           }
@@ -1062,7 +1328,7 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
         try {
           const pIdx = ytPlayer.getPlaylistIndex();
           if (pIdx > 0 && ytPlayer.getCurrentTime() === 0) {
-            showContinuePrompt('Playback paused by browser');
+            showContinuePrompt("Playback paused by browser");
           }
         } catch (e) {}
       }
@@ -1071,22 +1337,24 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     function handlePlayerError(event) {
       if (!isPanelOpen) return;
       const failedPiece = currentPlaylist[currentPieceIdx];
-      const failedTitle = failedPiece ? failedPiece.subTitle : `Piece ${currentPieceIdx + 1}`;
+      const failedTitle = failedPiece
+        ? failedPiece.subTitle
+        : `Piece ${currentPieceIdx + 1}`;
 
       if (nowPlayingErrorNotice) {
         nowPlayingErrorNotice.textContent = `${failedTitle} could not be played. Advancing to next piece...`;
-        nowPlayingErrorNotice.style.display = 'block';
+        nowPlayingErrorNotice.style.display = "block";
       }
 
       // Advance to next piece if available
       if (currentPieceIdx < currentPlaylist.length - 1) {
         setTimeout(() => {
           try {
-            if (ytPlayer && typeof ytPlayer.nextVideo === 'function') {
+            if (ytPlayer && typeof ytPlayer.nextVideo === "function") {
               ytPlayer.nextVideo();
             }
           } catch (e) {
-            showContinuePrompt('Click to continue to next piece');
+            showContinuePrompt("Click to continue to next piece");
           }
         }, 1200);
       } else {
@@ -1095,43 +1363,51 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     }
 
     function showContinuePrompt(msg) {
-      if (playerStatusMessage) playerStatusMessage.textContent = msg || 'Playback paused by browser.';
-      if (playerContinueWrap) playerContinueWrap.style.display = 'flex';
+      if (playerStatusMessage)
+        playerStatusMessage.textContent = msg || "Playback paused by browser.";
+      if (playerContinueWrap) playerContinueWrap.style.display = "flex";
     }
 
     function showEndOfVersion() {
-      if (playerEndedWrap) playerEndedWrap.style.display = 'flex';
-      if (nowPlayingAnnouncement) nowPlayingAnnouncement.textContent = 'End of your version. Complete.';
+      if (playerEndedWrap) playerEndedWrap.style.display = "flex";
+      if (nowPlayingAnnouncement)
+        nowPlayingAnnouncement.textContent = "End of your version. Complete.";
       clearActiveHighlights();
     }
 
     function updateNowPlayingUI(index) {
-      if (!currentPlaylist.length || index < 0 || index >= currentPlaylist.length) return;
+      if (
+        !currentPlaylist.length ||
+        index < 0 ||
+        index >= currentPlaylist.length
+      )
+        return;
       const item = currentPlaylist[index];
       const total = currentPlaylist.length;
 
       // Update text details
-      if (nowPlayingMovement) nowPlayingMovement.textContent = item.movementTitle;
+      if (nowPlayingMovement)
+        nowPlayingMovement.textContent = item.movementTitle;
       if (nowPlayingPiece) nowPlayingPiece.textContent = item.subTitle;
 
       // Update version tag & dot
       if (nowPlayingVersionLabel) {
         nowPlayingVersionLabel.textContent = item.versionDisplayName;
-        if (item.instrument === 'harpsichord') {
-          nowPlayingVersionLabel.classList.add('is-harpsichord');
+        if (item.instrument === "harpsichord") {
+          nowPlayingVersionLabel.classList.add("is-harpsichord");
         } else {
-          nowPlayingVersionLabel.classList.remove('is-harpsichord');
+          nowPlayingVersionLabel.classList.remove("is-harpsichord");
         }
       }
 
       if (nowPlayingDot) {
-        nowPlayingDot.className = 'type-dot';
-        if (item.instrument === 'harpsichord') {
-          nowPlayingDot.classList.add('type-dot--harpsichord');
+        nowPlayingDot.className = "type-dot";
+        if (item.instrument === "harpsichord") {
+          nowPlayingDot.classList.add("type-dot--harpsichord");
         } else if (item.type) {
           nowPlayingDot.classList.add(`type-dot--${item.type}`);
         } else {
-          nowPlayingDot.classList.add('type-dot--neutral');
+          nowPlayingDot.classList.add("type-dot--neutral");
         }
       }
 
@@ -1139,23 +1415,28 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
       if (item.ref && item.ref.src) {
         if (nowPlayingArtImg) {
           nowPlayingArtImg.src = item.ref.src;
-          nowPlayingArtImg.alt = item.ref.alt || item.ref.artTitle || 'Artwork';
+          nowPlayingArtImg.alt = item.ref.alt || item.ref.artTitle || "Artwork";
         }
-        if (nowPlayingArtTitle) nowPlayingArtTitle.textContent = item.ref.artTitle || 'Artwork';
-        if (nowPlayingArtAuthor) nowPlayingArtAuthor.textContent = item.ref.authorYear || '';
+        if (nowPlayingArtTitle)
+          nowPlayingArtTitle.textContent = item.ref.artTitle || "Artwork";
+        if (nowPlayingArtAuthor)
+          nowPlayingArtAuthor.textContent = item.ref.authorYear || "";
         if (nowPlayingArtworkBtn) {
           nowPlayingArtworkBtn.setAttribute(
-            'aria-label',
-            `View artwork: ${item.ref.artTitle || 'Artwork'}${item.ref.authorYear ? ` by ${item.ref.authorYear}` : ''}`
+            "aria-label",
+            `View artwork: ${item.ref.artTitle || "Artwork"}${item.ref.authorYear ? ` by ${item.ref.authorYear}` : ""}`,
           );
         }
       }
 
       // Update progress
-      if (nowPlayingCounter) nowPlayingCounter.textContent = `${index + 1} / ${total}`;
+      if (nowPlayingCounter)
+        nowPlayingCounter.textContent = `${index + 1} / ${total}`;
       const pct = Math.round(((index + 1) / total) * 100);
-      if (nowPlayingProgressFill) nowPlayingProgressFill.style.width = `${pct}%`;
-      if (nowPlayingProgressBar) nowPlayingProgressBar.setAttribute('aria-valuenow', String(index + 1));
+      if (nowPlayingProgressFill)
+        nowPlayingProgressFill.style.width = `${pct}%`;
+      if (nowPlayingProgressBar)
+        nowPlayingProgressBar.setAttribute("aria-valuenow", String(index + 1));
 
       // Update Nav buttons state
       if (nowPlayingPrevBtn) nowPlayingPrevBtn.disabled = index === 0;
@@ -1176,42 +1457,46 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
       // Highlight in Part 1 (movements list)
       if (movementsListEl) {
-        const rows = movementsListEl.querySelectorAll('.subsection-row');
+        const rows = movementsListEl.querySelectorAll(".subsection-row");
         rows.forEach((row) => {
-          const isCurrent = row.getAttribute('data-sub-id') === targetSubId;
-          row.classList.toggle('is-now-playing', isCurrent);
+          const isCurrent = row.getAttribute("data-sub-id") === targetSubId;
+          row.classList.toggle("is-now-playing", isCurrent);
         });
       }
 
       // Highlight in Part 2 (paintings wall)
       if (paintingsWallEl) {
-        const cards = paintingsWallEl.querySelectorAll('.painting-card');
+        const cards = paintingsWallEl.querySelectorAll(".painting-card");
         cards.forEach((card) => {
-          const isCurrent = card.getAttribute('data-sub-id') === targetSubId;
-          card.classList.toggle('is-now-playing', isCurrent);
+          const isCurrent = card.getAttribute("data-sub-id") === targetSubId;
+          card.classList.toggle("is-now-playing", isCurrent);
         });
       }
     }
 
     function clearActiveHighlights() {
       if (movementsListEl) {
-        movementsListEl.querySelectorAll('.subsection-row.is-now-playing').forEach((el) => {
-          el.classList.remove('is-now-playing');
-        });
+        movementsListEl
+          .querySelectorAll(".subsection-row.is-now-playing")
+          .forEach((el) => {
+            el.classList.remove("is-now-playing");
+          });
       }
       if (paintingsWallEl) {
-        paintingsWallEl.querySelectorAll('.painting-card.is-now-playing').forEach((el) => {
-          el.classList.remove('is-now-playing');
-        });
+        paintingsWallEl
+          .querySelectorAll(".painting-card.is-now-playing")
+          .forEach((el) => {
+            el.classList.remove("is-now-playing");
+          });
       }
     }
 
     function closeNowPlayingPanel() {
       isPanelOpen = false;
-      if (nowPlayingPanel) nowPlayingPanel.style.display = 'none';
+      if (nowPlayingPanel) nowPlayingPanel.style.display = "none";
 
       // Destroy YouTube player instance to stop audio and free resources
-      if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+      if (ytPlayer && typeof ytPlayer.destroy === "function") {
         try {
           ytPlayer.destroy();
         } catch (e) {}
@@ -1225,22 +1510,29 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
 
     // ── Event Listeners for Player Controls ─────────────────────────
     if (playVersionBtn) {
-      playVersionBtn.addEventListener('click', () => {
+      playVersionBtn.addEventListener("click", () => {
         startPlayback(0);
       });
     }
 
     if (nowPlayingCloseBtn) {
-      nowPlayingCloseBtn.addEventListener('click', closeNowPlayingPanel);
+      nowPlayingCloseBtn.addEventListener("click", closeNowPlayingPanel);
     }
 
     if (nowPlayingArtworkBtn) {
-      nowPlayingArtworkBtn.addEventListener('click', () => {
-        if (!currentPlaylist.length || currentPieceIdx < 0 || currentPieceIdx >= currentPlaylist.length) return;
+      nowPlayingArtworkBtn.addEventListener("click", () => {
+        if (
+          !currentPlaylist.length ||
+          currentPieceIdx < 0 ||
+          currentPieceIdx >= currentPlaylist.length
+        )
+          return;
         const currentItem = currentPlaylist[currentPieceIdx];
         if (!currentItem) return;
 
-        let pIdx = activePaintings.findIndex((p) => p.subId === currentItem.subId);
+        let pIdx = activePaintings.findIndex(
+          (p) => p.subId === currentItem.subId,
+        );
         if (pIdx === -1 && currentItem.ref) {
           activePaintings.push({
             subId: currentItem.subId,
@@ -1260,10 +1552,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     }
 
     if (nowPlayingPrevBtn) {
-      nowPlayingPrevBtn.addEventListener('click', () => {
+      nowPlayingPrevBtn.addEventListener("click", () => {
         if (!ytPlayer || currentPieceIdx <= 0) return;
         try {
-          if (typeof ytPlayer.previousVideo === 'function') {
+          if (typeof ytPlayer.previousVideo === "function") {
             ytPlayer.previousVideo();
           }
         } catch (e) {}
@@ -1271,10 +1563,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     }
 
     if (nowPlayingNextBtn) {
-      nowPlayingNextBtn.addEventListener('click', () => {
+      nowPlayingNextBtn.addEventListener("click", () => {
         if (!ytPlayer || currentPieceIdx >= currentPlaylist.length - 1) return;
         try {
-          if (typeof ytPlayer.nextVideo === 'function') {
+          if (typeof ytPlayer.nextVideo === "function") {
             ytPlayer.nextVideo();
           }
         } catch (e) {}
@@ -1282,24 +1574,26 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     }
 
     if (playerContinueBtn) {
-      playerContinueBtn.addEventListener('click', () => {
-        if (playerContinueWrap) playerContinueWrap.style.display = 'none';
-        if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+      playerContinueBtn.addEventListener("click", () => {
+        if (playerContinueWrap) playerContinueWrap.style.display = "none";
+        if (ytPlayer && typeof ytPlayer.playVideo === "function") {
           ytPlayer.playVideo();
         }
       });
     }
 
     if (playerReplayBtn) {
-      playerReplayBtn.addEventListener('click', () => {
+      playerReplayBtn.addEventListener("click", () => {
         startPlayback(0);
       });
     }
 
     // Clear Selection Handler
     if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        const confirmed = window.confirm('Are you sure you want to clear your entire selection?');
+      clearBtn.addEventListener("click", () => {
+        const confirmed = window.confirm(
+          "Are you sure you want to clear your entire selection?",
+        );
         if (confirmed) {
           closeNowPlayingPanel();
           clearStoredSelection();
@@ -1309,18 +1603,18 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     }
 
     // Sync across tabs
-    window.addEventListener('storage', (e) => {
+    window.addEventListener("storage", (e) => {
       if (e.key === STORAGE_KEY) {
         renderSelection();
       }
     });
 
-    window.addEventListener('keydown', (e) => {
+    window.addEventListener("keydown", (e) => {
       if (lightboxDialog && lightboxDialog.open) {
-        if (e.key === 'ArrowLeft') {
+        if (e.key === "ArrowLeft") {
           e.preventDefault();
           showPrev();
-        } else if (e.key === 'ArrowRight') {
+        } else if (e.key === "ArrowRight") {
           e.preventDefault();
           showNext();
         }
@@ -1575,7 +1869,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(26, 23, 20, 0.15);
-    transition: background var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast),
+      opacity var(--transition-fast);
   }
 
   .play-version-btn:hover:not(:disabled) {
@@ -1662,7 +1959,8 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
   }
 
   @keyframes pulseRing {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
       transform: scale(1);
     }
@@ -1886,7 +2184,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     width: 100%;
     color: inherit;
     font: inherit;
-    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      border-color var(--transition-fast),
+      transform var(--transition-fast);
   }
 
   .now-playing-artwork:hover {
@@ -1935,7 +2236,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     align-items: center;
     justify-content: center;
     opacity: 0.8;
-    transition: opacity var(--transition-fast), background var(--transition-fast);
+    transition:
+      opacity var(--transition-fast),
+      background var(--transition-fast);
   }
 
   .now-playing-artwork:hover .now-playing-artwork__zoom-icon {
@@ -2084,7 +2387,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
   }
 
   .painting-card.is-now-playing .painting-card__frame {
-    box-shadow: 0 0 0 2px var(--color-accent), 0 8px 28px rgba(184, 134, 11, 0.3) !important;
+    box-shadow:
+      0 0 0 2px var(--color-accent),
+      0 8px 28px rgba(184, 134, 11, 0.3) !important;
   }
 
   /* ══════════════════ PART 1: MOVEMENTS GRID ══════════════════ */
@@ -2254,7 +2559,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     align-items: center;
     gap: 0.25rem;
     align-self: flex-start;
-    transition: color var(--transition-fast), transform var(--transition-fast);
+    transition:
+      color var(--transition-fast),
+      transform var(--transition-fast);
   }
 
   .subsection-row__link:hover {
@@ -2341,9 +2648,10 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     opacity: 0;
     clip-path: inset(100% 0 0 0);
     transform: translateY(16px);
-    transition: clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
-                transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 700ms ease;
+    transition:
+      clip-path 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 700ms ease;
     will-change: clip-path, transform, opacity;
   }
 
@@ -2379,7 +2687,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     border-radius: var(--radius-sm);
     background: var(--color-cream-dark);
     box-shadow: 0 4px 18px rgba(15, 12, 8, 0.08);
-    transition: box-shadow var(--transition-base), transform var(--transition-base);
+    transition:
+      box-shadow var(--transition-base),
+      transform var(--transition-base);
   }
 
   .painting-card:hover .painting-card__frame {
@@ -2411,7 +2721,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     );
     opacity: 0;
     transform: translateY(6px);
-    transition: opacity 300ms ease, transform 300ms ease;
+    transition:
+      opacity 300ms ease,
+      transform 300ms ease;
     pointer-events: none;
     display: flex;
     align-items: flex-end;
@@ -2515,7 +2827,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     border-radius: 50%;
     color: var(--color-ink);
     cursor: pointer;
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
   }
 
   .library-lightbox__close-btn:hover {
@@ -2562,7 +2876,9 @@ const totalSubsections = movementsCatalog.reduce((acc, m) => acc + m.subsections
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    transition:
+      background var(--transition-fast),
+      transform var(--transition-fast);
   }
 
   .library-lightbox__nav:hover {

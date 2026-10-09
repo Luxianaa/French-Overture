@@ -111,7 +111,7 @@ const MIDDLES_EN = {
   'La comitiva ecuestre ordenada sugiere ceremonia, dirección y pompa real':
     'The disciplined equestrian procession evokes ceremony, purposeful direction, and royal magnificence',
   'La ceremonia y los gestos públicos sugieren la culminación monumental de la obertura':
-    'The ceremony and public gestures evoke the monumental culmination of the overture',
+    'The ceremony and public gestures evoke the monumental culmination of the ouverture',
   'Armadura, bastón y paño al viento presentan autoridad y pompa':
     'Armour, baton of command, and windblown drapery project martial authority and courtly splendour',
   'El laúd y el intercambio entre varias personas presentan una sociabilidad musical de gestos y respuestas':

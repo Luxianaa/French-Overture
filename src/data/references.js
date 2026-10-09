@@ -143,7 +143,7 @@ export const references = {
         "height": 1385,
         "alt": "Le Sacre de Napoléon — Jacques-Louis David",
         "caption": "Jacques-Louis David. Le Sacre de Napoléon. 1805–1807. Musée du Louvre, Paris.",
-        // "explanation": "Return of initial pomp: authority, cortege, and ceremonial culmination. The ceremony and public gestures evoke the monumental culmination of the overture. Priority is given to dramatic contrast, tension, and kinetic intensity.",
+        // "explanation": "Return of initial pomp: authority, cortege, and ceremonial culmination. The ceremony and public gestures evoke the monumental culmination of the ouverture. Priority is given to dramatic contrast, tension, and kinetic intensity.",
         "credit": "Photo: Daniel Porcel",
         "needsReview": false,
         "sourceId": "IMG_2872"

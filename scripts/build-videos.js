@@ -145,7 +145,10 @@ for (let i = 0; i < lines.length; i++) {
   if (
     norm === 'FRENCH OVERTURE 1' ||
     norm === 'FRENCH OVERTURE 2' ||
-    norm === 'BACH FRENCH OVERTURE HARPSICHORD'
+    norm === 'BACH FRENCH OVERTURE HARPSICHORD' ||
+    norm === 'FRENCH OUVERTURE 1' ||
+    norm === 'FRENCH OUVERTURE 2' ||
+    norm === 'BACH FRENCH OUVERTURE HARPSICHORD'
   ) {
     continue;
   }

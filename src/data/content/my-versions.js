@@ -1,5 +1,5 @@
 import { references } from '../references.js';
-import scorePlaceholderImg from '../../assets/hero-home.jpg';
+import { scores } from '../scores.js';
 
 // Mapping of subsection IDs to titles as defined in src/data/content/
 const sectionTitles = {
@@ -133,57 +133,37 @@ function buildPaintings(specs, isHarpsichord = false) {
   return result;
 }
 
-function createPlaceholderScores() {
-  return [
-    {
-      src: scorePlaceholderImg.src,
-      alt: 'Score — page 1',
-      caption: 'Score — page 1',
-    },
-    {
-      src: scorePlaceholderImg.src,
-      alt: 'Score — page 2',
-      caption: 'Score — page 2',
-    },
-    {
-      src: scorePlaceholderImg.src,
-      alt: 'Score — page 3',
-      caption: 'Score — page 3',
-    },
-  ];
-}
-
 export const versions = [
   {
     id: 'french-overture-1',
-    title: 'French Overture 1',
-    label: '01 — French Overture 1',
+    title: 'French Ouverture 1',
+    label: '01 — French Ouverture 1',
     youtubeId: 'ql_PJ3mqo5o',
     instrument: 'piano',
     // description:
-    //   'A structural and architectural reading of the French Overture on modern piano. This interpretation explores the balance between noble poise and rhetorical clarity across all 23 subsections, articulating the suite with classical elegance and restraint.',
+    //   'A structural and architectural reading of the French Ouverture on modern piano. This interpretation explores the balance between noble poise and rhetorical clarity across all 23 subsections, articulating the suite with classical elegance and restraint.',
     paintings: buildPaintings(video1PianoSpecs, false),
-    scores: createPlaceholderScores(),
+    scores,
   },
   {
     id: 'french-overture-2',
-    title: 'French Overture 2',
-    label: '02 — French Overture 2',
+    title: 'French Ouverture 2',
+    label: '02 — French Ouverture 2',
     youtubeId: 'tyJxnT5udWk',
     instrument: 'piano',
     // description:
     //   'An alternate piano interpretation emphasizing kinetic energy, dramatic contrast, and rhetorical risk. Pushing the boundaries of tempo and character, this version questions the conventions of courtly dance in favor of emotional urgency.',
     paintings: buildPaintings(video2PianoSpecs, false),
-    scores: createPlaceholderScores(),
+    scores,
   },
   {
     id: 'bach-french-overture-harpsichord',
-    title: 'Bach French Overture Harpsichord',
+    title: 'Bach French Ouverture Harpsichord',
     youtubeId: 'FI861Vyyqkc',
     instrument: 'harpsichord',
     // description:
     //   'A complete reading on historical two-manual harpsichord engaging with 18th-century registration, tactile plectrum articulation, and French ornamentation. This performance brings forth the specific acoustic colors envisioned by Bach in Clavier-Übung II.',
     paintings: buildPaintings(video3HarpsichordSpecs, true),
-    scores: createPlaceholderScores(),
+    scores,
   },
 ];

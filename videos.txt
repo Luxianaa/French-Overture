@@ -1,6 +1,6 @@
 qfi25fQKNQU | 09 GAV2 B  HPS 01 CLAVECIN
-ql_PJ3mqo5o | French Overture 1
-tyJxnT5udWk | French Overture 2
+ql_PJ3mqo5o | French Ouverture 1
+tyJxnT5udWk | French Ouverture 2
 FKug-pauW9M | 20 GIG A  HPS 01 CLAVECIN
 SBiJmh-t--Y | 22 ECH A  HPS 01 CLAVECIN
 Vy-LqkVnujs | 23 ECH B  HPS 01 CLAVECIN
@@ -23,7 +23,7 @@ LyUWn2-HYE4 | 02 OUV FUG  HPS 01 CLAVECIN
 ytvrropAJK0 | 05 COU B  HPS 01 CLAVECIN
 KdTMZEsF0oE | 03 OUV AR  HPS 01 CLAVECIN
 D5uoI3rIAdc | 01 OUV A  HPS 01 CLAVECIN
-FI861Vyyqkc | Bach French Overture Harpsichord
+FI861Vyyqkc | Bach French Ouverture Harpsichord
 sI-VvY_CZjg | 09 GAV2 B  PNO 03 PIANO VERSION 3
 MObvynleX6M | 06 GAV1 A  PNO 04 PIANO VERSION 4
 QnmoeCb5TEo | 07 GAV1 B  PNO 01 PIANO VERSION 1

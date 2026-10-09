@@ -27,10 +27,10 @@ const heroImage =
     ? movementContent.heroImage
     : defaultHeroImg.src);
 const heroTitle = `${movement.number}. ${movementContent?.title || movement.title}`;
-const pageTitle = `${movement.title} — French Overture`;
+const pageTitle = `${movement.title} — French Ouverture`;
 const pageDescription = movementContent?.introduction
   ? movementContent.introduction.replace(/\s+/g, ' ').trim().slice(0, 160) + '...'
-  : `${movement.title} (Movement ${movement.number}) from Bach's French Overture BWV 831.`;
+  : `${movement.title} (Movement ${movement.number}) from Bach's French Ouverture BWV 831.`;
 
 const currentMovementIndex = movements.findIndex((m) => m.slug === movement.slug || m.slug === `/${slug}`);
 const prevMovement = currentMovementIndex > 0 ? movements[currentMovementIndex - 1] : null;
@@ -42,7 +42,7 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
   <Hero
     image={heroImage}
     title={heroTitle}
-    subtitle="French Overture in B minor, BWV 831"
+    subtitle="French Ouverture in B minor, BWV 831"
   />
 
   {movementContent && movementContent.subsections?.length > 0 ? (
@@ -325,6 +325,58 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
             );
           })}
         </div>
+
+        {/* 5. Barra de navegación inferior (subdivisiones + anterior/siguiente movimiento) */}
+        {(movementContent.subsections.length > 1 || prevMovement || nextMovement) && (
+          <div class="tablist-bar tablist-bar--bottom">
+            {movementContent.subsections.length > 1 ? (
+              <div
+                role="tablist"
+                class="tablist"
+                aria-label={`${movement.title} subsections (bottom navigation)`}
+              >
+                {movementContent.subsections.map((sub, index) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`tab-bottom-${sub.id}`}
+                    class={`tab-button ${index === 0 ? 'is-active' : ''}`}
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    aria-controls={`panel-${sub.id}`}
+                    tabindex={index === 0 ? 0 : -1}
+                    data-target={sub.id}
+                  >
+                    {sub.title}
+                  </button>
+                ))}
+              </div>
+            ) : <div />}
+
+            {/* Botones Previous / Next para navegar entre movimientos */}
+            {(prevMovement || nextMovement) && (
+              <div class="tab-nav-controls" aria-label="Movement navigation">
+                {prevMovement && (
+                  <a
+                    href={prevMovement.slug}
+                    class="tab-nav-btn"
+                    aria-label={`Previous movement: ${prevMovement.title}`}
+                  >
+                    ← Previous: {prevMovement.title}
+                  </a>
+                )}
+                {nextMovement && (
+                  <a
+                    href={nextMovement.slug}
+                    class="tab-nav-btn"
+                    aria-label={`Next movement: ${nextMovement.title}`}
+                  >
+                    Next: {nextMovement.title} →
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   ) : (
@@ -418,7 +470,7 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
 
     const tabs = Array.from(tabsRoot.querySelectorAll('[role="tab"]'));
     const panels = Array.from(tabsRoot.querySelectorAll('[role="tabpanel"]'));
-    const tablist = tabsRoot.querySelector('[role="tablist"]');
+    const tablists = Array.from(tabsRoot.querySelectorAll('[role="tablist"]'));
 
     if (!tabs.length || !panels.length) return;
 
@@ -444,16 +496,17 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     }
 
     function activateTab(subId, setFocus = false) {
-      let targetIndex = tabs.findIndex((tab) => tab.getAttribute('data-target') === subId);
-      if (targetIndex === -1) targetIndex = 0;
-
-      const activeSubId = getSubIdByIndex(targetIndex);
+      let activeSubId = subId;
+      const matchingTab = tabs.find((t) => t.getAttribute('data-target') === subId);
+      if (!matchingTab) {
+        activeSubId = tabs[0]?.getAttribute('data-target');
+      }
 
       // Reset any active video when switching tabs so audio stops immediately
       resetVideos();
 
-      tabs.forEach((tab, idx) => {
-        const isSelected = idx === targetIndex;
+      tabs.forEach((tab) => {
+        const isSelected = tab.getAttribute('data-target') === activeSubId;
         tab.setAttribute('aria-selected', String(isSelected));
         tab.setAttribute('tabindex', isSelected ? '0' : '-1');
         tab.classList.toggle('is-active', isSelected);
@@ -469,8 +522,8 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
         history.replaceState(null, '', `#${activeSubId}`);
       }
 
-      if (setFocus) {
-        tabs[targetIndex]?.focus();
+      if (setFocus && matchingTab) {
+        matchingTab.focus();
       }
     }
 
@@ -508,37 +561,47 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const subId = tab.getAttribute('data-target');
-        if (subId) activateTab(subId, false);
+        const isBottom = tab.closest('.tablist-bar--bottom');
+        if (subId) {
+          activateTab(subId, false);
+          if (isBottom) {
+            tabsRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
       });
     });
 
+    // Keyboard navigation on each tablist: Left / Right arrows
+    tablists.forEach((tablist) => {
+      tablist.addEventListener('keydown', (e) => {
+        const listTabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+        const activeEl = document.activeElement;
+        const cur = listTabs.indexOf(activeEl);
+        if (cur === -1) return;
 
+        let nextIdx = cur;
+        if (e.key === 'ArrowRight') {
+          nextIdx = (cur + 1) % listTabs.length;
+          e.preventDefault();
+        } else if (e.key === 'ArrowLeft') {
+          nextIdx = (cur - 1 + listTabs.length) % listTabs.length;
+          e.preventDefault();
+        } else if (e.key === 'Home') {
+          nextIdx = 0;
+          e.preventDefault();
+        } else if (e.key === 'End') {
+          nextIdx = listTabs.length - 1;
+          e.preventDefault();
+        }
 
-    // Keyboard navigation on tablist: Left / Right arrows
-    tablist?.addEventListener('keydown', (e) => {
-      const activeEl = document.activeElement;
-      const cur = tabs.indexOf(activeEl);
-      if (cur === -1) return;
-
-      let nextIdx = cur;
-      if (e.key === 'ArrowRight') {
-        nextIdx = (cur + 1) % tabs.length;
-        e.preventDefault();
-      } else if (e.key === 'ArrowLeft') {
-        nextIdx = (cur - 1 + tabs.length) % tabs.length;
-        e.preventDefault();
-      } else if (e.key === 'Home') {
-        nextIdx = 0;
-        e.preventDefault();
-      } else if (e.key === 'End') {
-        nextIdx = tabs.length - 1;
-        e.preventDefault();
-      }
-
-      if (nextIdx !== cur) {
-        const subId = getSubIdByIndex(nextIdx);
-        if (subId) activateTab(subId, true);
-      }
+        if (nextIdx !== cur) {
+          const subId = listTabs[nextIdx]?.getAttribute('data-target');
+          if (subId) {
+            activateTab(subId, true);
+            listTabs[nextIdx]?.focus();
+          }
+        }
+      });
     });
 
     // Synchronize with URL hash on load (supporting tabs & direct experiment anchors)
@@ -988,6 +1051,7 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
   /* ── 3. Tabs Navigation Bar ─────────────────────────────── */
   .tabs-wrapper {
     margin-top: var(--space-xl);
+    scroll-margin-top: calc(var(--nav-height) + 1.5rem);
   }
 
   .tablist-bar {
@@ -998,6 +1062,10 @@ const nextMovement = currentMovementIndex >= 0 && currentMovementIndex < movemen
     border-bottom: 1px solid rgba(26, 23, 20, 0.12);
     padding-bottom: var(--space-xs);
     flex-wrap: wrap;
+  }
+
+  .tablist-bar--bottom {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
   }
 
   .tablist {

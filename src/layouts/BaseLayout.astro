@@ -3,7 +3,7 @@ import { movements } from "../data/movements.js";
 import "../styles/global.css";
 
 const {
-  title = "French Overture",
+  title = "French Ouverture",
   description = "A Laboratory of Doubt Against Automatic Bach",
 } = Astro.props;
 
@@ -34,10 +34,10 @@ const currentPath = new URL(Astro.request.url).pathname;
   <body>
     <!-- ══════════════════ NAVBAR ══════════════════ -->
     <header id="site-header" class="site-header" role="banner">
-      <nav class="nav container" aria-label="Main navigation">
+      <nav class="nav" aria-label="Main navigation">
         <!-- Logo / Site name -->
-        <a href="/" class="nav__logo" aria-label="French Overture — Home">
-          French Overture in B minor, BWV 831
+        <a href="/" class="nav__logo" aria-label="French Ouverture — Home">
+          French Ouverture in B minor, BWV 831
         </a>
 
         <!-- Hamburger button (mobile) -->
@@ -126,7 +126,7 @@ const currentPath = new URL(Astro.request.url).pathname;
             <a
               href="/my-versions"
               class={`nav__link ${currentPath === "/my-versions" ? "nav__link--active" : ""}`}
-              >My versions</a
+              >Daniel's versions</a
             >
           </li>
 
@@ -134,7 +134,7 @@ const currentPath = new URL(Astro.request.url).pathname;
             <a
               href="/library"
               class={`nav__link ${currentPath === "/library" ? "nav__link--active" : ""}`}
-              >Library</a
+              >My Library</a
             >
           </li>
 
@@ -158,7 +158,7 @@ const currentPath = new URL(Astro.request.url).pathname;
     <footer class="site-footer" role="contentinfo">
       <div class="container site-footer__inner">
         <p class="site-footer__copy">
-          &copy; {new Date().getFullYear()} French Overture. All rights reserved.
+          &copy; {new Date().getFullYear()} French Ouverture. All rights reserved.
         </p>
         <p class="site-footer__sub">
           A Laboratory of Doubt Against Automatic Bach
@@ -203,7 +203,7 @@ const currentPath = new URL(Astro.request.url).pathname;
   }
 
   function scheduleClose() {
-    closeTimer = setTimeout(closeDropdown, 80);
+    closeTimer = setTimeout(closeDropdown, 240);
   }
 
   // Hover (desktop)
@@ -288,6 +288,8 @@ const currentPath = new URL(Astro.request.url).pathname;
     justify-content: space-between;
     height: 100%;
     gap: var(--space-lg);
+    width: 100%;
+    padding-inline: clamp(1.25rem, 3.5vw, 3rem);
   }
 
   /* Logo */
@@ -419,17 +421,19 @@ const currentPath = new URL(Astro.request.url).pathname;
   .nav__chevron {
     transition: transform var(--transition-base);
     flex-shrink: 0;
+    pointer-events: none;
   }
 
   /* Bridge: invisible element that fills the gap so the mouse
      doesn't accidentally leave the hover zone */
   .nav__dropdown-bridge {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: -50px;
+    right: -50px;
     top: 100%;
-    height: 10px; /* covers the gap between button bottom & dropdown top */
+    height: 18px; /* covers the gap between button bottom & dropdown top */
     display: block;
+    z-index: 5;
   }
 
   /* Dropdown panel */
@@ -452,10 +456,40 @@ const currentPath = new URL(Astro.request.url).pathname;
       transform var(--transition-base);
   }
 
+  .nav__dropdown::before {
+    content: "";
+    position: absolute;
+    top: -16px;
+    left: -20px;
+    right: -20px;
+    height: 20px;
+    display: block;
+  }
+
   .nav__dropdown.is-open {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(-50%) translateY(0);
+  }
+
+  /* Desktop hover state via pure CSS for instant responsiveness */
+  @media (min-width: 769px) {
+    .nav__item--dropdown:hover .nav__dropdown,
+    .nav__item--dropdown:focus-within .nav__dropdown {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .nav__item--dropdown:hover .nav__chevron,
+    .nav__item--dropdown:focus-within .nav__chevron {
+      transform: rotate(180deg);
+    }
+
+    .nav__item--dropdown:hover .nav__link--btn::after,
+    .nav__item--dropdown:focus-within .nav__link--btn::after {
+      width: 100%;
+    }
   }
 
   .nav__dropdown-link {
