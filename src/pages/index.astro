@@ -68,8 +68,18 @@ import portraitImg from '../assets/portrait.jpg';
         {movements.map((m) => (
           <li class="movements-grid__item">
             <a href={m.slug} class="movement-card" aria-label={`${m.title} — movement ${m.number}`}>
-              <!-- Placeholder image slot — add <img> here later -->
-              <div class="movement-card__img-placeholder" aria-hidden="true"></div>
+              <!-- Movement artwork image -->
+              <div class="movement-card__media">
+                <img
+                  src={m.image}
+                  alt={m.imageAlt || m.title}
+                  class="movement-card__img"
+                  loading="lazy"
+                  decoding="async"
+                  width="400"
+                  height="300"
+                />
+              </div>
 
               <div class="movement-card__body">
                 <span class="movement-card__num" aria-hidden="true">{m.number}</span>
@@ -192,17 +202,26 @@ import portraitImg from '../assets/portrait.jpg';
     background: var(--color-cream-dark);
   }
 
-  /* Image placeholder (ready to receive an <img> later) */
-  .movement-card__img-placeholder {
+  /* Card media & artwork image */
+  .movement-card__media {
     width: 100%;
     aspect-ratio: 4 / 3;
-    background: linear-gradient(135deg, rgba(196, 168, 130, 0.15), rgba(139, 111, 71, 0.08));
-    border-bottom: 1px solid rgba(26, 23, 20, 0.06);
-    transition: background var(--transition-base);
+    overflow: hidden;
+    background: #0d0b09;
+    border-bottom: 1px solid rgba(26, 23, 20, 0.08);
+    position: relative;
   }
 
-  .movement-card:hover .movement-card__img-placeholder {
-    background: linear-gradient(135deg, rgba(196, 168, 130, 0.25), rgba(139, 111, 71, 0.14));
+  .movement-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-base);
+  }
+
+  .movement-card:hover .movement-card__img {
+    transform: scale(1.04);
   }
 
   /* Card body */
@@ -273,6 +292,16 @@ import portraitImg from '../assets/portrait.jpg';
   @media (max-width: 480px) {
     .movements-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .movement-card__img {
+      transition: none !important;
+    }
+
+    .movement-card:hover .movement-card__img {
+      transform: none !important;
     }
   }
 </style>
